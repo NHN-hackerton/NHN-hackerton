@@ -1,0 +1,48 @@
+{
+  "id": "member_a_rookie",
+  "displayName": "신참 조직원",
+  "tier": 1,
+  "difficulty": 1,
+
+  "persona": {
+    "age": "20대 초반",
+    "personality": "겁 많지만 수다스러움. 인정받고 싶어 안달.",
+    "speechStyle": "말이 빠르고 길다. 형님·선배에게 굽신거림.",
+    "relationToPlayer": "플레이어를 '먼저 들어온 선배'로 인식"
+  },
+
+  "secret": {
+    "codeIndex": 1,
+    "codeValue": "K",
+    "gagOrder": "코드 한 자리를 알지만 보스가 절대 발설 말라고 못 박았다.",
+    "hasBossRoomKey": false
+  },
+
+  "weaknesses": [
+    {
+      "id": "need_recognition",
+      "label": "인정욕구",
+      "trigger": "자신의 능력·역할·중요도를 인정하거나 치켜세울 때",
+      "effectiveFrameIds": ["small_talk", "praise", "complicity"]
+    }
+  ],
+
+  "resistances": [
+    {
+      "id": "direct_demand",
+      "label": "직설적 요구",
+      "trigger": "코드나 보안을 대놓고 물을 때",
+      "suspicionPenalty": 20
+    }
+  ],
+
+  "affinity": {
+    "initial": 0,
+    "openingFrameIds": ["small_talk", "praise"],
+    "betrayalFrameIds": ["false_premise", "authority"]
+  },
+
+  "state": { "vigilance": 30, "openness": 20 },
+
+  "requiredConfrontationKeywords": []
+}
