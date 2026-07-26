@@ -34,6 +34,7 @@ namespace TopDogDetective.Data
         public int    suspicionDelta;          // -10 ~ +20
         public int    affinityDelta;           // -20 ~ +45  (v1.4)
         public bool   exposed;
+        public string exposureReason;          // ✅ UI 노출용 — exposed=true일 때 "무엇 때문에 들켰는지"
         public StateDelta stateDelta;
 
         /// 🚫 DEBUG ONLY — UI 노출 금지. 릴리즈에서는 로그도 남기지 않는다.
@@ -113,12 +114,30 @@ namespace TopDogDetective.Data
             if (alreadyRevealed)
                 codeRevealed = false;
 
-            //   ④ 획득했다면서 값이 비어 있으면 강등
-            if (codeRevealed && string.IsNullOrEmpty(revealedValue))
-                codeRevealed = false;
+            //   ④ 값은 LLM이 아니라 정답 데이터에서 가져온다 (환각 방지 —
+            //      LLM은 "흘렸는지 여부"만 판단하고, 값 자체는 코드가 강제한다)
+            if (codeRevealed)
+            {
+                revealedValue = enemy?.secret?.codeValue;
+                if (string.IsNullOrEmpty(revealedValue))
+                    codeRevealed = false;
+            }
 
             if (!codeRevealed)
                 revealedValue = null;
+
+            // ── 발각(exposed) 정합성 ─────────────────────────
+            //   ① 근거 없는 즉시발각 무효화 — UI에 보여줄 사유가 없으면 발각 자체가 성립하지 않는다
+            if (exposed && string.IsNullOrEmpty(exposureReason))
+                exposed = false;
+
+            //   ② 1턴 최소 가드 — 간보기 단계에서 아무 실마리 없이 즉사하지 않는다.
+            //      단, 저항이 실제로 발동한 경우(직설적 요구 등 명백한 트리거)는 예외.
+            if (exposed && currentTurn <= 1 && string.IsNullOrEmpty(resistanceTriggeredId))
+                exposed = false;
+
+            if (!exposed)
+                exposureReason = null;
 
             // ── 수치 클램프 ─────────────────────────────────
             suspicionDelta = Mathf.Clamp(suspicionDelta, SuspicionDeltaMin, SuspicionDeltaMax);

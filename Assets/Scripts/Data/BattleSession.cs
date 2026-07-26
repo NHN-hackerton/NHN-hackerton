@@ -111,6 +111,9 @@ namespace TopDogDetective.Data
             // (0으로 떨어진 재도전에서 초기값으로 되돌아가는 버그 방지)
             if (!Run.HasAffinityRecord(Enemy.id))
                 Run.SetAffinity(Enemy.id, Enemy.affinity?.initial ?? 0);
+
+            // 이 조직원의 코드를 이전 세션에서 이미 획득했다면 세션 상태에도 반영한다.
+            SessionCodeValue = Run.GetCode(Enemy.secret?.codeIndex ?? 0);
         }
 
         // ── 제출 전 검사 (코드 가드레일) ─────────────────────
