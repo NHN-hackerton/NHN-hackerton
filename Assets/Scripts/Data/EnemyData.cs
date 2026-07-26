@@ -67,6 +67,8 @@ namespace TopDogDetective.Data
         public const int MaxDifficulty = 3;
         public const int MinCodeIndex  = 1;
         public const int MaxCodeIndex  = 3;
+        public const int MinTier       = 1;   // A
+        public const int MaxTier       = 3;   // C
 
         public string id;
         public string displayName;
@@ -193,6 +195,9 @@ namespace TopDogDetective.Data
 
             if (string.IsNullOrEmpty(id))          errors.Add("id가 비어 있음");
             if (string.IsNullOrEmpty(displayName)) errors.Add($"{who}: displayName이 비어 있음");
+
+            if (tier < MinTier || tier > MaxTier)
+                errors.Add($"{who}: tier={tier} — {MinTier}~{MaxTier} 범위여야 함 (A=1, B=2, C=3)");
 
             if (difficulty < MinDifficulty || difficulty > MaxDifficulty)
                 errors.Add($"{who}: difficulty={difficulty} — {MinDifficulty}~{MaxDifficulty} 범위여야 함");

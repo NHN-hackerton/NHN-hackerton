@@ -6,7 +6,8 @@ namespace TopDogDetective.Data
 {
     /// <summary>
     /// Resources/Enemies/{enemyId}.json을 EnemyData로 로드한다.
-    /// 로드 직후 Validate()를 자동 실행해 데이터 오류를 콘솔에 남긴다.
+    /// 로드 직후 Validate()를 자동 실행해 데이터 오류를 콘솔에 남기고,
+    /// 오류가 하나라도 있으면 깨진 데이터를 조용히 통과시키지 않고 null을 반환한다.
     /// </summary>
     public static class EnemyDataLoader
     {
@@ -55,8 +56,13 @@ namespace TopDogDetective.Data
             }
 
             List<string> errors = enemy.Validate();
-            foreach (var e in errors)
-                Debug.LogError($"[EnemyDataLoader] {enemyId}: {e}");
+            if (errors.Count > 0)
+            {
+                foreach (var e in errors)
+                    Debug.LogError($"[EnemyDataLoader] {enemyId}: {e}");
+                Debug.LogError($"[EnemyDataLoader] {enemyId}: 데이터 오류 {errors.Count}건 — 로드를 건너뜁니다.");
+                return null;
+            }
 
             return enemy;
         }
