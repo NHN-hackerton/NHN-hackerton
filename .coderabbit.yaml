@@ -1,0 +1,81 @@
+# ---------------------------------------------------------------- #
+# CodeRabbit AI 설정
+# ---------------------------------------------------------------- #
+
+# 응답 기본 언어 설정
+language: "ko-KR"
+
+# AI 페르소나 및 톤앤매너 지시
+tone_instructions: >
+  1. 피드백은 명확하고 구체적이어야 하며, 문제의 원인과 개선 방법을 반드시 제시하세요.
+  2. 리뷰는 교육적이어야 하며, 관련 개념이나 공식 문서를 함께 추천하세요.
+  3. 비판보다는 개선 중심의 제안을 우선하세요.
+  4. 칭찬은 짧고 위트 있게 작성하세요.
+
+# ---------------------------------------------------------------- #
+# 코드 리뷰 기능 세부 설정
+# ---------------------------------------------------------------- #
+reviews:
+  profile: "chill"                  # 리뷰 전반 스타일 (부드러운 톤)
+  request_changes_workflow: false   # 코멘트 resolve 시 자동 Approve 처리
+  high_level_summary: true          # PR 변경 사항 고수준 요약 활성화
+  collapse_walkthrough: true        # 워크스루 코멘트 접기 활성화
+  changed_files_summary: true       # 변경된 파일별 요약 생성
+  sequence_diagrams: true           # 실행 흐름 시퀀스 다이어그램 생성
+  assess_linked_issues: true        # 연결된 이슈 분석 컨텍스트 활용
+  related_issues: false             # 연관 다른 이슈 링크 비활성화
+  related_prs: true                 # 연관 다른 PR 링크 활성화 (브랜치 간 의존성 파악에 유용)
+  suggested_labels: false           # 적절한 레이블 제안 비활성화
+  auto_apply_labels: false          # 제안 레이블 자동 적용 비활성화
+  suggested_reviewers: false        # 동료 리뷰어 추천 비활성화 (팀 3명, 불필요)
+  auto_assign_reviewers: false      # 추천 리뷰어 자동 할당 비활성화
+  poem: true                        # 리뷰 요약에 위트 있는 시 포함 활성화
+
+  # ---------------------------------------------------------------- #
+  # 자동 리뷰 트리거 설정
+  # ---------------------------------------------------------------- #
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true   # 추가 커밋 시 변경된 부분만 자동 리뷰
+
+  # ---------------------------------------------------------------- #
+  # 경로별 리뷰 제외 / 프로젝트 전용 리뷰 지시
+  # ---------------------------------------------------------------- #
+  path_filters:
+    - "!**/*.meta"
+    - "!**/Library/**"
+    - "!**/Obj/**"
+    - "!**/Logs/**"
+    - "!**/UserSettings/**"
+    - "!**/node_modules/**"
+    - "!**/.vercel/**"
+
+  path_instructions:
+    - path: "Assets/Scripts/**/*.cs"
+      instructions: >
+        Unity C# 코드입니다. 다음 프로젝트 원칙을 위반하는지 확인해주세요:
+        1) LLM은 delta만 반환하고 누적 계산은 코드가 담당해야 함
+        2) 호출 순서는 Sanitize() → Resolve() → RunState.Commit() 고정
+        3) 저항 발동 시 LLM delta는 합산이 아니라 대체되어야 함
+        4) 모든 게이지는 0~100 스케일
+        5) 판정기 구현체(IDialogueJudge)는 Sanitize/Resolve를 직접 호출하지 않음
+    - path: "proxy/**/*.js"
+      instructions: >
+        Vercel 서버리스 프록시 코드입니다. Anthropic API 키가 클라이언트로
+        노출되지 않는지, 타임아웃 처리와 에러 핸들링이 되어 있는지 확인해주세요.
+
+# ---------------------------------------------------------------- #
+# 채팅 기능 설정
+# ---------------------------------------------------------------- #
+chat:
+  auto_reply: true                  # 태그하지 않아도 자동 답글 활성화
+
+# ---------------------------------------------------------------- #
+# CodeRabbit의 지식 기반(Knowledge Base) 설정
+# ---------------------------------------------------------------- #
+knowledge_base:
+  web_search:
+    enabled: true                   # 최신 문서 검색 허용
+  code_guidelines:
+    enabled: true                   # 저장소 내 CLAUDE.md 등 가이드라인 문서 참고
