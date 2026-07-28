@@ -4,6 +4,7 @@ const MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 1024;
 const REQUEST_TIMEOUT_MS = 20000;
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*';
+const PROXY_TOKEN = process.env.PROXY_TOKEN;
 
 function setCorsHeaders(res) {
   res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
@@ -21,6 +22,18 @@ module.exports = async function handler(req, res) {
 
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'POST만 허용됩니다.' });
+    return;
+  }
+
+  // CORS(ALLOWED_ORIGIN)는 브라우저 간접 호출만 막는다 — 직접 curl/스크립트 호출은
+  // 이 토큰 검사로만 막힌다. Unity 클라이언트에는 이 값이 그대로 내장되므로
+  // "완전한 인증"이 아니라 "URL만 아는 임의 호출 차단" 목적임을 유의.
+  if (!PROXY_TOKEN) {
+    res.status(500).json({ error: '서버 설정 오류' });
+    return;
+  }
+  if (req.headers['x-proxy-token'] !== PROXY_TOKEN) {
+    res.status(401).json({ error: '인증 실패' });
     return;
   }
 

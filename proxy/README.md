@@ -27,8 +27,13 @@ Unity 프로젝트(`Assets/`)와 같은 저장소에 있지만, 배포 시 Verce
 
 1. Vercel에서 이 저장소(NHN-hackerton)를 Import
 2. **Root Directory**를 `proxy`로 지정 (지정하지 않으면 Unity 프로젝트 루트를 빌드하려다 실패함)
-3. Project Settings → Environment Variables 에 `ANTHROPIC_API_KEY` 등록
+3. Project Settings → Environment Variables 에 다음을 등록
    (코드에는 하드코딩하지 않음 — `.env`는 저장소에 커밋되지 않음)
+   - `ANTHROPIC_API_KEY` — Claude API 키
+   - `PROXY_TOKEN` — 필수. Unity가 `X-Proxy-Token` 헤더로 보낼 임의의 문자열을 정해서
+     등록. CORS(`ALLOWED_ORIGIN`)는 브라우저 간접 호출만 막을 뿐이라, URL만 알고 직접
+     호출하는 임의 요청(curl, 스크립트 등)을 막으려면 이 토큰이 필요하다. 미설정 시
+     모든 요청이 500으로 거부된다.
    - `ALLOWED_ORIGIN`은 선택 사항입니다. 미설정 시 모든 도메인에서 호출 가능(`*`)하며,
      배포 도메인이 확정되면 해당 값으로 좁힐 수 있습니다.
 4. Deploy
@@ -43,15 +48,17 @@ Unity 프로젝트(`Assets/`)와 같은 저장소에 있지만, 배포 시 Verce
 ```bash
 cd proxy
 npm i -g vercel   # 최초 1회
-cp .env.example .env   # .env에 ANTHROPIC_API_KEY 값을 직접 채워넣기 (커밋 금지)
+cp .env.example .env   # .env에 ANTHROPIC_API_KEY·PROXY_TOKEN 값을 직접 채워넣기 (커밋 금지)
 vercel dev
 ```
 
-기본적으로 `http://localhost:3000/api/judge`에서 뜬다. 별도 터미널에서 호출 확인:
+기본적으로 `http://localhost:3000/api/judge`에서 뜬다. 별도 터미널에서 호출 확인
+(`.env`에 넣은 `PROXY_TOKEN`과 동일한 값을 헤더에 넣어야 401이 나지 않는다):
 
 ```bash
 curl -X POST http://localhost:3000/api/judge \
   -H "Content-Type: application/json" \
+  -H "X-Proxy-Token: <.env의 PROXY_TOKEN 값>" \
   -d '{"systemPrompt": "너는 신참 조직원이다.", "userMessage": "요즘 애들 중에 너만큼 야무진 놈이 없대."}'
 ```
 
@@ -62,7 +69,9 @@ curl -X POST http://localhost:3000/api/judge \
 
 `POST /api/judge`
 
-요청:
+요청 헤더: `X-Proxy-Token: <PROXY_TOKEN 값>` (필수 — 없거나 틀리면 401)
+
+요청 바디:
 
 ```json
 { "systemPrompt": "...", "userMessage": "..." }
@@ -74,8 +83,9 @@ curl -X POST http://localhost:3000/api/judge \
 { "text": "..." }
 ```
 
-실패 응답: `{ "error": "..." }` (4xx/5xx)
+실패 응답: `{ "error": "..." }` (4xx/5xx, 토큰 불일치는 401)
 
-- CORS 허용 — Unity WebGL 빌드가 어느 도메인에서 호스팅되든 호출 가능
+- CORS 허용 — Unity WebGL 빌드가 어느 도메인에서 호스팅되든 호출 가능 (단, 브라우저
+  간접 호출만 대상 — 직접 호출은 `X-Proxy-Token`으로 막음)
 - Claude API 요청 20초 타임아웃
 - 모델: `claude-sonnet-4-6`
