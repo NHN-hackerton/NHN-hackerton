@@ -155,7 +155,7 @@ namespace TopDogDetective.Data
 
         public Weakness FindWeakness(string weaknessId)
             => string.IsNullOrEmpty(weaknessId) || weaknesses == null
-               ? null : weaknesses.Find(w => w.id == weaknessId);
+               ? null : weaknesses.Find(w => w != null && w.id == weaknessId);
 
         public bool HasResistance(string resistanceId)
             => !string.IsNullOrEmpty(resistanceId)
