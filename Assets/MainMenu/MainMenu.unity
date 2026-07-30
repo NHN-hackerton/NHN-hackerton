@@ -904,7 +904,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1144126269}
-        m_TargetAssemblyTypeName: SettingsController, Assembly-CSharp
+        m_TargetAssemblyTypeName: TopDogDetective.MainMenu.SettingsController, Assembly-CSharp
         m_MethodName: Open
         m_Mode: 0
         m_Arguments:
@@ -4526,7 +4526,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1144126267}
-        m_TargetAssemblyTypeName: MainMenuController, Assembly-CSharp
+        m_TargetAssemblyTypeName: TopDogDetective.MainMenu.MainMenuController, Assembly-CSharp
         m_MethodName: CaseFiles
         m_Mode: 0
         m_Arguments:
@@ -4829,7 +4829,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1144126269}
-        m_TargetAssemblyTypeName: SettingsController, Assembly-CSharp
+        m_TargetAssemblyTypeName: TopDogDetective.MainMenu.SettingsController, Assembly-CSharp
         m_MethodName: Open
         m_Mode: 0
         m_Arguments:
@@ -7287,7 +7287,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1144126270}
-        m_TargetAssemblyTypeName: ChapterSelectController, Assembly-CSharp
+        m_TargetAssemblyTypeName: TopDogDetective.MainMenu.ChapterSelectController, Assembly-CSharp
         m_MethodName: Open
         m_Mode: 0
         m_Arguments:
@@ -7852,7 +7852,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1144126269}
-        m_TargetAssemblyTypeName: SettingsController, Assembly-CSharp
+        m_TargetAssemblyTypeName: TopDogDetective.MainMenu.SettingsController, Assembly-CSharp
         m_MethodName: Open
         m_Mode: 0
         m_Arguments:
@@ -9239,7 +9239,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1144126267}
-        m_TargetAssemblyTypeName: MainMenuController, Assembly-CSharp
+        m_TargetAssemblyTypeName: TopDogDetective.MainMenu.MainMenuController, Assembly-CSharp
         m_MethodName: Exit
         m_Mode: 0
         m_Arguments:
