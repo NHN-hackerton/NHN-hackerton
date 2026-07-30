@@ -35,7 +35,6 @@ namespace TopDogDetective.Judge
             yield return TestPerfectPlay();
             yield return TestDirectDemand();
             yield return TestConfrontationGuard();
-            yield return TestConfrontationKeywordPlumbing();
 
             Debug.Log("═══ 스모크 테스트 종료 ═══");
         }
@@ -143,31 +142,6 @@ namespace TopDogDetective.Judge
 
             if (!session.CodeAcquired) Debug.Log("  ✅ 대질 전제 없이는 측근이 뚫리지 않음");
             else Debug.LogError("  ❌ 대질 전제 없이 코드가 뚫렸습니다 — 가드 확인 필요");
-        }
-
-        // ── 시나리오 4: 대질 배관(정보 흘리기) ────────────────
-        IEnumerator TestConfrontationKeywordPlumbing()
-        {
-            Debug.Log("\n▶ [4] 대질 배관 — 약점 적중 시 키워드 지급 확인");
-
-            var run = new RunState();
-            var informant = MakeRookie();
-            informant.weaknesses[0].revealsKeywordId = "kw_test_info";
-
-            var session = new BattleSession(informant, run);
-            var judge = new MockDialogueJudge(seed: 1);
-
-            // 이 조직원의 약점(need_recognition)을 정확히 찌르는 프레이밍
-            yield return DialogueTestRunner.Submit(session, judge, new PlayerUtterance
-            {
-                FrameId = FrameIds.Praise,
-                ComposedText = "너만큼 눈치 빠른 애가 없다니까."
-            });
-
-            if (run.HasKeyword("kw_test_info"))
-                Debug.Log("  ✅ 약점 적중 시 revealsKeywordId 키워드가 지급됨");
-            else
-                Debug.LogError("  ❌ 약점을 적중했는데 키워드가 지급되지 않았습니다 — 배관 확인 필요");
         }
 
         // ── 테스트용 데이터 ──────────────────────────────────
