@@ -6,7 +6,9 @@
 
 # Top Dog Detective (멍탐정)
 
-**NHN NAN 2026 해커톤 출품작**
+**'최고(Top Dog)'와 '개(Dog)'의 의미를 동시에 담은 타이틀입니다.** 
+<br> 
+<br> 
 
 <!-- 배포 후 아래 URL을 채우세요 -->
 ### ▶️ [지금 바로 브라우저에서 플레이하기](배포_URL_여기에)
@@ -21,7 +23,7 @@
 
 ## 🐶 Top Dog Detective : 함구령을 뚫는 가장 영리한 방법
 
-> **Top Dog Detective는 '최고(Top Dog)'와 '개(Dog)'의 의미를 동시에 담은 타이틀입니다.** 
+> 잠입한 견찰이 고양이 범죄조직에 숨어들어 **"함구령을 뚫고 폭탄 해제 코드를 찾아야 하는 AI 덱빌딩 로그라이크"**
 
 </div>
 
@@ -29,8 +31,6 @@
 <div>
 
 ## 📌 Top Dog Detective는 이런 게임이에요
-
-> **잠입한 개 경찰이 고양이 범죄조직에 숨어들어 "함구령을 뚫고 폭탄 해제 코드를 찾아야 하는 AI 잠입 덱빌딩 로그라이크"** 입니다.
 
 ### 🕵️ 당신의 임무
 
@@ -158,7 +158,16 @@
 
 </div>
 
-<br/>
+<br>
+
+## ⚙️ 개발 환경
+
+- **Unity 버전**: `6000.5.4f1` (Unity 6)
+- **여는 방법**
+  git clone https://github.com/NHN-hackerton/NHN-hackerton.git
+Unity Hub → Projects → Add → 클론한 폴더 선택 → 실행
+
+<br>
 
 <div>
 
