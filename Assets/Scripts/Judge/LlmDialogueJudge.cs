@@ -103,7 +103,9 @@ namespace TopDogDetective.Judge
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogWarning($"[LlmDialogueJudge] 요청 실패({www.result}): {www.error}");
+                string body = www.downloadHandler?.text;
+                Debug.LogWarning($"[LlmDialogueJudge] 요청 실패({www.result}): {www.error}" +
+                                 (string.IsNullOrEmpty(body) ? "" : $" / 응답 본문: {body}"));
                 onAttemptDone(new AttemptOutcome(null, retryable: false));
                 yield break;
             }
@@ -128,11 +130,13 @@ namespace TopDogDetective.Judge
             }
 
             var result = ParseDialogueResult(response.text);
-            if (result == null)
-                Debug.LogWarning($"[LlmDialogueJudge] LLM 응답 JSON 파싱 실패. 원문: {response.text}");
+            // 파싱은 됐는데 reply가 비어있으면 사실상 빈 깡통 응답 — 파싱 실패와 동일하게 취급한다.
+            bool invalid = result == null || string.IsNullOrEmpty(result.reply);
+            if (invalid)
+                Debug.LogWarning($"[LlmDialogueJudge] LLM 응답이 비어있거나 파싱 실패 — 응답 길이: {response.text?.Length ?? 0}자");
 
             // LLM 출력 자체가 형식에 안 맞았을 때만 재시도 대상 — 같은 입력이라도 매번 다른 텍스트가 나온다.
-            onAttemptDone(new AttemptOutcome(result, retryable: result == null));
+            onAttemptDone(new AttemptOutcome(invalid ? null : result, retryable: invalid));
         }
 
         // ── 요청/응답 봉투 ───────────────────────────────────
