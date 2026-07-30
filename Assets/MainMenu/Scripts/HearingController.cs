@@ -36,13 +36,13 @@ public class HearingController : MonoBehaviour
     private IEnumerator TestCycle()
     {
         yield return new WaitForSecondsRealtime(3f);
-        Mood[] moods = { Mood.Angry, Mood.Doubt, Mood.Trust, Mood.Neutral };
+        Mood[] moods = { Mood.Angry, Mood.Doubt, Mood.Trust };
         while (true)
         {
             for (int i = 0; i < moods.Length; i++)
             {
                 SetExpression(moods[i]);
-                yield return new WaitForSecondsRealtime(1.2f);
+                yield return new WaitForSecondsRealtime(3f);
             }
         }
     }
