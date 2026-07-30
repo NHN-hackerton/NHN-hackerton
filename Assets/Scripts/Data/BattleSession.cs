@@ -208,7 +208,10 @@ namespace TopDogDetective.Data
             {
                 string revealedKeywordId = Enemy.FindWeakness(result.hitWeaknessId)?.revealsKeywordId;
                 if (!string.IsNullOrEmpty(revealedKeywordId))
+                {
                     Run.AcquireKeyword(revealedKeywordId);
+                    ownedKeywordIds.Add(revealedKeywordId);   // 이번 세션 안에서도 바로 사용 가능하게
+                }
             }
 
             // 런 상태 커밋 (의심·친밀·코드)
