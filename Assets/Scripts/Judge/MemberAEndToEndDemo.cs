@@ -36,10 +36,17 @@ namespace TopDogDetective.Judge
         IEnumerator Run()
         {
             string proxyToken = Environment.GetEnvironmentVariable(ProxyTokenEnvVar);
-            if (string.IsNullOrEmpty(proxyUrl) || string.IsNullOrEmpty(proxyToken))
+
+            if (string.IsNullOrWhiteSpace(proxyUrl))
             {
-                Debug.LogError($"[MemberAEndToEndDemo] proxyUrl이 비어 있거나 환경변수 {ProxyTokenEnvVar}이 " +
-                               $"설정되지 않았습니다. 인스펙터에 judge.js URL을 입력하고, " +
+                Debug.LogError("[MemberAEndToEndDemo] proxyUrl이 비어 있습니다. " +
+                               "인스펙터에 배포된 judge.js URL을 입력하세요.");
+                yield break;
+            }
+
+            if (string.IsNullOrWhiteSpace(proxyToken))
+            {
+                Debug.LogError($"[MemberAEndToEndDemo] 환경변수 {ProxyTokenEnvVar}이 설정되지 않았습니다. " +
                                $"터미널에서 export {ProxyTokenEnvVar}=... 설정 후 그 터미널에서 Unity를 실행하세요.");
                 yield break;
             }
