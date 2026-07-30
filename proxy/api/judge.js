@@ -76,6 +76,7 @@ module.exports = async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error('[judge] Anthropic API 오류:', response.status, JSON.stringify(data));
       res.status(response.status).json({ error: data?.error?.message || 'Claude API 오류' });
       return;
     }
