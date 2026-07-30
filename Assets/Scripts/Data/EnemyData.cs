@@ -89,6 +89,13 @@ namespace TopDogDetective.Data
         /// </summary>
         public List<string> requiredConfrontationKeywords = new();
 
+        /// <summary>
+        /// 캐릭터별 연기 지침 (선택). persona가 "누구인지"를 설명한다면,
+        /// 이 필드는 "대사에서 실제로 어떻게 행동해야 하는지" 구체적 지시.
+        /// 시스템 프롬프트에 그대로 삽입된다. 비어 있으면 persona만으로 판정한다.
+        /// </summary>
+        public string promptTuningNotes;
+
         [Serializable]
         public class Persona
         {
