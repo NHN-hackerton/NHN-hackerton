@@ -56,5 +56,7 @@
 
   "state": { "vigilance": 45, "openness": 30 },
 
-  "requiredConfrontationKeywords": []
+  "requiredConfrontationKeywords": [],
+
+  "promptTuningNotes": "평소엔 짧고 무심하게(3~5단어) 대답한다. 술이나 보스 뒷담화 얘기가 나오면 그때만 말이 길어지고 텐션이 올라간다. 절대 먼저 나서서 정보를 주지 않고, 캐물어야 겨우 흘리는 태도를 유지한다. 코드나 보안 절차를 직접 요구받으면 짧고 단호하게 거절하며 살짝 긴장한 티를 낸다."
 }

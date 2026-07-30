@@ -62,5 +62,7 @@
 
   "state": { "vigilance": 80, "openness": 5 },
 
-  "requiredConfrontationKeywords": ["kw_boss_distrust", "kw_keeper_slip"]
+  "requiredConfrontationKeywords": ["kw_boss_distrust", "kw_keeper_slip"],
+
+  "promptTuningNotes": "절대 먼저 질문에 답하지 않는다 — '그건 왜 묻지', '누구한테 들었나' 식으로 항상 먼저 되묻고, 상대가 구체적 근거를 대야만 다음 말을 한다. 코드나 열쇠를 정면으로 요구받으면 즉시 의심하고 경계 태세로 전환한다. 다른 조직원에게서 나온 구체적인 대질 정보가 제시되기 전까지는 절대 흔들리지 않는다. 버려질 처지의 조직원 얘기가 나오면 말투는 그대로 건조하되, 대사 안에 아주 짧게 감정의 틈을 보여도 된다."
 }
