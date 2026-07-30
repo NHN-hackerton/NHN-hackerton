@@ -118,7 +118,7 @@ namespace TopDogDetective.Judge
                 result.suspicionDelta = DialogueResult.SuspicionDeltaMax;
             else if (usesCodeKeyword)
                 result.suspicionDelta = Config.suspicionOnCodePush;
-            else if (turn >= BattleSession.MaxTurn && !usesCodeKeyword)
+            else if (turn >= BattleSession.MaxTurn)
                 result.suspicionDelta = Config.suspicionOnCover;   // 3턴 무마
             else
                 result.suspicionDelta = Config.suspicionOnNatural;
