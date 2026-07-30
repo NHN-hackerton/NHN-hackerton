@@ -20,9 +20,9 @@ private void Awake()
     {
         rectTransform = (RectTransform)transform;
         baseScale = rectTransform.localScale;
-        var image = GetComponent<RoundedRectImage>();
-        image.color = Color.clear;
-        image.raycastTarget = true;
+        targetImage = GetComponent<RoundedRectImage>();
+        targetImage.color = Color.clear;
+        targetImage.raycastTarget = true;
     }
 
 private void EnsureInitialized()
@@ -40,18 +40,15 @@ private void EnsureInitialized()
 public void OnPointerEnter(PointerEventData eventData)
     {
         hovering = true;
-        var image = GetComponent<RoundedRectImage>();
-        if (image != null)
-            image.color = hoverColor;
+        if (targetImage != null)
+            targetImage.color = hoverColor;
     }
 
 public void OnPointerExit(PointerEventData eventData)
     {
         hovering = false;
-        var image = GetComponent<RoundedRectImage>();
-        if (image != null)
-            image.color = Color.clear;
-        EnsureInitialized();
+        if (targetImage != null)
+            targetImage.color = Color.clear;
         AnimateScale(baseScale);
     }
 
@@ -63,10 +60,8 @@ public void OnPointerDown(PointerEventData eventData)
 
 public void OnPointerUp(PointerEventData eventData)
     {
-        var image = GetComponent<RoundedRectImage>();
-        if (image != null)
-            image.color = hovering ? hoverColor : Color.clear;
-        EnsureInitialized();
+        if (targetImage != null)
+            targetImage.color = hovering ? hoverColor : Color.clear;
         AnimateScale(baseScale);
     }
 

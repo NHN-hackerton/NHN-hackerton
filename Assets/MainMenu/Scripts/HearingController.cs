@@ -24,7 +24,7 @@ public class HearingController : MonoBehaviour
 
     [Header("테스트")]
     [Tooltip("켜면 화면 열리고 3초 뒤 표정이 순환(테스트용). 실사용 땐 끄기.")]
-    [SerializeField] private bool testAutoCycle = true;
+    [SerializeField] private bool testAutoCycle = false;
 
     private void OnEnable()
     {
