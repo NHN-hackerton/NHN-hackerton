@@ -114,6 +114,13 @@ namespace TopDogDetective.Data
             public string label;
             public string trigger;
             public List<string> effectiveFrameIds = new();  // 코드를 흘리는 통로
+
+            /// <summary>
+            /// 이 약점이 적중하면 지급되는 키워드 카드 id (선택).
+            /// "정보 흘리기·대질" — 다른 조직원에게 얻은 정보를 측근
+            /// requiredConfrontationKeywords에 꽂아 넣는 통로. 없으면 지급 없음.
+            /// </summary>
+            public string revealsKeywordId;
         }
 
         [Serializable]
@@ -145,6 +152,10 @@ namespace TopDogDetective.Data
         public bool HasWeakness(string weaknessId)
             => !string.IsNullOrEmpty(weaknessId)
                && weaknesses != null && weaknesses.Exists(w => w.id == weaknessId);
+
+        public Weakness FindWeakness(string weaknessId)
+            => string.IsNullOrEmpty(weaknessId) || weaknesses == null
+               ? null : weaknesses.Find(w => w.id == weaknessId);
 
         public bool HasResistance(string resistanceId)
             => !string.IsNullOrEmpty(resistanceId)

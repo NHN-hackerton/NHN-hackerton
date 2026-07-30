@@ -202,6 +202,15 @@ namespace TopDogDetective.Data
             if (result.codeRevealed && !string.IsNullOrEmpty(result.revealedValue))
                 SessionCodeValue = result.revealedValue;
 
+            // 약점 적중 시 키워드 지급 (정보 흘리기·대질 — 이 조직원에게서 얻은 정보를
+            // 측근의 requiredConfrontationKeywords에 꽂아 넣는 통로)
+            if (result.weaknessHit && !string.IsNullOrEmpty(result.hitWeaknessId))
+            {
+                string revealedKeywordId = Enemy.FindWeakness(result.hitWeaknessId)?.revealsKeywordId;
+                if (!string.IsNullOrEmpty(revealedKeywordId))
+                    Run.AcquireKeyword(revealedKeywordId);
+            }
+
             // 런 상태 커밋 (의심·친밀·코드)
             Run.Commit(Enemy.id, result, Enemy.secret?.codeIndex ?? 0);
 
