@@ -131,7 +131,7 @@ namespace TopDogDetective.Judge
 
             var result = ParseDialogueResult(response.text);
             // 파싱은 됐는데 reply가 비어있으면 사실상 빈 깡통 응답 — 파싱 실패와 동일하게 취급한다.
-            bool invalid = result == null || string.IsNullOrEmpty(result.reply);
+            bool invalid = result == null || string.IsNullOrWhiteSpace(result.reply);
             if (invalid)
                 Debug.LogWarning($"[LlmDialogueJudge] LLM 응답이 비어있거나 파싱 실패 — 응답 길이: {response.text?.Length ?? 0}자");
 
