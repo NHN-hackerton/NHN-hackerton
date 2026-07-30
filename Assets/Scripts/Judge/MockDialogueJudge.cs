@@ -78,6 +78,8 @@ namespace TopDogDetective.Judge
         /// <summary>즉시 판정 (테스트·에디터용). 지연 없이 결과만 계산한다.</summary>
         public DialogueResult Evaluate(BattleSession session, PlayerUtterance utterance)
         {
+            if (session == null || utterance == null) return null;
+
             var enemy = session.Enemy;
             int turn  = session.CurrentTurn;
             string frame = utterance.FrameId;
