@@ -4,12 +4,21 @@ using UnityEngine.UI;
 [AddComponentMenu("UI/Rounded Rect Image")]
 public class RoundedRectImage : Image
 {
+    // 모서리 둥글기 비율 (0 = 각짐, 0.5 = 알약/타원)
+    [SerializeField, Range(0f, 0.5f)] private float cornerRatio = 0.16f;
+
+    public float CornerRatio
+    {
+        get { return cornerRatio; }
+        set { cornerRatio = Mathf.Clamp(value, 0f, 0.5f); SetVerticesDirty(); }
+    }
+
 protected override void OnPopulateMesh(VertexHelper vh)
     {
         vh.Clear();
 
         Rect rect = GetPixelAdjustedRect();
-        float radius = Mathf.Min(rect.height * 0.16f, rect.width * 0.16f);
+        float radius = Mathf.Min(rect.height, rect.width) * cornerRatio;
         Vector2 center = rect.center;
 
         UIVertex vertex = UIVertex.simpleVert;

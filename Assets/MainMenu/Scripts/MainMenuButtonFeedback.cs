@@ -6,7 +6,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RoundedRectImage))]
 public class MainMenuButtonFeedback : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
 {
-    [SerializeField] private Color hoverColor = new Color(0.86f, 0.74f, 0.56f, 0.16f);
+    [SerializeField] private Color hoverColor = new Color(0.86f, 0.74f, 0.56f, 0.08f);
     [SerializeField] private float pressedScale = 0.96f;
     [SerializeField] private float animationDuration = 0.08f;
 
