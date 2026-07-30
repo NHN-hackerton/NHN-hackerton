@@ -210,6 +210,13 @@ namespace TopDogDetective.Judge
             sb.AppendLine($"플레이어 인식: {p?.relationToPlayer}");
             sb.AppendLine();
 
+            if (!string.IsNullOrEmpty(enemy.promptTuningNotes))
+            {
+                sb.AppendLine("[연기 지침 — 대사에서 실제로 지켜야 함]");
+                sb.AppendLine(enemy.promptTuningNotes);
+                sb.AppendLine();
+            }
+
             sb.AppendLine("[함구령 — 반드시 지켜야 하는 비밀]");
             sb.AppendLine(s?.gagOrder);
             sb.AppendLine($"너는 코드 {s?.codeIndex}번째 자리 값 \"{s?.codeValue}\"를 알고 있다. " +
