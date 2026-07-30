@@ -24,6 +24,10 @@ namespace TopDogDetective.Judge
         // 프록시 자체 타임아웃(judge.js REQUEST_TIMEOUT_MS = 20초)보다 여유 있게 잡는다.
         public const int DefaultTimeoutSeconds = 25;
 
+        // LLM이 형식에 안 맞는 텍스트를 준 경우에만 재시도한다 (네트워크·타임아웃 실패는 재시도 안 함 —
+        // 같은 문제가 반복될 뿐이고, 그만큼 대기 시간과 토큰만 더 든다).
+        public const int MaxAttempts = 2;
+
         readonly string proxyUrl;
         readonly string proxyToken;
         readonly int timeoutSeconds;
@@ -42,6 +46,18 @@ namespace TopDogDetective.Judge
             this.timeoutSeconds = timeoutSeconds;
         }
 
+        /// <summary>한 번의 시도 결과. Retryable=true면 LLM 출력 형식 문제 — 재시도할 가치가 있다.</summary>
+        readonly struct AttemptOutcome
+        {
+            public readonly DialogueResult Result;
+            public readonly bool Retryable;
+            public AttemptOutcome(DialogueResult result, bool retryable)
+            {
+                Result = result;
+                Retryable = retryable;
+            }
+        }
+
         public IEnumerator Judge(BattleSession session, PlayerUtterance utterance,
                                  Action<DialogueResult> onDone)
         {
@@ -58,6 +74,24 @@ namespace TopDogDetective.Judge
                 userMessage  = BuildUserMessage(context)
             });
 
+            AttemptOutcome outcome = default;
+            for (int attempt = 1; attempt <= MaxAttempts; attempt++)
+            {
+                yield return SendOnce(requestJson, o => outcome = o);
+
+                if (outcome.Result != null || !outcome.Retryable)
+                    break;
+
+                if (attempt < MaxAttempts)
+                    Debug.LogWarning($"[LlmDialogueJudge] 응답 파싱 실패 — 재시도 {attempt}/{MaxAttempts}");
+            }
+
+            onDone?.Invoke(outcome.Result);
+        }
+
+        /// <summary>요청 1회 왕복. 네트워크·프록시 실패는 Retryable=false로 즉시 포기시킨다.</summary>
+        IEnumerator SendOnce(string requestJson, Action<AttemptOutcome> onAttemptDone)
+        {
             using var www = new UnityWebRequest(proxyUrl, UnityWebRequest.kHttpVerbPOST);
             www.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(requestJson));
             www.downloadHandler = new DownloadHandlerBuffer();
@@ -70,7 +104,7 @@ namespace TopDogDetective.Judge
             if (www.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogWarning($"[LlmDialogueJudge] 요청 실패({www.result}): {www.error}");
-                onDone?.Invoke(null);
+                onAttemptDone(new AttemptOutcome(null, retryable: false));
                 yield break;
             }
 
@@ -82,14 +116,14 @@ namespace TopDogDetective.Judge
             catch (Exception e)
             {
                 Debug.LogWarning($"[LlmDialogueJudge] 프록시 응답 파싱 실패: {e.Message}");
-                onDone?.Invoke(null);
+                onAttemptDone(new AttemptOutcome(null, retryable: false));
                 yield break;
             }
 
             if (response == null || string.IsNullOrEmpty(response.text))
             {
                 Debug.LogWarning("[LlmDialogueJudge] 프록시 응답에 text가 없습니다.");
-                onDone?.Invoke(null);
+                onAttemptDone(new AttemptOutcome(null, retryable: false));
                 yield break;
             }
 
@@ -97,7 +131,8 @@ namespace TopDogDetective.Judge
             if (result == null)
                 Debug.LogWarning($"[LlmDialogueJudge] LLM 응답 JSON 파싱 실패. 원문: {response.text}");
 
-            onDone?.Invoke(result);
+            // LLM 출력 자체가 형식에 안 맞았을 때만 재시도 대상 — 같은 입력이라도 매번 다른 텍스트가 나온다.
+            onAttemptDone(new AttemptOutcome(result, retryable: result == null));
         }
 
         // ── 요청/응답 봉투 ───────────────────────────────────
