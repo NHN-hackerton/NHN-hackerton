@@ -69,6 +69,7 @@ namespace TopDogDetective.MainMenu
 
         private void OnDisable()
         {
+            hovering = false;
             if (targetImage != null)
                 targetImage.color = Color.clear;
             if (rectTransform != null)

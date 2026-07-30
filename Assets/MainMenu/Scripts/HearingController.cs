@@ -53,7 +53,7 @@ namespace TopDogDetective.MainMenu
         public void SetExpression(Mood mood)
         {
             if (portraitImage == null) return;
-            Sprite s = neutralSprite;
+            Sprite s = neutralSprite != null ? neutralSprite : trustSprite; // neutral 이미지 부재 시 trust 폴백
             switch (mood)
             {
                 case Mood.Angry: s = angrySprite; break;
