@@ -132,7 +132,7 @@
 <br>
 <div>
 
-## 👤 Top Dog Detective의 팀원을 소개합니다!
+## 👤 Top Dog Detective의 구성원을 소개합니다!
 
 | <a href="https://github.com/YUNJI2014"><img src="https://github.com/YUNJI2014.png" width="120px;" alt=""/></a> | <a href="https://github.com/seooyoon"><img src="https://github.com/seooyoon.png" width="120px;" alt=""/></a> | <a href="https://github.com/heekarii"><img src="https://github.com/heekarii.png" width="120px;" alt=""/></a> |
 | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
