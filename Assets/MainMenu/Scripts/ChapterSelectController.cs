@@ -21,6 +21,7 @@ namespace TopDogDetective.MainMenu
 
         [Header("챕터1 맵")]
         [SerializeField] private GameObject chapter1Map;      // 챕터1 탐색 맵 오버레이
+        [SerializeField] private GameObject introCutscene;    // 있으면 챕터1 시작 시 먼저 재생(끝나면 Chapter1Map)
         [SerializeField] private Button mapBackButton;        // 맵에서 사건선택으로 돌아가기
 
         [Header("씬")]
@@ -54,10 +55,17 @@ namespace TopDogDetective.MainMenu
 
         private void SelectChapter1()
         {
-            // 맵 오버레이가 연결돼 있으면 그걸 연다 (별도 씬 없이 데모 진행)
+            if (chapterScreen != null) chapterScreen.SetActive(false);
+
+            // 컷씬이 연결돼 있으면 먼저 재생 (컷씬이 끝나면 nextScreen=Chapter1Map로 진행)
+            if (introCutscene != null)
+            {
+                introCutscene.SetActive(true);
+                return;
+            }
+            // 컷씬 없으면 바로 탐색 맵
             if (chapter1Map != null)
             {
-                if (chapterScreen != null) chapterScreen.SetActive(false);
                 chapter1Map.SetActive(true);
                 return;
             }
@@ -67,7 +75,7 @@ namespace TopDogDetective.MainMenu
                 SceneManager.LoadScene(gameSceneName);
                 return;
             }
-            Debug.Log($"[ChapterSelect] 챕터1 시작 — 맵/씬이 아직 연결되지 않았어요.");
+            Debug.Log("[ChapterSelect] 챕터1 시작 — 맵/씬이 아직 연결되지 않았어요.");
         }
 
         /// <summary>챕터1 맵에서 사건 선택 화면으로 돌아가기.</summary>

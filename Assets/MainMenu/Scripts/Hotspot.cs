@@ -13,7 +13,8 @@ namespace TopDogDetective.MainMenu
     public class Hotspot : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
         [Header("단서")]
-        [SerializeField] private string clueName = "단서";
+        [SerializeField] private string clueName = "단서";           // 토스트/표시용 이름
+        [SerializeField] private string keywordId = "";              // 실제 키워드 카드 ID (예: kw_rookie_pride) — 심문 손패로 전달
         [SerializeField] private string tooltipLabel = "조사하기";   // 호버 툴팁 문구 (문은 "심문하기")
         [SerializeField] private bool addsClue = true;               // false면 단서 안 주고 액션만
         [SerializeField] private UnityEvent onInvestigated;          // 클릭 시 추가 동작(예: 심문 화면 열기)
@@ -34,7 +35,15 @@ namespace TopDogDetective.MainMenu
 
         private void Awake()
         {
-            controller = GetComponentInParent<ExplorationController>();
+            controller = GetComponentInParent<ExplorationController>(true);
+        }
+
+        // 맵에 (다시) 들어올 때마다 조사 상태를 리셋 → 불빛/발자국 되살아나고 다시 클릭 가능(재도전 대응)
+        private void OnEnable()
+        {
+            investigated = false;
+            hovering = false;
+            if (controller == null) controller = GetComponentInParent<ExplorationController>(true);   // 놓쳤으면 재확보
         }
 
         private void Update()
@@ -65,7 +74,8 @@ namespace TopDogDetective.MainMenu
             if (investigated) return;
             investigated = true;
             hovering = false;
-            if (controller != null) { controller.HideTooltip(); if (addsClue) controller.AddClue(clueName); }
+            if (controller == null) controller = GetComponentInParent<ExplorationController>(true);
+            if (controller != null) { controller.HideTooltip(); if (addsClue) controller.AddClue(keywordId, clueName); }
             if (onInvestigated != null) onInvestigated.Invoke();
         }
     }

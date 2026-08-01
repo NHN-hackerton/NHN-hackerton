@@ -46,13 +46,13 @@ namespace TopDogDetective.MainMenu
             if (counterText != null) counterText.text = string.Format(counterFormat, found, total);
         }
 
-        /// <summary>Hotspot이 조사됐을 때 호출.</summary>
-        public void AddClue(string clueName)
+        /// <summary>Hotspot이 조사됐을 때 호출. keywordId는 심문 손패로, displayName은 토스트 표시용.</summary>
+        public void AddClue(string keywordId, string displayName)
         {
             found++;
-            CollectedClues.Add(clueName);
+            if (!string.IsNullOrEmpty(keywordId)) CollectedClues.Add(keywordId);
             UpdateCounter();
-            if (toastText != null) toastText.text = "〈" + clueName + "〉 단서에 추가됨";
+            if (toastText != null) toastText.text = "〈" + displayName + "〉 단서에 추가됨";
             if (toastRoot != null)
             {
                 if (toastCo != null) StopCoroutine(toastCo);
