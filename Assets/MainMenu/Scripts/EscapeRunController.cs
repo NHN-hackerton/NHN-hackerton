@@ -190,8 +190,9 @@ namespace TopDogDetective.MainMenu
         {
             if (!running) return;
 
+            AdvanceFrameClock(dt);
             HandleJump(dt);
-            AnimatePlayer(dt);
+            AnimatePlayer();
             Advance(dt);
             SpawnAndMoveObstacles(dt);
             ScrollBackgrounds(dt);
@@ -241,29 +242,28 @@ namespace TopDogDetective.MainMenu
 #endif
         }
 
+        /// <summary>
+        /// 달리기 프레임 시계. 플레이어·추격자가 공유하므로 항상 돌아야 한다.
+        /// (플레이어가 점프 중이라고 멈추면 추격자들까지 얼어붙는다)
+        /// </summary>
+        private void AdvanceFrameClock(float dt)
+        {
+            frameTimer += dt;
+            if (frameTimer < runFrameInterval) return;
+            frameTimer -= runFrameInterval;
+            frameIndex++;
+        }
+
         /// <summary>바닥에선 달리기 프레임 교대, 공중에선 점프 프레임.</summary>
-        private void AnimatePlayer(float dt)
+        private void AnimatePlayer()
         {
             if (playerImage == null) return;
 
             bool grounded = player == null || player.anchoredPosition.y <= groundY + 0.01f;
-
-            if (!grounded && jumpFrame != null)
-            {
-                playerImage.sprite = jumpFrame;
-                frameTimer = 0f;   // 착지하면 A 프레임부터 다시
-                return;
-            }
+            if (!grounded && jumpFrame != null) { playerImage.sprite = jumpFrame; return; }
 
             if (runFrames == null || runFrames.Length == 0) return;
-
-            frameTimer += dt;
-            if (frameTimer >= runFrameInterval)
-            {
-                frameTimer -= runFrameInterval;
-                frameIndex = (frameIndex + 1) % runFrames.Length;
-            }
-            playerImage.sprite = runFrames[frameIndex];
+            playerImage.sprite = runFrames[frameIndex % runFrames.Length];
         }
 
         /// <summary>추격자: 공중이면 점프 프레임, 아니면 달리기 프레임 교대.</summary>
