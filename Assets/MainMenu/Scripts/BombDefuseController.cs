@@ -171,19 +171,11 @@ namespace TopDogDetective.MainMenu
             if (restartScreen != null) restartScreen.SetActive(true);
         }
 
-        /// <summary>포스트잇 힌트 = 조합 순서. 확보한 자리는 값을, 못 얻은 자리는 ?를 보여준다.</summary>
+        /// <summary>포스트잇 힌트 = 조합 순서만. 값(정답)은 보여주지 않는다 — 플레이어가 기억해야 한다.</summary>
         private void ShowHint()
         {
             if (hintText == null) return;
-            if (Run == null) { hintText.text = "신참 → 금고지기 → 측근"; return; }
-
-            var sb = new StringBuilder("순서: 신참 → 금고지기 → 측근\n");
-            for (int i = 1; i <= RunState.TotalCodeDigits; i++)
-            {
-                sb.Append(Run.GetCode(i) ?? "?");
-                if (i < RunState.TotalCodeDigits) sb.Append(" - ");
-            }
-            hintText.text = sb.ToString();
+            hintText.text = "순서: 신참 → 금고지기 → 측근";
         }
 
         private void BuildKeypad()

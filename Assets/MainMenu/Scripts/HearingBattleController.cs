@@ -215,7 +215,15 @@ namespace TopDogDetective.MainMenu
             busy = true;   // 전환 대기 중 추가 제출 차단
             if (resultOverlay != null) resultOverlay.SetActive(true);   // 배경 덮기
             if (outcomeText != null) outcomeText.text = $"심문 성공 — 코드 [{session.SessionCodeValue}] 확보!" + AffinityNote;
-            StartCoroutine(WinRoutine());
+
+            // 코드를 충분히 확인한 뒤 직접 넘어가게 (자동 전환 X)
+            if (resultButton != null)
+            {
+                var lbl = resultButton.GetComponentInChildren<TMP_Text>();
+                if (lbl != null) lbl.text = "빠져나가기";
+                resultButton.gameObject.SetActive(true);
+            }
+            else StartCoroutine(WinRoutine());   // 버튼이 없으면 기존 자동 전환 폴백
         }
 
         /// <summary>친밀 100% 달성 시 결과창에 덧붙일 문구.</summary>
@@ -225,16 +233,20 @@ namespace TopDogDetective.MainMenu
 
         private IEnumerator WinRoutine()
         {
-            yield return new WaitForSecondsRealtime(1.4f);   // 성공 문구 잠깐 노출
+            yield return new WaitForSecondsRealtime(5f);   // 확보한 코드를 충분히 읽을 시간
             gameObject.SetActive(false);                      // 심문 화면 닫기
             if (nextChapter != null) nextChapter.SetActive(true);
         }
 
-        /// <summary>실패 결과 버튼 클릭: 탐색 맵으로 복귀(재도전).</summary>
+        /// <summary>결과 버튼 클릭: 성공이면 다음 챕터로, 실패면 탐색 맵으로 복귀(재도전).</summary>
         private void OnResultClicked()
         {
             gameObject.SetActive(false);
-            if (searchMap != null) searchMap.SetActive(true);
+            if (won)
+            {
+                if (nextChapter != null) nextChapter.SetActive(true);
+            }
+            else if (searchMap != null) searchMap.SetActive(true);
         }
 
         /// <summary>결과를 조직원 표정으로 매핑. (의심/친밀/발각 흐름 기반 휴리스틱)</summary>
