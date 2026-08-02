@@ -88,6 +88,12 @@ namespace TopDogDetective.MainMenu
                 closeButton.onClick.RemoveListener(Close);
                 closeButton.onClick.AddListener(Close);
             }
+            if (restartButton != null)
+            {
+                restartButton.onClick.RemoveListener(Restart);
+                restartButton.onClick.AddListener(Restart);
+                restartButton.gameObject.SetActive(false);   // 폭발 전엔 숨김
+            }
 
             BuildKeypad();
             ShowHint();
@@ -132,15 +138,37 @@ namespace TopDogDetective.MainMenu
             exploded = true;
             if (messageText != null) messageText.text = "시간 초과 — 폭탄이 터졌다…";
             if (submitButton != null) submitButton.interactable = false;
+            if (closeButton != null) closeButton.gameObject.SetActive(false);
             StartCoroutine(ExplodedRoutine());
         }
 
         private IEnumerator ExplodedRoutine()
         {
-            yield return new WaitForSecondsRealtime(1.8f);
+            yield return new WaitForSecondsRealtime(1.4f);
+
             gameObject.SetActive(false);
-            if (failScreen != null) failScreen.SetActive(true);
-            else if (bossRoom != null) bossRoom.SetActive(true);   // 폴백: 보스방에서 재도전
+            if (bossRoom != null) bossRoom.SetActive(false);
+
+            if (failScreen != null) failScreen.SetActive(true);   // 폭발 엔딩
+            else if (restartButton != null)                        // 엔딩 화면 없을 때만 폴백
+            {
+                gameObject.SetActive(true);
+                var lbl = restartButton.GetComponentInChildren<TMP_Text>();
+                if (lbl != null) lbl.text = "다시 시작";
+                restartButton.gameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>다시 시작: 런 상태·수집 단서를 비우고 처음 화면으로 돌아간다.</summary>
+        public void Restart()
+        {
+            HearingBattleController.ResetRun();          // 코드·친밀·의심 초기화
+            ExplorationController.CollectedClues.Clear(); // 모은 단서 초기화
+
+            if (restartButton != null) restartButton.gameObject.SetActive(false);
+            gameObject.SetActive(false);
+            if (bossRoom != null) bossRoom.SetActive(false);
+            if (restartScreen != null) restartScreen.SetActive(true);
         }
 
         /// <summary>포스트잇 힌트 = 조합 순서. 확보한 자리는 값을, 못 얻은 자리는 ?를 보여준다.</summary>
@@ -248,6 +276,7 @@ namespace TopDogDetective.MainMenu
                 Run.MarkBombDefused();
                 if (messageText != null) messageText.text = "해제 성공 — 폭탄이 멈췄다!";
                 if (submitButton != null) submitButton.interactable = false;
+                if (closeButton != null) closeButton.gameObject.SetActive(false);   // 해제 후엔 돌아갈 곳 없음
                 StartCoroutine(DefusedRoutine());
             }
             else

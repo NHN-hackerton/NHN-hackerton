@@ -40,6 +40,8 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private Image affinityFill;
 
         [Header("결과 → 다음 (심문 종료 시)")]
+        [Tooltip("결과 표시 중 배경을 덮는 어두운 판. 결과 문구/버튼만 도드라지게 한다.")]
+        [SerializeField] private GameObject resultOverlay;
         [Tooltip("중앙 결과 버튼. 평소 숨김, 종료 시 표시.")]
         [SerializeField] private Button resultButton;
         [Tooltip("실패 시 돌아갈 탐색 맵 (Chapter1Map)")]
@@ -107,6 +109,7 @@ namespace TopDogDetective.MainMenu
             if (outcomeText != null) outcomeText.text = "";
             if (replyText != null)   replyText.text = $"{enemy.displayName}와의 심문을 시작한다.";
             if (resultButton != null) resultButton.gameObject.SetActive(false);
+            if (resultOverlay != null) resultOverlay.SetActive(false);
             RefreshHud();
             OnStateChanged?.Invoke();
         }
@@ -195,6 +198,7 @@ namespace TopDogDetective.MainMenu
                     TurnOutcome.FailedTimeout => "시간 초과 — 코드 미확보 (재도전 가능)",
                     _                         => outcomeText.text
                 }) + AffinityNote;
+            if (resultOverlay != null) resultOverlay.SetActive(true);   // 배경 덮기
             if (resultButton != null)
             {
                 var lbl = resultButton.GetComponentInChildren<TMP_Text>();
@@ -209,6 +213,7 @@ namespace TopDogDetective.MainMenu
             if (won) return;
             won = true;
             busy = true;   // 전환 대기 중 추가 제출 차단
+            if (resultOverlay != null) resultOverlay.SetActive(true);   // 배경 덮기
             if (outcomeText != null) outcomeText.text = $"심문 성공 — 코드 [{session.SessionCodeValue}] 확보!" + AffinityNote;
             StartCoroutine(WinRoutine());
         }

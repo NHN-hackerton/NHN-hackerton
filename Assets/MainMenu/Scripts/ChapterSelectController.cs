@@ -56,7 +56,9 @@ namespace TopDogDetective.MainMenu
         private void SelectChapter1()
         {
             if (chapterScreen != null) chapterScreen.SetActive(false);
-            HearingBattleController.ResetRun();   // 새 런 시작 — 이전 플레이의 코드·친밀 정리
+            // 새 런 시작 — 이전 플레이의 코드·친밀·단서 정리
+            HearingBattleController.ResetRun();
+            ExplorationController.CollectedClues.Clear();
 
             // 컷씬이 연결돼 있으면 먼저 재생 (컷씬이 끝나면 nextScreen=Chapter1Map로 진행)
             if (introCutscene != null)
