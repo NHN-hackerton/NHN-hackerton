@@ -18143,7 +18143,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 60, y: 0}
-  m_SizeDelta: {x: 258.32062, y: 270}
+  m_SizeDelta: {x: 257.89474, y: 300}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1329706811
 MonoBehaviour:
@@ -18165,7 +18165,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6fa41e2abdef4fd41aa73af910a227bb, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ddc09fb5e1937b4419733c0684c66816, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -23590,23 +23590,29 @@ MonoBehaviour:
   jumpFrame: {fileID: 21300000, guid: ca6c6e5461b9f2740b586d96c069dc1e, type: 3}
   runFrameInterval: 0.12
   chaserRunFrames:
-  - {fileID: 21300000, guid: 6fa41e2abdef4fd41aa73af910a227bb, type: 3}
-  - {fileID: 21300000, guid: 611284c8dc3027f4fac724e4fe94c7b4, type: 3}
-  chaserJumpFrame: {fileID: 21300000, guid: c70a5d3c60327194c9609a76a553be4f, type: 3}
+  - {fileID: 21300000, guid: ddc09fb5e1937b4419733c0684c66816, type: 3}
+  - {fileID: 21300000, guid: 37eb360486c16e74797b90030e792f34, type: 3}
+  chaserJumpFrame: {fileID: 21300000, guid: f2865ccea1585404e8ec393a0f55684e, type: 3}
   chaserJumpTrigger: 210
   extraChaserSkins:
-  - label: "\uAE08\uACE0\uC9C0\uAE30"
-    runFrames:
-    - {fileID: 21300000, guid: 7edcbffa53d8f954c9af920522e13f87, type: 3}
-    - {fileID: 21300000, guid: fe7369a2a747fa54399514add9922917, type: 3}
-    jumpFrame: {fileID: 21300000, guid: 2bb81c5b07b2ede46886ddc7e92be36a, type: 3}
-    height: 265
   - label: "\uBCF4\uC2A4 \uCE21\uADFC"
     runFrames:
     - {fileID: 21300000, guid: 2450af8490beafc4baa7e6394116558b, type: 3}
     - {fileID: 21300000, guid: 8fcca0550058d0e4e91ebc1bf45f21e6, type: 3}
     jumpFrame: {fileID: 21300000, guid: f91b66ef9dc728b4685013d4ee4a72ca, type: 3}
     height: 275
+  - label: "\uAE08\uACE0\uC9C0\uAE30"
+    runFrames:
+    - {fileID: 21300000, guid: 7edcbffa53d8f954c9af920522e13f87, type: 3}
+    - {fileID: 21300000, guid: fe7369a2a747fa54399514add9922917, type: 3}
+    jumpFrame: {fileID: 21300000, guid: 2bb81c5b07b2ede46886ddc7e92be36a, type: 3}
+    height: 265
+  - label: "\uC2E0\uCC38"
+    runFrames:
+    - {fileID: 21300000, guid: 6fa41e2abdef4fd41aa73af910a227bb, type: 3}
+    - {fileID: 21300000, guid: 611284c8dc3027f4fac724e4fe94c7b4, type: 3}
+    jumpFrame: {fileID: 21300000, guid: c70a5d3c60327194c9609a76a553be4f, type: 3}
+    height: 258
   chaserSpacing: 190
   obstacleSprites:
   - {fileID: 21300000, guid: bf74ee327f7938b408f16b32045b6456, type: 3}
