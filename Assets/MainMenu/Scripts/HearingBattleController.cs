@@ -49,6 +49,13 @@ namespace TopDogDetective.MainMenu
 
         private bool won;   // 코드 확보 성공 처리 완료 (중복 방지)
 
+        /// <summary>런(챕터 1회 플레이) 전체가 공유하는 상태. 라운드를 넘겨 코드·친밀·의심이 누적된다.
+        /// (심문마다 새로 만들면 확보한 코드가 사라져 보스방 해제가 불가능해진다)</summary>
+        public static RunState CurrentRun { get; private set; }
+
+        /// <summary>새 런 시작 (챕터 처음부터). 탐색 단서와 함께 초기화된다.</summary>
+        public static void ResetRun() => CurrentRun = null;
+
         private EnemyData enemy;
         private RunState run;
         private BattleSession session;
@@ -82,7 +89,10 @@ namespace TopDogDetective.MainMenu
                 return;
             }
 
-            run = new RunState();
+            // 런 상태는 라운드를 넘겨 유지한다 (확보한 코드·친밀·의심 누적)
+            if (CurrentRun == null) CurrentRun = new RunState();
+            run = CurrentRun;
+
             var collected = ExplorationController.CollectedClues;
             if (collected != null && collected.Count > 0)
                 foreach (var kw in collected) run.AcquireKeyword(kw);   // 탐색에서 모은 카드
