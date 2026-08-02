@@ -113,17 +113,17 @@ namespace TopDogDetective.MainMenu
         // 안 그러면 착지 전에 다음 장애물이 도착해 점프 자체가 불가능해진다.
         static Difficulty ForMaxedCount(int maxed) => maxed switch
         {
-            >= 3 => new Difficulty { chasers = 1, courseLength = 3200f, gapMin = 950f, gapMax = 1200f,
-                                     startGap = 260f, hitPenalty = 45f, recoverPerSec = 14f,
+            >= 3 => new Difficulty { chasers = 1, courseLength = 9800f, gapMin = 950f, gapMax = 1200f,
+                                     startGap = 260f, hitPenalty = 45f, recoverPerSec = 11f,
                                      flavor = "조직원들이 보스 뒤에서 못 본 척 눈을 감아 준다." },
-            2    => new Difficulty { chasers = 2, courseLength = 3600f, gapMin = 850f, gapMax = 1050f,
-                                     startGap = 230f, hitPenalty = 55f, recoverPerSec = 11f,
+            2    => new Difficulty { chasers = 2, courseLength = 10400f, gapMin = 850f, gapMax = 1050f,
+                                     startGap = 230f, hitPenalty = 55f, recoverPerSec = 9f,
                                      flavor = "정든 둘은 추격에서 빠졌다." },
-            1    => new Difficulty { chasers = 3, courseLength = 4000f, gapMin = 750f, gapMax = 950f,
-                                     startGap = 200f, hitPenalty = 65f, recoverPerSec = 8f,
+            1    => new Difficulty { chasers = 3, courseLength = 11000f, gapMin = 750f, gapMax = 950f,
+                                     startGap = 200f, hitPenalty = 65f, recoverPerSec = 7f,
                                      flavor = "한 명이 망설이다 멈춰 선다." },
-            _    => new Difficulty { chasers = 4, courseLength = 4400f, gapMin = 660f, gapMax = 850f,
-                                     startGap = 170f, hitPenalty = 75f, recoverPerSec = 6f,
+            _    => new Difficulty { chasers = 4, courseLength = 11500f, gapMin = 660f, gapMax = 850f,
+                                     startGap = 170f, hitPenalty = 75f, recoverPerSec = 5.5f,
                                      flavor = "아무도 편들어 주지 않는다. 전력 질주." }
         };
 
