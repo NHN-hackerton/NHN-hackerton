@@ -25,6 +25,8 @@ namespace TopDogDetective.MainMenu
         [Tooltip("이미지+대사+버튼을 감싸는 CanvasGroup (검정 배경 위에서 페이드)")]
         [SerializeField] private CanvasGroup fadeGroup;
         [SerializeField] private float fadeDuration = 0.35f;
+        [Tooltip("켜면 이 컷씬이 열릴 때 첫 컷도 페이드인한다 (기본은 바로 뜸)")]
+        [SerializeField] private bool fadeInOnStart = false;
 
         [Header("끝난 뒤")]
         [Tooltip("마지막 컷 다음에 켤 화면 (없으면 컷씬만 닫힘)")]
@@ -44,7 +46,19 @@ namespace TopDogDetective.MainMenu
                 nextButton.onClick.AddListener(Next);
             }
             Show();
-            if (fadeGroup != null) fadeGroup.alpha = 1f;  // 첫 컷은 페이드인 없이 바로 (전환/마지막 페이드는 유지)
+            if (fadeGroup != null)
+            {
+                if (fadeInOnStart) StartCoroutine(FadeInRoutine());  // 이 컷씬만 첫 컷 페이드인
+                else fadeGroup.alpha = 1f;                            // 기본: 바로 뜸
+            }
+        }
+
+        private IEnumerator FadeInRoutine()
+        {
+            transitioning = true;         // 페이드인 도중 넘어가기 방지
+            fadeGroup.alpha = 0f;
+            yield return Fade(0f, 1f);
+            transitioning = false;
         }
 
         private void Show()
