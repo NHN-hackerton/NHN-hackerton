@@ -17114,7 +17114,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 5.515}
   m_AnchorMin: {x: 0.04278075, y: 0.9280303}
   m_AnchorMax: {x: 0.12834224, y: 0.96590906}
-  m_AnchoredPosition: {x: -24.5, y: 1.7000122}
+  m_AnchoredPosition: {x: -24.49939, y: 1.7000122}
   m_SizeDelta: {x: -8.607, y: -6.878}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1251622611
@@ -18143,7 +18143,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 60, y: 0}
-  m_SizeDelta: {x: 287.21805, y: 300}
+  m_SizeDelta: {x: 330.30075, y: 345}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1329706811
 MonoBehaviour:
@@ -23541,7 +23541,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1752812689
 RectTransform:
   m_ObjectHideFlags: 0
@@ -23600,20 +23600,26 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 2450af8490beafc4baa7e6394116558b, type: 3}
     - {fileID: 21300000, guid: 8fcca0550058d0e4e91ebc1bf45f21e6, type: 3}
     jumpFrame: {fileID: 21300000, guid: f91b66ef9dc728b4685013d4ee4a72ca, type: 3}
-    height: 275
+    height: 300
   - label: "\uAE08\uACE0\uC9C0\uAE30"
     runFrames:
     - {fileID: 21300000, guid: 7edcbffa53d8f954c9af920522e13f87, type: 3}
     - {fileID: 21300000, guid: fe7369a2a747fa54399514add9922917, type: 3}
     jumpFrame: {fileID: 21300000, guid: 2bb81c5b07b2ede46886ddc7e92be36a, type: 3}
-    height: 265
+    height: 275
   - label: "\uC2E0\uCC38"
     runFrames:
-    - {fileID: 21300000, guid: 6fa41e2abdef4fd41aa73af910a227bb, type: 3}
-    - {fileID: 21300000, guid: 611284c8dc3027f4fac724e4fe94c7b4, type: 3}
-    jumpFrame: {fileID: 21300000, guid: c70a5d3c60327194c9609a76a553be4f, type: 3}
-    height: 258
+    - {fileID: 21300000, guid: f2e6aeab7afd7754994ac9a8281ea8ed, type: 3}
+    - {fileID: 21300000, guid: 95bc37daee1938644b574128e8422a86, type: 3}
+    - {fileID: 21300000, guid: cd6482975f638554bbf3fd3be9a9af21, type: 3}
+    - {fileID: 21300000, guid: f7a67f56495345447a0f6f09baf14d7d, type: 3}
+    jumpFrame: {fileID: 21300000, guid: 35795ed52bf6b58498f297fd00d8839a, type: 3}
+    height: 245
   chaserSpacing: 190
+  chaserVisualOffset: 300
+  shadowSprite: {fileID: 21300000, guid: a6feb8edd50c67748bf0cb34edd9b50c, type: 3}
+  shadowWidthScale: 0.75
+  depthDarken: 0
   obstacleSprites:
   - {fileID: 21300000, guid: bf74ee327f7938b408f16b32045b6456, type: 3}
   - {fileID: 21300000, guid: 6162de1118c066a45a0cb9ba9c7cb1ba, type: 3}
@@ -23631,6 +23637,9 @@ MonoBehaviour:
   gravity: 3800
   groundY: 0
   hitPadding: 80
+  playerHomeX: 1180
+  introDashSpeed: 900
+  obstacleSpawnX: 2100
   successScreen: {fileID: 0}
   failScreen: {fileID: 0}
   resultButton: {fileID: 583814133}
@@ -25895,7 +25904,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 320, y: 0}
-  m_SizeDelta: {x: 284.85208, y: 290}
+  m_SizeDelta: {x: 279.94083, y: 285}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1907845177
 MonoBehaviour:

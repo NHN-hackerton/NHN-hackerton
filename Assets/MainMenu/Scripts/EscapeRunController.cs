@@ -62,6 +62,16 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private ChaserSkin[] extraChaserSkins;
         [Tooltip("추격자끼리 벌어지는 간격(px)")]
         [SerializeField] private float chaserSpacing = 190f;
+        [Tooltip("추격 무리를 화면상 추가로 뒤로 밀어내는 거리. 게임 수치(추격 거리)는 건드리지 않고 보기만 벌린다.")]
+        [SerializeField] private float chaserVisualOffset = 300f;
+
+        [Header("연출")]
+        [Tooltip("발밑 그림자 스프라이트. 비어 있으면 그림자 없음.")]
+        [SerializeField] private Sprite shadowSprite;
+        [Tooltip("그림자 폭 = 캐릭터 폭 × 이 값")]
+        [SerializeField] private float shadowWidthScale = 0.75f;
+        [Tooltip("뒤쪽 추격자를 어둡게 (0=그대로, 1=완전 검정). 0이면 명암 없음.")]
+        [SerializeField] private float depthDarken = 0f;
 
         [Header("장애물 아트")]
         [Tooltip("장애물 스프라이트 후보. 비어 있으면 색 박스로 생성한다.")]
@@ -87,6 +97,14 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private float groundY = 0f;
         [Tooltip("장애물 히트박스 여유 (작을수록 관대)")]
         [SerializeField] private float hitPadding = 12f;
+
+        [Header("시작 연출 (중앙까지 달려나가기)")]
+        [Tooltip("형사가 자리를 잡을 x 위치. 여기 도착하면 장애물이 나오기 시작한다.")]
+        [SerializeField] private float playerHomeX = 820f;
+        [Tooltip("시작 지점에서 위 위치까지 달려가는 속도 (평소보다 빠르게)")]
+        [SerializeField] private float introDashSpeed = 900f;
+        [Tooltip("장애물이 생성되는 x (화면 오른쪽 밖)")]
+        [SerializeField] private float obstacleSpawnX = 2100f;
 
         [Header("결과 화면")]
         [Tooltip("탈출 성공 시 켤 화면")]
@@ -141,9 +159,20 @@ namespace TopDogDetective.MainMenu
             public ChaserSkin skin;
             public float velocityY;
             public float offset;   // 선두로부터 뒤로 떨어진 거리
+            public RectTransform shadow;
         }
+
+        RectTransform playerShadow, chaserShadow;
+        const string ShadowName = "Shadow";
         readonly List<ExtraChaser> extras = new();
         const string ExtraChaserName = "ExtraChaser";
+
+        float playerStartX;   // 씬에 배치된 원래 x (되돌리기용)
+        bool intro;           // 중앙까지 달려가는 중
+
+        // 장애물 셔플백: 한 바퀴 안에서 모든 종류가 한 번씩 나오고, 같은 게 연달아 나오지 않는다
+        readonly List<int> obstacleBag = new();
+        int lastObstacleIndex = -1;
         float frameTimer;
         int frameIndex;
 
@@ -169,14 +198,24 @@ namespace TopDogDetective.MainMenu
 
             frameTimer = 0f;
             frameIndex = 0;
+            obstacleBag.Clear();
+            lastObstacleIndex = -1;
             if (playerImage == null && player != null) playerImage = player.GetComponent<Image>();
             if (chaserImage == null && chaser != null) chaserImage = chaser.GetComponent<Image>();
             chaserVelocityY = 0f;
             if (chaser != null) chaser.anchoredPosition = new Vector2(chaser.anchoredPosition.x, groundY);
+            playerShadow = MakeShadow(player);
+            chaserShadow = MakeShadow(chaser);
             BuildExtraChasers();
 
             ClearObstacles();
-            if (player != null) player.anchoredPosition = new Vector2(player.anchoredPosition.x, groundY);
+            if (player != null)
+            {
+                if (playerStartX == 0f) playerStartX = player.anchoredPosition.x;   // 최초 1회 기억
+                player.anchoredPosition = new Vector2(playerStartX, groundY);
+                intro = playerStartX < playerHomeX - 1f;
+            }
+            else intro = false;
             if (resultButton != null) resultButton.gameObject.SetActive(false);
             if (messageText != null) messageText.text = diff.flavor;
 
@@ -191,6 +230,7 @@ namespace TopDogDetective.MainMenu
             if (!running) return;
 
             AdvanceFrameClock(dt);
+            RunIntro(dt);
             HandleJump(dt);
             AnimatePlayer();
             Advance(dt);
@@ -199,6 +239,8 @@ namespace TopDogDetective.MainMenu
             UpdateChaser(dt);
             AnimateChaser();
             UpdateExtraChasers(dt);
+            UpdateShadow(playerShadow, player);
+            UpdateShadow(chaserShadow, chaser);
             UpdateHud();
 
             if (chaserGap <= 0f) { Caught(); return; }
@@ -278,6 +320,22 @@ namespace TopDogDetective.MainMenu
                 chaserImage.sprite = chaserRunFrames[frameIndex % chaserRunFrames.Length];
         }
 
+        /// <summary>시작 연출: 형사가 자기 자리(중앙)까지 빠르게 달려나간다. 그동안 장애물은 안 나온다.</summary>
+        private void RunIntro(float dt)
+        {
+            if (!intro || player == null) return;
+
+            var p = player.anchoredPosition;
+            p.x = Mathf.MoveTowards(p.x, playerHomeX, introDashSpeed * dt);
+            player.anchoredPosition = p;
+
+            if (p.x >= playerHomeX - 0.5f)
+            {
+                intro = false;
+                nextSpawnAt = progress + 200f;   // 자리 잡은 직후 첫 장애물
+            }
+        }
+
         private void Advance(float dt) => progress += runSpeed * dt;
 
         // ── 장애물 ───────────────────────────────────────────
@@ -285,7 +343,7 @@ namespace TopDogDetective.MainMenu
         {
             if (obstacleLayer == null) return;
 
-            if (progress >= nextSpawnAt)
+            if (!intro && progress >= nextSpawnAt)   // 시작 연출 중엔 장애물 없음
             {
                 SpawnObstacle();
                 nextSpawnAt = progress + Random.Range(diff.gapMin, diff.gapMax);
@@ -301,7 +359,7 @@ namespace TopDogDetective.MainMenu
 
                 if (Overlaps(o)) { OnHit(o); continue; }
 
-                if (o.anchoredPosition.x < -1200f)   // 화면 밖으로 지나감
+                if (o.anchoredPosition.x < -400f)   // 화면 왼쪽 밖으로 지나감
                 {
                     obstacles.RemoveAt(i);
                     Destroy(o.gameObject);
@@ -309,7 +367,36 @@ namespace TopDogDetective.MainMenu
             }
         }
 
-        /// <summary>장애물 한 개 생성. 스프라이트가 있으면 그중 하나를 무작위로 쓴다.</summary>
+        /// <summary>
+        /// 다음에 쓸 장애물 인덱스. 셔플백에서 하나씩 꺼내므로 종류가 골고루 나오고,
+        /// 백을 새로 채울 때 직전 것과 겹치면 뒤로 밀어 연속 등장을 막는다.
+        /// </summary>
+        private int NextObstacleIndex()
+        {
+            int count = obstacleSprites.Length;
+            if (count == 1) return 0;
+
+            if (obstacleBag.Count == 0)
+            {
+                for (int i = 0; i < count; i++) obstacleBag.Add(i);
+                // 셔플
+                for (int i = obstacleBag.Count - 1; i > 0; i--)
+                {
+                    int j = Random.Range(0, i + 1);
+                    (obstacleBag[i], obstacleBag[j]) = (obstacleBag[j], obstacleBag[i]);
+                }
+                // 첫 장이 직전과 같으면 뒤쪽과 교환
+                if (obstacleBag[0] == lastObstacleIndex && obstacleBag.Count > 1)
+                    (obstacleBag[0], obstacleBag[obstacleBag.Count - 1]) = (obstacleBag[obstacleBag.Count - 1], obstacleBag[0]);
+            }
+
+            int pick = obstacleBag[0];
+            obstacleBag.RemoveAt(0);
+            lastObstacleIndex = pick;
+            return pick;
+        }
+
+        /// <summary>장애물 한 개 생성. 스프라이트가 있으면 셔플백에서 골라 쓴다.</summary>
         private void SpawnObstacle()
         {
             var go = new GameObject(ObstacleName, typeof(RectTransform), typeof(Image));
@@ -324,7 +411,7 @@ namespace TopDogDetective.MainMenu
 
             if (obstacleSprites != null && obstacleSprites.Length > 0)
             {
-                var sprite = obstacleSprites[Random.Range(0, obstacleSprites.Length)];
+                var sprite = obstacleSprites[NextObstacleIndex()];
                 img.sprite = sprite;
                 img.color = Color.white;
                 img.preserveAspect = true;
@@ -344,7 +431,7 @@ namespace TopDogDetective.MainMenu
             }
 
             rt.sizeDelta = new Vector2(w, h);
-            rt.anchoredPosition = new Vector2(1250f, groundY);
+            rt.anchoredPosition = new Vector2(obstacleSpawnX, groundY);   // 화면 오른쪽 밖에서 등장
             obstacles.Add(rt);
         }
 
@@ -406,7 +493,7 @@ namespace TopDogDetective.MainMenu
             if (chaser == null || player == null) return;
 
             var c = chaser.anchoredPosition;
-            c.x = player.anchoredPosition.x - chaserGap;
+            c.x = player.anchoredPosition.x - chaserGap - chaserVisualOffset;
 
             // 앞에 장애물이 오면 알아서 뛰어넘는다 (추격자는 부딪히지 않는다)
             bool grounded = c.y <= groundY + 0.01f;
@@ -424,6 +511,51 @@ namespace TopDogDetective.MainMenu
             }
 
             chaser.anchoredPosition = c;
+        }
+
+        /// <summary>발밑 그림자를 만든다. 캐릭터보다 먼저 그려지도록 형제 순서를 앞으로 보낸다.</summary>
+        private RectTransform MakeShadow(RectTransform owner)
+        {
+            if (shadowSprite == null || owner == null) return null;
+
+            var old = owner.parent.Find(ShadowName + "_" + owner.name);
+            if (old != null) Destroy(old.gameObject);
+
+            var go = new GameObject(ShadowName + "_" + owner.name, typeof(RectTransform), typeof(Image));
+            var rt = go.GetComponent<RectTransform>();
+            rt.SetParent(owner.parent, false);
+            rt.anchorMin = rt.anchorMax = new Vector2(0f, 0f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            float w = owner.sizeDelta.x * shadowWidthScale;
+            rt.sizeDelta = new Vector2(w, w * 0.26f);
+
+            var img = go.GetComponent<Image>();
+            img.sprite = shadowSprite;
+            img.raycastTarget = false;
+            rt.SetSiblingIndex(0);   // 모든 캐릭터 뒤에
+            return rt;
+        }
+
+        /// <summary>그림자를 캐릭터 발밑에 붙인다. 공중에 뜰수록 작아지고 흐려진다.</summary>
+        private void UpdateShadow(RectTransform shadow, RectTransform owner)
+        {
+            if (shadow == null || owner == null) return;
+
+            float airHeight = Mathf.Max(0f, owner.anchoredPosition.y - groundY);
+            float t = Mathf.Clamp01(airHeight / 420f);          // 점프 최고점 기준
+            float shrink = Mathf.Lerp(1f, 0.55f, t);
+
+            float w = owner.sizeDelta.x * shadowWidthScale * shrink;
+            shadow.sizeDelta = new Vector2(w, w * 0.26f);
+            shadow.anchoredPosition = new Vector2(owner.anchoredPosition.x, groundY + 14f);
+
+            var img = shadow.GetComponent<Image>();
+            if (img != null)
+            {
+                var c = img.color;
+                c.a = Mathf.Lerp(1f, 0.35f, t);
+                img.color = c;
+            }
         }
 
         /// <summary>난이도가 정한 추격 인원(선두 1명 제외)만큼 뒤따르는 추격자를 만든다.</summary>
@@ -458,7 +590,15 @@ namespace TopDogDetective.MainMenu
                 rt.anchoredPosition = new Vector2(chaser.anchoredPosition.x, groundY);
                 rt.SetSiblingIndex(chaser.GetSiblingIndex());   // 선두보다 뒤에 그려지게
 
-                extras.Add(new ExtraChaser { rt = rt, img = img, skin = skin, offset = chaserSpacing * (i + 1) });
+                // 뒤로 갈수록 어둡게 (붉은 조명 속 원근감)
+                float dark = 1f - depthDarken * (i + 1);
+                img.color = new Color(dark, dark * 0.97f, dark * 0.95f, 1f);
+
+                extras.Add(new ExtraChaser {
+                    rt = rt, img = img, skin = skin,
+                    offset = chaserSpacing * (i + 1),
+                    shadow = MakeShadow(rt)
+                });
             }
         }
 
@@ -487,6 +627,7 @@ namespace TopDogDetective.MainMenu
                     if (p.y <= groundY) { p.y = groundY; e.velocityY = 0f; }
                 }
                 e.rt.anchoredPosition = p;
+                UpdateShadow(e.shadow, e.rt);
 
                 // 애니메이션
                 bool air = p.y > groundY + 0.01f;
