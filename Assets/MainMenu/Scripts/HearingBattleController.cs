@@ -42,6 +42,8 @@ namespace TopDogDetective.MainMenu
         [Header("결과 → 다음 (심문 종료 시)")]
         [Tooltip("결과 표시 중 배경을 덮는 어두운 판. 결과 문구/버튼만 도드라지게 한다.")]
         [SerializeField] private GameObject resultOverlay;
+        [Tooltip("문구를 띄울 때 배경을 흐리게 만드는 판.")]
+        [SerializeField] private ScreenBlurOverlay blurOverlay;
         [Tooltip("중앙 결과 버튼. 평소 숨김, 종료 시 표시.")]
         [SerializeField] private Button resultButton;
         [Tooltip("실패 시 돌아갈 탐색 맵 (Chapter1Map)")]
@@ -161,9 +163,9 @@ namespace TopDogDetective.MainMenu
             if (outcomeText != null && !session.IsFinished)
             {
                 if (result.affinityMaxed)
-                    outcomeText.text = $"💛 {enemy.displayName}의 속내를 들었다 — 조각 획득!";
+                    ShowFlash($"{enemy.displayName}의 속내를 들었다 — 조각 획득!");
                 else if (result.codeRevealed && !string.IsNullOrEmpty(result.revealedValue))
-                    outcomeText.text = $"코드 확보: {result.revealedValue}  (남은 턴에 마음을 얻어라)";
+                    ShowFlash($"코드 확보: {result.revealedValue}\n남은 턴에 마음을 얻어라");
             }
 
             // 코드를 얻어도 3턴까지 간다 (기획서 §4: 간보기 → 찌르기 → 무마·이탈).
@@ -193,18 +195,35 @@ namespace TopDogDetective.MainMenu
             if (outcome == TurnOutcome.Success) { Win(); return; }   // 성공은 자동 전환
 
             // 실패(발각·시간초과) → "다시 돌아가기" 버튼
-            if (outcomeText != null)
-                outcomeText.text = (outcome switch
-                {
-                    TurnOutcome.FailedExposed => "발각됨 — 심문 실패",
-                    TurnOutcome.FailedTimeout => "시간 초과 — 코드 미확보 (재도전 가능)",
-                    _                         => outcomeText.text
-                }) + AffinityNote;
-            if (resultOverlay != null) resultOverlay.SetActive(true);   // 배경 덮기
+            string head = outcome switch
+            {
+                TurnOutcome.FailedExposed => "발각됨 — 심문 실패",
+                TurnOutcome.FailedTimeout => "시간 초과 — 코드 미확보 (재도전 가능)",
+                _                         => outcomeText != null ? outcomeText.text : ""
+            };
+            RevealResult(head + AffinityNote, "다시 돌아가기");
+        }
+
+        /// <summary>배경을 먼저 흐리게 떠 두고, 다음 프레임에 결과 문구·버튼을 올린다.</summary>
+        private void RevealResult(string text, string buttonLabel)
+        {
+            StartCoroutine(RevealRoutine(text, buttonLabel));
+        }
+
+        private IEnumerator RevealRoutine(string text, string buttonLabel)
+        {
+            // 문구가 블러 배경에 같이 찍히면 글자가 두 번 겹쳐 보이므로 캡처를 먼저 끝낸다
+            if (blurOverlay != null)
+            {
+                blurOverlay.Show();
+                yield return null;
+            }
+            if (outcomeText != null) outcomeText.text = text;
+            if (resultOverlay != null) resultOverlay.SetActive(true);
             if (resultButton != null)
             {
                 var lbl = resultButton.GetComponentInChildren<TMP_Text>();
-                if (lbl != null) lbl.text = "다시 돌아가기";
+                if (lbl != null) lbl.text = buttonLabel;
                 resultButton.gameObject.SetActive(true);
             }
         }
@@ -215,17 +234,47 @@ namespace TopDogDetective.MainMenu
             if (won) return;
             won = true;
             busy = true;   // 전환 대기 중 추가 제출 차단
-            if (resultOverlay != null) resultOverlay.SetActive(true);   // 배경 덮기
-            if (outcomeText != null) outcomeText.text = $"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!" + AffinityNote;
 
             // 코드를 충분히 확인한 뒤 직접 넘어가게 (자동 전환 X)
             if (resultButton != null)
+                RevealResult($"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!" + AffinityNote, "빠져나가기");
+            else
             {
-                var lbl = resultButton.GetComponentInChildren<TMP_Text>();
-                if (lbl != null) lbl.text = "빠져나가기";
-                resultButton.gameObject.SetActive(true);
+                if (resultOverlay != null) resultOverlay.SetActive(true);
+                if (outcomeText != null) outcomeText.text = $"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!" + AffinityNote;
+                StartCoroutine(WinRoutine());   // 버튼이 없으면 기존 자동 전환 폴백
             }
-            else StartCoroutine(WinRoutine());   // 버튼이 없으면 기존 자동 전환 폴백
+        }
+
+        Coroutine flashCo;
+
+        /// <summary>턴 중 안내 문구를 잠깐 띄웠다가 지운다 (심문이 끝난 게 아니므로 남겨두지 않는다).</summary>
+        private void ShowFlash(string text, float seconds = 4f)
+        {
+            if (outcomeText == null) return;
+            if (flashCo != null) StopCoroutine(flashCo);
+            flashCo = StartCoroutine(FlashRoutine(text, seconds));
+        }
+
+        private IEnumerator FlashRoutine(string text, float seconds)
+        {
+            // 문구를 넣기 전에 배경을 흐리게 떠 둔다 (문구가 블러에 같이 찍히지 않도록)
+            if (blurOverlay != null)
+            {
+                blurOverlay.Show();
+                yield return null;
+            }
+            outcomeText.text = text;
+
+            yield return new WaitForSecondsRealtime(seconds);
+
+            bool finished = session != null && session.IsFinished;
+            if (!finished)
+            {
+                outcomeText.text = "";
+                if (blurOverlay != null) blurOverlay.Hide();
+            }
+            flashCo = null;
         }
 
         /// <summary>친밀 100% 달성 여부에 따라 결과창에 덧붙일 문구 (속내 조각 안내).</summary>
@@ -234,9 +283,10 @@ namespace TopDogDetective.MainMenu
             get
             {
                 if (session == null) return "";
+                // 이모지는 폰트에 없어 네모로 뜨므로 쓰지 않는다
                 return session.Affinity >= 100
-                    ? "\n💛 속내 조각 획득 — 이 놈은 증언을 남겼다"
-                    : "\n🧩 속내 조각 없음 — 마음을 얻지 못했다";
+                    ? "\n<size=70%>속내 조각 획득 — 증언을 남겼다</size>"
+                    : "\n<size=70%>속내 조각 없음 — 마음을 얻지 못했다</size>";
             }
         }
 

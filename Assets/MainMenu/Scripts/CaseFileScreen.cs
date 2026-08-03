@@ -53,6 +53,9 @@ namespace TopDogDetective.MainMenu
 
         private void OnEnable()
         {
+            // 어느 화면에서 열어도 위에 뜨게 한다 (형제 순서가 낮으면 다른 화면에 가려 안 보인다)
+            transform.SetAsLastSibling();
+
             if (closeButton != null)
             {
                 closeButton.onClick.RemoveListener(Close);

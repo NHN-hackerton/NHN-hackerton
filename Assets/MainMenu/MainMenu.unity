@@ -856,8 +856,8 @@ RectTransform:
   - {fileID: 1264484615}
   m_Father: {fileID: 1523925500}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.845, y: 0.845}
-  m_AnchorMax: {x: 0.965, y: 0.915}
+  m_AnchorMin: {x: 0.845, y: 0.775}
+  m_AnchorMax: {x: 0.965, y: 0.845}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1675,6 +1675,7 @@ RectTransform:
   - {fileID: 1663949649}
   - {fileID: 1809262623}
   - {fileID: 1153788282}
+  - {fileID: 947617706}
   - {fileID: 1028085209}
   - {fileID: 173314647}
   - {fileID: 126726933}
@@ -1788,6 +1789,7 @@ MonoBehaviour:
   suspicionFill: {fileID: 0}
   affinityFill: {fileID: 0}
   resultOverlay: {fileID: 1028085208}
+  blurOverlay: {fileID: 947617703}
   resultButton: {fileID: 126726934}
   searchMap: {fileID: 1523925499}
   nextChapter: {fileID: 1637763092}
@@ -2079,6 +2081,7 @@ GameObject:
   - component: {fileID: 170428551}
   - component: {fileID: 170428550}
   - component: {fileID: 170428549}
+  - component: {fileID: 170428553}
   m_Layer: 0
   m_Name: EndingNormalScreen
   m_TagString: Untagged
@@ -2183,6 +2186,34 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 170428547}
   m_CullTransparentMesh: 1
+--- !u!114 &170428553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 170428547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0e05303d2d4d1648965a2e38015e4d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.EndingScreenCleanup
+  screensToClose:
+  - {fileID: 1718720553}
+  - {fileID: 1662360779}
+  - {fileID: 1752812688}
+  - {fileID: 1523925499}
+  - {fileID: 1083973714}
+  - {fileID: 166928023}
+  - {fileID: 132843761}
+  - {fileID: 954496003}
+  - {fileID: 355526952}
+  - {fileID: 974906913}
+  - {fileID: 828503295}
+  - {fileID: 2050361774}
+  - {fileID: 1637763092}
+  - {fileID: 613231855}
+  - {fileID: 444893257}
 --- !u!1 &173314646
 GameObject:
   m_ObjectHideFlags: 0
@@ -2504,6 +2535,7 @@ GameObject:
   - component: {fileID: 197450421}
   - component: {fileID: 197450420}
   - component: {fileID: 197450419}
+  - component: {fileID: 197450422}
   m_Layer: 0
   m_Name: EndingBoomScreen
   m_TagString: Untagged
@@ -2598,6 +2630,34 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 197450417}
   m_CullTransparentMesh: 1
+--- !u!114 &197450422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 197450417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0e05303d2d4d1648965a2e38015e4d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.EndingScreenCleanup
+  screensToClose:
+  - {fileID: 1718720553}
+  - {fileID: 1662360779}
+  - {fileID: 1752812688}
+  - {fileID: 1523925499}
+  - {fileID: 1083973714}
+  - {fileID: 166928023}
+  - {fileID: 132843761}
+  - {fileID: 954496003}
+  - {fileID: 355526952}
+  - {fileID: 974906913}
+  - {fileID: 828503295}
+  - {fileID: 2050361774}
+  - {fileID: 1637763092}
+  - {fileID: 613231855}
+  - {fileID: 444893257}
 --- !u!1 &221066968
 GameObject:
   m_ObjectHideFlags: 0
@@ -3116,6 +3176,100 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 244236724}
   m_CullTransparentMesh: 1
+--- !u!1 &244362932
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 244362936}
+  - component: {fileID: 244362935}
+  - component: {fileID: 244362934}
+  - component: {fileID: 244362933}
+  m_Layer: 0
+  m_Name: BlurOverlay
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &244362933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244362932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 435a0cb55b5ee6e4f84dbbc8141e633b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBlurOverlay
+  blurWidth: 120
+  brightness: 0.5
+  hideWhileCapturing:
+  - {fileID: 2128796452}
+  - {fileID: 405689617}
+  - {fileID: 1256070398}
+--- !u!114 &244362934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244362932}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &244362935
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244362932}
+  m_CullTransparentMesh: 1
+--- !u!224 &244362936
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244362932}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 954496004}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &245675499
 GameObject:
   m_ObjectHideFlags: 0
@@ -4827,8 +4981,8 @@ RectTransform:
   - {fileID: 1846015557}
   m_Father: {fileID: 1083973715}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.845, y: 0.845}
-  m_AnchorMax: {x: 0.965, y: 0.915}
+  m_AnchorMin: {x: 0.845, y: 0.775}
+  m_AnchorMax: {x: 0.965, y: 0.845}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4978,6 +5132,7 @@ RectTransform:
   - {fileID: 950404908}
   - {fileID: 1834344470}
   - {fileID: 395235284}
+  - {fileID: 842301076}
   - {fileID: 1503364002}
   - {fileID: 422324450}
   - {fileID: 1371573465}
@@ -5034,6 +5189,7 @@ MonoBehaviour:
   suspicionFill: {fileID: 0}
   affinityFill: {fileID: 0}
   resultOverlay: {fileID: 1503364001}
+  blurOverlay: {fileID: 842301073}
   resultButton: {fileID: 1371573466}
   searchMap: {fileID: 166928023}
   nextChapter: {fileID: 444893257}
@@ -8047,6 +8203,7 @@ GameObject:
   - component: {fileID: 561039960}
   - component: {fileID: 561039959}
   - component: {fileID: 561039958}
+  - component: {fileID: 561039961}
   m_Layer: 0
   m_Name: ChapterSelectScreen
   m_TagString: Untagged
@@ -8138,6 +8295,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 561039956}
   m_CullTransparentMesh: 1
+--- !u!114 &561039961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 561039956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c5d20d35df224c4ab293502c0b70a0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ChapterSelectRefresher
+  controller: {fileID: 1144126270}
 --- !u!1 &570915244
 GameObject:
   m_ObjectHideFlags: 0
@@ -12699,6 +12869,7 @@ GameObject:
   - component: {fileID: 812358010}
   - component: {fileID: 812358009}
   - component: {fileID: 812358008}
+  - component: {fileID: 812358011}
   m_Layer: 0
   m_Name: EndingCaughtScreen
   m_TagString: Untagged
@@ -12792,6 +12963,34 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 812358006}
   m_CullTransparentMesh: 1
+--- !u!114 &812358011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 812358006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0e05303d2d4d1648965a2e38015e4d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.EndingScreenCleanup
+  screensToClose:
+  - {fileID: 1718720553}
+  - {fileID: 1662360779}
+  - {fileID: 1752812688}
+  - {fileID: 1523925499}
+  - {fileID: 1083973714}
+  - {fileID: 166928023}
+  - {fileID: 132843761}
+  - {fileID: 954496003}
+  - {fileID: 355526952}
+  - {fileID: 974906913}
+  - {fileID: 828503295}
+  - {fileID: 2050361774}
+  - {fileID: 1637763092}
+  - {fileID: 613231855}
+  - {fileID: 444893257}
 --- !u!1 &819968391
 GameObject:
   m_ObjectHideFlags: 0
@@ -13635,6 +13834,100 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 839583379}
   m_CullTransparentMesh: 1
+--- !u!1 &842301072
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 842301076}
+  - component: {fileID: 842301075}
+  - component: {fileID: 842301074}
+  - component: {fileID: 842301073}
+  m_Layer: 0
+  m_Name: BlurOverlay
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &842301073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 842301072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 435a0cb55b5ee6e4f84dbbc8141e633b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBlurOverlay
+  blurWidth: 120
+  brightness: 0.5
+  hideWhileCapturing:
+  - {fileID: 422324449}
+  - {fileID: 1503364001}
+  - {fileID: 1371573464}
+--- !u!114 &842301074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 842301072}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &842301075
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 842301072}
+  m_CullTransparentMesh: 1
+--- !u!224 &842301076
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 842301072}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 355526953}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &851943937
 GameObject:
   m_ObjectHideFlags: 0
@@ -14376,6 +14669,7 @@ GameObject:
   - component: {fileID: 928380688}
   - component: {fileID: 928380687}
   - component: {fileID: 928380690}
+  - component: {fileID: 928380691}
   m_Layer: 0
   m_Name: EndingTrueScreen
   m_TagString: Untagged
@@ -14494,6 +14788,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6cec7db2e878c94aaf7d808136122f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.TrueEndingReward
+--- !u!114 &928380691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 928380685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0e05303d2d4d1648965a2e38015e4d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.EndingScreenCleanup
+  screensToClose:
+  - {fileID: 1718720553}
+  - {fileID: 1662360779}
+  - {fileID: 1752812688}
+  - {fileID: 1523925499}
+  - {fileID: 1083973714}
+  - {fileID: 166928023}
+  - {fileID: 132843761}
+  - {fileID: 954496003}
+  - {fileID: 355526952}
+  - {fileID: 974906913}
+  - {fileID: 828503295}
+  - {fileID: 2050361774}
+  - {fileID: 1637763092}
+  - {fileID: 613231855}
+  - {fileID: 444893257}
 --- !u!1 &930905359
 GameObject:
   m_ObjectHideFlags: 0
@@ -15257,6 +15579,100 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947192142}
   m_CullTransparentMesh: 1
+--- !u!1 &947617702
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 947617706}
+  - component: {fileID: 947617705}
+  - component: {fileID: 947617704}
+  - component: {fileID: 947617703}
+  m_Layer: 0
+  m_Name: BlurOverlay
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &947617703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 947617702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 435a0cb55b5ee6e4f84dbbc8141e633b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBlurOverlay
+  blurWidth: 120
+  brightness: 0.5
+  hideWhileCapturing:
+  - {fileID: 173314646}
+  - {fileID: 1028085208}
+  - {fileID: 126726932}
+--- !u!114 &947617704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 947617702}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &947617705
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 947617702}
+  m_CullTransparentMesh: 1
+--- !u!224 &947617706
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 947617702}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 132843762}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &950404907
 GameObject:
   m_ObjectHideFlags: 0
@@ -15524,6 +15940,7 @@ RectTransform:
   - {fileID: 193962388}
   - {fileID: 831283889}
   - {fileID: 222581984}
+  - {fileID: 244362936}
   - {fileID: 405689618}
   - {fileID: 2128796453}
   - {fileID: 1256070399}
@@ -15580,6 +15997,7 @@ MonoBehaviour:
   suspicionFill: {fileID: 0}
   affinityFill: {fileID: 0}
   resultOverlay: {fileID: 405689617}
+  blurOverlay: {fileID: 244362933}
   resultButton: {fileID: 1256070400}
   searchMap: {fileID: 1083973714}
   nextChapter: {fileID: 613231855}
@@ -16324,7 +16742,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\U0001F5C2 \uC218\uC0AC\uAE30\uB85D"
+  m_text: "\uC218\uC0AC\uAE30\uB85D"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 646c0780f55bec84da47c9a0e9de091f, type: 2}
   m_sharedMaterial: {fileID: 5403820440012767909, guid: 646c0780f55bec84da47c9a0e9de091f, type: 2}
@@ -17618,7 +18036,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\U0001F512 \uC7A0\uAE40"
+  m_text: "\uC7A0\uAE40"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 646c0780f55bec84da47c9a0e9de091f, type: 2}
   m_sharedMaterial: {fileID: 5403820440012767909, guid: 646c0780f55bec84da47c9a0e9de091f, type: 2}
@@ -21072,7 +21490,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 5.515}
   m_AnchorMin: {x: 0.04278075, y: 0.9280303}
   m_AnchorMax: {x: 0.12834224, y: 0.96590906}
-  m_AnchoredPosition: {x: -24.49878, y: 1.7000122}
+  m_AnchoredPosition: {x: -24.498169, y: 1.7000122}
   m_SizeDelta: {x: -8.607, y: -6.878}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1251622611
@@ -21353,7 +21771,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\U0001F5C2 \uC218\uC0AC\uAE30\uB85D"
+  m_text: "\uC218\uC0AC\uAE30\uB85D"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 646c0780f55bec84da47c9a0e9de091f, type: 2}
   m_sharedMaterial: {fileID: 5403820440012767909, guid: 646c0780f55bec84da47c9a0e9de091f, type: 2}
@@ -22624,7 +23042,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\U0001F5C2 \uC218\uC0AC\uAE30\uB85D"
+  m_text: "\uC218\uC0AC\uAE30\uB85D"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 646c0780f55bec84da47c9a0e9de091f, type: 2}
   m_sharedMaterial: {fileID: 5403820440012767909, guid: 646c0780f55bec84da47c9a0e9de091f, type: 2}
@@ -26154,8 +26572,8 @@ RectTransform:
   - {fileID: 980200038}
   m_Father: {fileID: 166928024}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.845, y: 0.845}
-  m_AnchorMax: {x: 0.965, y: 0.915}
+  m_AnchorMin: {x: 0.845, y: 0.775}
+  m_AnchorMax: {x: 0.965, y: 0.845}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -28118,9 +28536,11 @@ MonoBehaviour:
   - {fileID: 1346900791}
   - {fileID: 356992073}
   runFrames:
-  - {fileID: 21300000, guid: efa36c1d5fd556a49b8f434330068481, type: 3}
-  - {fileID: 21300000, guid: af32b5b9244caef4194141a8500280b4, type: 3}
-  jumpFrame: {fileID: 21300000, guid: ca6c6e5461b9f2740b586d96c069dc1e, type: 3}
+  - {fileID: 21300000, guid: 02eef1312e5e4b747b5e0912cd802258, type: 3}
+  - {fileID: 21300000, guid: 9968bcda7c1de07428368aed48b97bd4, type: 3}
+  - {fileID: 21300000, guid: 418b17687f77c794199ef6496df1cc4a, type: 3}
+  - {fileID: 21300000, guid: 839d006974914c3478df7a585932ae54, type: 3}
+  jumpFrame: {fileID: 21300000, guid: b247985a9af824b4ea5f5e634d3e4083, type: 3}
   runFrameInterval: 0.12
   chaserRunFrames:
   - {fileID: 21300000, guid: 85ab1a0a814bf644c92816e457a1a430, type: 3}
@@ -29897,7 +30317,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\U0001F5C2 \uC218\uC0AC\uAE30\uB85D"
+  m_text: "\uC218\uC0AC\uAE30\uB85D"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 646c0780f55bec84da47c9a0e9de091f, type: 2}
   m_sharedMaterial: {fileID: 5403820440012767909, guid: 646c0780f55bec84da47c9a0e9de091f, type: 2}
@@ -30949,7 +31369,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 320, y: 0}
-  m_SizeDelta: {x: 279.94083, y: 285}
+  m_SizeDelta: {x: 260.06958, y: 285}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1907845177
 MonoBehaviour:
@@ -30971,7 +31391,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: efa36c1d5fd556a49b8f434330068481, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 02eef1312e5e4b747b5e0912cd802258, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -35540,8 +35960,8 @@ RectTransform:
   - {fileID: 1352423798}
   m_Father: {fileID: 1718720554}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.845, y: 0.845}
-  m_AnchorMax: {x: 0.965, y: 0.915}
+  m_AnchorMin: {x: 0.845, y: 0.775}
+  m_AnchorMax: {x: 0.965, y: 0.845}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

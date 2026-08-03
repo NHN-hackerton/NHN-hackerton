@@ -68,13 +68,14 @@ namespace TopDogDetective.MainMenu
             RefreshLocks();
         }
 
-        /// <summary>해금 상태를 화면에 반영한다.</summary>
-        private void RefreshLocks()
+        /// <summary>해금 상태를 화면에 반영한다. (엔딩에서 바로 돌아올 때도 호출된다)</summary>
+        public void RefreshLocks()
         {
             bool unlocked = Chapter2Unlocked;
             if (chapter2Lock != null) chapter2Lock.SetActive(!unlocked);
             if (chapter2Sub != null)
-                chapter2Sub.text = unlocked ? "해금됨 — 다음 사건 준비 중" : "🔒 잠김";
+                // 이모지는 폰트(Galmuri11)에 없어 네모로 뜨므로 쓰지 않는다
+                chapter2Sub.text = unlocked ? "해금됨 — 다음 사건 준비 중" : "잠김";
             if (noticeText != null) noticeText.text = "";
         }
 
@@ -125,8 +126,8 @@ namespace TopDogDetective.MainMenu
             if (noticeText != null)
                 noticeText.text = Chapter2Unlocked
                     ? "챕터 2 — 다음 사건은 준비 중입니다. 기다려 주세요."
-                    : "🔒 잠겨 있습니다. 진엔딩을 보면 다음 사건이 열립니다.";
-            Debug.Log("[ChapterSelect] 🔒 아직 잠겨 있는 챕터입니다.");
+                    : "잠겨 있습니다. 진엔딩을 보면 다음 사건이 열립니다.";
+            Debug.Log("[ChapterSelect] 아직 잠겨 있는 챕터입니다.");
         }
     }
 }
