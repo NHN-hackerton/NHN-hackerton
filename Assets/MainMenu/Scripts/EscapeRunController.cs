@@ -356,13 +356,28 @@ namespace TopDogDetective.MainMenu
             playerImage.sprite = runFrames[frameIndex % runFrames.Length];
         }
 
+        /// <summary>
+        /// 공중에서 쓸 그림. 전용 점프 프레임이 있으면 그걸 쓰고,
+        /// 없으면 달리기 중 '무릎 든' 프레임(2번)을 고정해 점프처럼 보이게 한다.
+        /// </summary>
+        static Sprite AirFrameFor(Sprite jump, Sprite[] run)
+        {
+            if (jump != null) return jump;
+            if (run == null || run.Length == 0) return null;
+            return run.Length >= 2 ? run[1] : run[0];
+        }
+
         /// <summary>추격자: 공중이면 점프 프레임, 아니면 달리기 프레임 교대.</summary>
         private void AnimateChaser()
         {
             if (chaserImage == null || chaser == null) return;
 
             bool grounded = chaser.anchoredPosition.y <= groundY + 0.01f;
-            if (!grounded && chaserJumpFrame != null) { chaserImage.sprite = chaserJumpFrame; return; }
+            if (!grounded)
+            {
+                var air = AirFrameFor(chaserJumpFrame, chaserRunFrames);
+                if (air != null) { chaserImage.sprite = air; return; }
+            }
 
             if (chaserRunFrames != null && chaserRunFrames.Length > 0)
                 chaserImage.sprite = chaserRunFrames[frameIndex % chaserRunFrames.Length];
@@ -692,7 +707,8 @@ namespace TopDogDetective.MainMenu
 
                 // 애니메이션
                 bool air = p.y > groundY + 0.01f;
-                if (air && e.skin.jumpFrame != null) e.img.sprite = e.skin.jumpFrame;
+                var airSprite = air ? AirFrameFor(e.skin.jumpFrame, e.skin.runFrames) : null;
+                if (airSprite != null) e.img.sprite = airSprite;
                 else if (e.skin.runFrames.Length > 0) e.img.sprite = e.skin.runFrames[frameIndex % e.skin.runFrames.Length];
             }
         }
