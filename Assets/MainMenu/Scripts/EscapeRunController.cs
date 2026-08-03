@@ -125,7 +125,9 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private float obstacleSpawnX = 2100f;
 
         [Header("결과 화면")]
-        [Tooltip("탈출 성공 시 켤 화면")]
+        [Tooltip("진엔딩 (속내 조각 3개 전부 모았을 때). 없으면 successScreen을 쓴다.")]
+        [SerializeField] private GameObject trueEndingScreen;
+        [Tooltip("탈출 성공 시 켤 화면 (부분 엔딩)")]
         [SerializeField] private GameObject successScreen;
         [Tooltip("붙잡혔을 때 켤 화면")]
         [SerializeField] private GameObject failScreen;
@@ -741,8 +743,14 @@ namespace TopDogDetective.MainMenu
         private void Escaped()
         {
             running = false;
-            if (messageText != null) messageText.text = "탈출 성공!";
-            GoTo(successScreen);
+
+            // 속내 조각 3개 전부 = 세 명 모두 마음을 얻음 → 진엔딩.
+            // 하나라도 비면 도시는 지켰지만 조직은 놓친 부분 엔딩.
+            bool trueEnd = CaseFile.TrueEndingUnlocked(Run);
+            if (messageText != null)
+                messageText.text = trueEnd ? "탈출 성공 — 전원 검거!" : "탈출 성공";
+
+            GoTo(trueEnd && trueEndingScreen != null ? trueEndingScreen : successScreen);
         }
 
         private void Caught()

@@ -158,16 +158,18 @@ namespace TopDogDetective.MainMenu
             RefreshHud();
             if (hearing != null) hearing.SetExpression(MoodFrom(result));
 
-            if (result.codeRevealed && !string.IsNullOrEmpty(result.revealedValue)
-                && outcomeText != null)
-                outcomeText.text = $"코드 확보: {result.revealedValue}";
-            else if (result.affinityMaxed && outcomeText != null)
-                outcomeText.text = $"💛 {enemy.displayName} 친밀 100% — 마음을 얻었어요!";
+            if (outcomeText != null && !session.IsFinished)
+            {
+                if (result.affinityMaxed)
+                    outcomeText.text = $"💛 {enemy.displayName}의 속내를 들었다 — 조각 획득!";
+                else if (result.codeRevealed && !string.IsNullOrEmpty(result.revealedValue))
+                    outcomeText.text = $"코드 확보: {result.revealedValue}  (남은 턴에 마음을 얻어라)";
+            }
 
+            // 코드를 얻어도 3턴까지 간다 (기획서 §4: 간보기 → 찌르기 → 무마·이탈).
+            // 마지막 턴이 친밀도를 채우는 자리이므로, 여기서 끊으면 '속내 조각'을 얻을 수 없다.
             if (session.IsFinished)
                 ShowOutcome(session.LastOutcome);
-            else if (session.CodeAcquired)
-                Win();   // 코드 확보 즉시 성공 — 3턴 안 기다리고 바로 다음 챕터
 
             OnStateChanged?.Invoke();
         }
@@ -214,7 +216,7 @@ namespace TopDogDetective.MainMenu
             won = true;
             busy = true;   // 전환 대기 중 추가 제출 차단
             if (resultOverlay != null) resultOverlay.SetActive(true);   // 배경 덮기
-            if (outcomeText != null) outcomeText.text = $"심문 성공 — 코드 [{session.SessionCodeValue}] 확보!" + AffinityNote;
+            if (outcomeText != null) outcomeText.text = $"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!" + AffinityNote;
 
             // 코드를 충분히 확인한 뒤 직접 넘어가게 (자동 전환 X)
             if (resultButton != null)
@@ -226,10 +228,17 @@ namespace TopDogDetective.MainMenu
             else StartCoroutine(WinRoutine());   // 버튼이 없으면 기존 자동 전환 폴백
         }
 
-        /// <summary>친밀 100% 달성 시 결과창에 덧붙일 문구.</summary>
-        private string AffinityNote => (session != null && session.Affinity >= 100)
-            ? "\n💛 친밀 100% — 마음을 얻음 (탈출 때 안 쫓아옴)"
-            : "";
+        /// <summary>친밀 100% 달성 여부에 따라 결과창에 덧붙일 문구 (속내 조각 안내).</summary>
+        private string AffinityNote
+        {
+            get
+            {
+                if (session == null) return "";
+                return session.Affinity >= 100
+                    ? "\n💛 속내 조각 획득 — 이 놈은 증언을 남겼다"
+                    : "\n🧩 속내 조각 없음 — 마음을 얻지 못했다";
+            }
+        }
 
         private IEnumerator WinRoutine()
         {

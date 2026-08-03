@@ -61,6 +61,14 @@ namespace TopDogDetective.MainMenu
             transitioning = false;
         }
 
+        /// <summary>대사 한 줄을 런타임에 갈아끼운다 (엔딩 분기 문구용).</summary>
+        public void SetLine(int i, string text)
+        {
+            if (lines == null || i < 0 || i >= lines.Length) return;
+            lines[i] = text;
+            if (i == index && dialogueText != null) dialogueText.text = text;
+        }
+
         private void Show()
         {
             if (frames == null || frames.Length == 0) return;
