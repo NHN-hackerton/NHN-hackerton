@@ -73,8 +73,21 @@ namespace TopDogDetective.MainMenu
         [Tooltip("뒤쪽 추격자를 어둡게 (0=그대로, 1=완전 검정). 0이면 명암 없음.")]
         [SerializeField] private float depthDarken = 0f;
 
+        /// <summary>장애물 한 종류. 그림마다 어울리는 크기 범위를 따로 준다.</summary>
+        [System.Serializable]
+        public class ObstacleDef
+        {
+            public string label = "장애물";
+            public Sprite sprite;
+            [Tooltip("이 그림이 화면에서 가질 높이 범위(px)")]
+            public float minHeight = 150f;
+            public float maxHeight = 190f;
+        }
+
         [Header("장애물 아트")]
-        [Tooltip("장애물 스프라이트 후보. 비어 있으면 색 박스로 생성한다.")]
+        [Tooltip("그림별 크기 설정. 비어 있으면 아래 obstacleSprites + 공통 범위를 쓴다.")]
+        [SerializeField] private ObstacleDef[] obstacleDefs;
+        [Tooltip("(구버전) 장애물 스프라이트 후보. obstacleDefs가 비었을 때만 쓰인다.")]
         [SerializeField] private Sprite[] obstacleSprites;
         [Tooltip("장애물 높이 범위 (px). 폭은 스프라이트 비율에 맞춰 자동 계산.")]
         [SerializeField] private float obstacleMinHeight = 90f;
@@ -93,6 +106,11 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private float runSpeed = 420f;      // px/초 (장애물이 흘러오는 속도)
         [SerializeField] private float jumpVelocity = 1150f;
         [SerializeField] private float gravity = 3200f;
+        [Tooltip("점프 키를 떼면 상승 속도를 이 비율로 깎는다. 짧게 누르면 낮게, 길게 누르면 높게. (1이면 항상 최고 높이)")]
+        [Range(0.1f, 1f)]
+        [SerializeField] private float jumpCutMultiplier = 0.42f;
+        [Tooltip("이 시간 동안은 키를 떼도 안 깎인다 (너무 찔끔 뛰는 것 방지)")]
+        [SerializeField] private float minJumpHold = 0.06f;
         [Tooltip("바닥 Y (플레이어 anchoredPosition.y 기준)")]
         [SerializeField] private float groundY = 0f;
         [Tooltip("장애물 히트박스 여유 (작을수록 관대)")]
@@ -169,6 +187,8 @@ namespace TopDogDetective.MainMenu
 
         float playerStartX;   // 씬에 배치된 원래 x (되돌리기용)
         bool intro;           // 중앙까지 달려가는 중
+        float jumpHoldTime;   // 이번 점프에서 키를 누른 시간
+        bool jumpCut;         // 이번 점프에서 상승을 이미 끊었는지
 
         // 장애물 셔플백: 한 바퀴 안에서 모든 종류가 한 번씩 나오고, 같은 게 연달아 나오지 않는다
         readonly List<int> obstacleBag = new();
@@ -256,11 +276,24 @@ namespace TopDogDetective.MainMenu
             if (grounded && JumpPressed())
             {
                 velocityY = jumpVelocity;
+                jumpHoldTime = 0f;
+                jumpCut = false;
                 grounded = false;
             }
 
             if (!grounded || velocityY > 0f)
             {
+                // 올라가는 중에 키를 떼면 상승을 끊는다 → 짧게 누르면 낮은 점프
+                if (velocityY > 0f)
+                {
+                    jumpHoldTime += dt;
+                    if (!jumpCut && jumpHoldTime >= minJumpHold && !JumpHeld())
+                    {
+                        velocityY *= jumpCutMultiplier;
+                        jumpCut = true;
+                    }
+                }
+
                 velocityY -= gravity * dt;
                 var p = player.anchoredPosition;
                 p.y += velocityY * dt;
@@ -281,6 +314,21 @@ namespace TopDogDetective.MainMenu
             return Input.GetKeyDown(KeyCode.Space)
                 || Input.GetKeyDown(KeyCode.UpArrow)
                 || Input.GetMouseButtonDown(0);
+#endif
+        }
+
+        /// <summary>점프 키를 계속 누르고 있는지 (가변 점프 높이용).</summary>
+        static bool JumpHeld()
+        {
+#if ENABLE_INPUT_SYSTEM
+            var kb = Keyboard.current;
+            if (kb != null && (kb.spaceKey.isPressed || kb.upArrowKey.isPressed)) return true;
+            var mouse = Mouse.current;
+            return mouse != null && mouse.leftButton.isPressed;
+#else
+            return Input.GetKey(KeyCode.Space)
+                || Input.GetKey(KeyCode.UpArrow)
+                || Input.GetMouseButton(0);
 #endif
         }
 
@@ -371,10 +419,9 @@ namespace TopDogDetective.MainMenu
         /// 다음에 쓸 장애물 인덱스. 셔플백에서 하나씩 꺼내므로 종류가 골고루 나오고,
         /// 백을 새로 채울 때 직전 것과 겹치면 뒤로 밀어 연속 등장을 막는다.
         /// </summary>
-        private int NextObstacleIndex()
+        private int NextObstacleIndex(int count)
         {
-            int count = obstacleSprites.Length;
-            if (count == 1) return 0;
+            if (count <= 1) return 0;
 
             if (obstacleBag.Count == 0)
             {
@@ -406,12 +453,26 @@ namespace TopDogDetective.MainMenu
             rt.pivot = new Vector2(0.5f, 0f);
 
             var img = go.GetComponent<Image>();
-            float h = Random.Range(obstacleMinHeight, obstacleMaxHeight);
-            float w;
 
-            if (obstacleSprites != null && obstacleSprites.Length > 0)
+            // 그림별 설정이 있으면 그걸 쓰고, 없으면 공통 범위
+            Sprite sprite = null;
+            float h;
+            if (obstacleDefs != null && obstacleDefs.Length > 0)
             {
-                var sprite = obstacleSprites[NextObstacleIndex()];
+                var def = obstacleDefs[NextObstacleIndex(obstacleDefs.Length)];
+                sprite = def.sprite;
+                h = Random.Range(def.minHeight, def.maxHeight);
+            }
+            else
+            {
+                h = Random.Range(obstacleMinHeight, obstacleMaxHeight);
+                if (obstacleSprites != null && obstacleSprites.Length > 0)
+                    sprite = obstacleSprites[NextObstacleIndex(obstacleSprites.Length)];
+            }
+
+            float w;
+            if (sprite != null)
+            {
                 img.sprite = sprite;
                 img.color = Color.white;
                 img.preserveAspect = true;
