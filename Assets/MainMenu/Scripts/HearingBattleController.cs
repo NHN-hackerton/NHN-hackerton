@@ -165,7 +165,7 @@ namespace TopDogDetective.MainMenu
                 if (result.affinityMaxed)
                     ShowFlash($"{enemy.displayName}의 속내를 들었다 — 조각 획득!");
                 else if (result.codeRevealed && !string.IsNullOrEmpty(result.revealedValue))
-                    ShowFlash($"코드 확보: {result.revealedValue}\n남은 턴에 마음을 얻어라");
+                    ShowFlash($"코드 확보: {result.revealedValue}\n남은 턴에 마음을 얻어라", 3f);
             }
 
             // 코드를 얻어도 3턴까지 간다 (기획서 §4: 간보기 → 찌르기 → 무마·이탈).
@@ -193,6 +193,11 @@ namespace TopDogDetective.MainMenu
         private void ShowOutcome(TurnOutcome outcome)
         {
             if (outcome == TurnOutcome.Success) { Win(); return; }   // 성공은 자동 전환
+
+            // 코드를 이미 챘으면 발각돼도 라운드는 통과시킨다.
+            // (백엔드 DecideOutcome은 의심도만 보고 발각을 내므로, 코드 확보가 무시된다)
+            // 대가는 친밀 100을 못 채워 '속내 조각'을 놓치는 것 — 진엔딩이 막힌다.
+            if (session != null && session.CodeAcquired) { Win(outcome == TurnOutcome.FailedExposed); return; }
 
             // 실패(발각·시간초과) → "다시 돌아가기" 버튼
             string head = outcome switch
@@ -228,20 +233,29 @@ namespace TopDogDetective.MainMenu
             }
         }
 
-        /// <summary>코드 확보 = 성공. 잠깐 성공 문구를 보여준 뒤 다음 챕터로 자동 전환.</summary>
-        private void Win()
+        /// <summary>코드 확보 = 성공. 결과 문구를 보여준 뒤 다음 챕터로.</summary>
+        /// <param name="exposed">막판에 발각됐는가 (코드는 이미 챈 상태)</param>
+        private void Win(bool exposed = false)
         {
             if (won) return;
             won = true;
             busy = true;   // 전환 대기 중 추가 제출 차단
 
+            // 발각 통과 경로에서는 백엔드 Finish가 Success가 아니라 열쇠를 주지 않으므로 직접 지급
+            if (exposed && (enemy?.secret?.hasBossRoomKey ?? false))
+                CurrentRun?.GrantBossRoomKey();
+
+            string head = exposed
+                ? $"들켰지만 코드 [{session.SessionCodeValue}]는 챘다"
+                : $"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!";
+
             // 코드를 충분히 확인한 뒤 직접 넘어가게 (자동 전환 X)
             if (resultButton != null)
-                RevealResult($"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!" + AffinityNote, "빠져나가기");
+                RevealResult(head + AffinityNote, "빠져나가기");
             else
             {
                 if (resultOverlay != null) resultOverlay.SetActive(true);
-                if (outcomeText != null) outcomeText.text = $"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!" + AffinityNote;
+                if (outcomeText != null) outcomeText.text = head + AffinityNote;
                 StartCoroutine(WinRoutine());   // 버튼이 없으면 기존 자동 전환 폴백
             }
         }

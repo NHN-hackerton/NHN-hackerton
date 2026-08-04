@@ -13,13 +13,19 @@ namespace TopDogDetective.MainMenu
     /// </summary>
     public class CaseFileScreen : MonoBehaviour
     {
-        /// <summary>조직원 한 명분 얼굴 조각 스프라이트 (위→아래 3장, 컬러/흑백).</summary>
+        /// <summary>
+        /// 조직원 한 명분 초상화 조각 스프라이트 (위→아래 3장).
+        /// 초상화 전체를 3등분한 것으로, 못 얻은 조각은 블러판을 쓴다.
+        /// 블러는 초상화 전체에 한 번 걸고 나서 자르므로, 아무것도 못 알아낸 조직원은
+        /// 이음선 없는 '전체가 흐린 초상화'로 보인다.
+        /// (gray 필드명은 씬 연결을 깨지 않으려고 유지 — 실제 내용은 블러)
+        /// </summary>
         [System.Serializable]
         public class FaceSet
         {
             public string label = "조직원";
-            [Tooltip("위에서부터 1·2·3 조각 (컬러)")] public Sprite[] color = new Sprite[3];
-            [Tooltip("같은 순서의 흑백 조각")]        public Sprite[] gray  = new Sprite[3];
+            [Tooltip("위에서부터 1·2·3 조각 (컬러)")]   public Sprite[] color = new Sprite[3];
+            [Tooltip("같은 순서의 블러 조각")]          public Sprite[] gray  = new Sprite[3];
         }
 
         [Header("조직원별 얼굴 조각 (신참·금고지기·측근 순)")]

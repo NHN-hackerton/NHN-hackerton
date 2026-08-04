@@ -19649,6 +19649,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da9a06a46c0d8da469cda217f7ea5892, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuController
+  caseFileScreen: {fileID: 974906913}
 --- !u!4 &1144126268
 Transform:
   m_ObjectHideFlags: 0
@@ -28551,6 +28552,7 @@ MonoBehaviour:
   chaserJumpTrigger: 210
   extraChaserSkins:
   - label: "\uBCF4\uC2A4 \uCE21\uADFC"
+    enemyId: member_c_lieutenant
     runFrames:
     - {fileID: 21300000, guid: 35bc4a7af1ab504459c7b322f847a3f7, type: 3}
     - {fileID: 21300000, guid: 7cab5043a5577354b8b93fb4ce4cfc21, type: 3}
@@ -28559,6 +28561,7 @@ MonoBehaviour:
     jumpFrame: {fileID: 21300000, guid: f91b66ef9dc728b4685013d4ee4a72ca, type: 3}
     height: 300
   - label: "\uAE08\uACE0\uC9C0\uAE30"
+    enemyId: member_b_keeper
     runFrames:
     - {fileID: 21300000, guid: 7b85aeea71be68d41a6598a7ffa8294f, type: 3}
     - {fileID: 21300000, guid: 55031acf047bef54790c1a713d6c73c2, type: 3}
@@ -28567,6 +28570,7 @@ MonoBehaviour:
     jumpFrame: {fileID: 21300000, guid: 2bb81c5b07b2ede46886ddc7e92be36a, type: 3}
     height: 275
   - label: "\uC2E0\uCC38"
+    enemyId: member_a_rookie
     runFrames:
     - {fileID: 21300000, guid: f2e6aeab7afd7754994ac9a8281ea8ed, type: 3}
     - {fileID: 21300000, guid: 95bc37daee1938644b574128e8422a86, type: 3}

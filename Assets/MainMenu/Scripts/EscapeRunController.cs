@@ -52,6 +52,8 @@ namespace TopDogDetective.MainMenu
         public class ChaserSkin
         {
             public string label = "조직원";
+            [Tooltip("이 조직원의 id (member_a_rookie 등). 친밀 100%면 추격에서 빠진다.")]
+            public string enemyId;
             public Sprite[] runFrames;
             public Sprite jumpFrame;
             [Tooltip("화면상 키(px)")] public float height = 270f;
@@ -636,7 +638,10 @@ namespace TopDogDetective.MainMenu
             }
         }
 
-        /// <summary>난이도가 정한 추격 인원(선두 1명 제외)만큼 뒤따르는 추격자를 만든다.</summary>
+        /// <summary>
+        /// 뒤따르는 추격자를 만든다. 선두(보스)는 항상 쫓아오고,
+        /// 마음을 얻은 조직원(친밀 100%)은 추격에서 빠진다.
+        /// </summary>
         private void BuildExtraChasers()
         {
             foreach (var e in extras)
@@ -645,11 +650,20 @@ namespace TopDogDetective.MainMenu
 
             if (chaser == null || extraChaserSkins == null || extraChaserSkins.Length == 0) return;
 
-            int need = Mathf.Max(0, diff.chasers - 1);   // 선두는 이미 씬에 있다
-            for (int i = 0; i < need && i < extraChaserSkins.Length; i++)
+            // 추격에 참여할 조직원만 고른다 (친밀 100%면 제외 — id가 비어 있으면 항상 참여)
+            var joining = new List<ChaserSkin>();
+            foreach (var s in extraChaserSkins)
             {
-                var skin = extraChaserSkins[i];
-                if (skin == null || skin.runFrames == null || skin.runFrames.Length == 0) continue;
+                if (s == null || s.runFrames == null || s.runFrames.Length == 0) continue;
+                bool won = Run != null && !string.IsNullOrEmpty(s.enemyId) && Run.IsAffinityMaxed(s.enemyId);
+                if (won) { Debug.Log($"[Escape] {s.label} — 마음을 얻어 추격에서 빠졌다"); continue; }
+                joining.Add(s);
+            }
+
+            int need = joining.Count;
+            for (int i = 0; i < need; i++)
+            {
+                var skin = joining[i];
 
                 var go = new GameObject(ExtraChaserName + "_" + skin.label, typeof(RectTransform), typeof(Image));
                 var rt = go.GetComponent<RectTransform>();
@@ -734,7 +748,7 @@ namespace TopDogDetective.MainMenu
             if (distanceText != null)
                 distanceText.text = $"{Mathf.Min(progress, diff.courseLength):0} / {diff.courseLength:0}";
             if (chaserText != null)
-                chaserText.text = $"추격 {diff.chasers}명 · 거리 {Mathf.Max(0f, chaserGap):0}";
+                chaserText.text = $"추격 {extras.Count + 1}명 · 거리 {Mathf.Max(0f, chaserGap):0}";   // 선두(보스) + 실제로 따라오는 인원
             if (progressFill != null)
                 progressFill.fillAmount = Mathf.Clamp01(progress / diff.courseLength);
         }
