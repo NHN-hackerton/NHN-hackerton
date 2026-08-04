@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 2176711}
   - component: {fileID: 2176710}
   - component: {fileID: 2176709}
+  - component: {fileID: 2176712}
   m_Layer: 0
   m_Name: NextButton
   m_TagString: Untagged
@@ -240,6 +241,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2176707}
   m_CullTransparentMesh: 1
+--- !u!114 &2176712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2176707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &10247153
 GameObject:
   m_ObjectHideFlags: 0
@@ -834,6 +852,7 @@ GameObject:
   - component: {fileID: 86547358}
   - component: {fileID: 86547357}
   - component: {fileID: 86547356}
+  - component: {fileID: 86547359}
   m_Layer: 0
   m_Name: CaseFileButton
   m_TagString: Untagged
@@ -955,6 +974,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 86547354}
   m_CullTransparentMesh: 1
+--- !u!114 &86547359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 86547354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &88191235
 GameObject:
   m_ObjectHideFlags: 0
@@ -1514,6 +1550,7 @@ GameObject:
   - component: {fileID: 126726936}
   - component: {fileID: 126726935}
   - component: {fileID: 126726934}
+  - component: {fileID: 126726937}
   m_Layer: 0
   m_Name: ResultButton
   m_TagString: Untagged
@@ -1623,6 +1660,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 126726932}
   m_CullTransparentMesh: 1
+--- !u!114 &126726937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126726932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &132843761
 GameObject:
   m_ObjectHideFlags: 0
@@ -1757,10 +1811,10 @@ MonoBehaviour:
   - {fileID: 399031572}
   - {fileID: 577855882}
   portraitImage: {fileID: 2004703285}
-  neutralSprite: {fileID: -5585117145177496942, guid: 7713d1e518dd9d549a4ec0c9a65accd9, type: 3}
-  angrySprite: {fileID: 2629125597824865886, guid: e447095ccaae5814bbd620accd9e1c8b, type: 3}
-  doubtSprite: {fileID: 1747386586718932772, guid: 187859fcefcedf042a1a245da42e6fca, type: 3}
-  trustSprite: {fileID: -5585117145177496942, guid: 7713d1e518dd9d549a4ec0c9a65accd9, type: 3}
+  neutralSprite: {fileID: 21300000, guid: 7713d1e518dd9d549a4ec0c9a65accd9, type: 3}
+  angrySprite: {fileID: 21300000, guid: e447095ccaae5814bbd620accd9e1c8b, type: 3}
+  doubtSprite: {fileID: 21300000, guid: 187859fcefcedf042a1a245da42e6fca, type: 3}
+  trustSprite: {fileID: 21300000, guid: 7713d1e518dd9d549a4ec0c9a65accd9, type: 3}
   testAutoCycle: 0
 --- !u!114 &132843767
 MonoBehaviour:
@@ -1793,7 +1847,6 @@ MonoBehaviour:
   resultButton: {fileID: 126726934}
   searchMap: {fileID: 1523925499}
   nextChapter: {fileID: 1637763092}
-  newRoundSuspicionRelief: 20
 --- !u!114 &132843768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2051,7 +2104,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 4567963873986056961, guid: 9b062ff78dafe66449d8c7092790f016, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9b062ff78dafe66449d8c7092790f016, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2810,6 +2863,7 @@ GameObject:
   - component: {fileID: 222581987}
   - component: {fileID: 222581986}
   - component: {fileID: 222581985}
+  - component: {fileID: 222581988}
   m_Layer: 0
   m_Name: SubmitButton
   m_TagString: Untagged
@@ -2919,6 +2973,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 222581983}
   m_CullTransparentMesh: 1
+--- !u!114 &222581988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 222581983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &230748794
 GameObject:
   m_ObjectHideFlags: 0
@@ -3068,6 +3139,7 @@ GameObject:
   - component: {fileID: 244236728}
   - component: {fileID: 244236727}
   - component: {fileID: 244236726}
+  - component: {fileID: 244236729}
   m_Layer: 0
   m_Name: NextButton
   m_TagString: Untagged
@@ -3177,6 +3249,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 244236724}
   m_CullTransparentMesh: 1
+--- !u!114 &244236729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244236724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &244362932
 GameObject:
   m_ObjectHideFlags: 0
@@ -3394,6 +3483,7 @@ GameObject:
   - component: {fileID: 248759465}
   - component: {fileID: 248759464}
   - component: {fileID: 248759463}
+  - component: {fileID: 248759466}
   m_Layer: 0
   m_Name: SettingsHotspot
   m_TagString: Untagged
@@ -3514,6 +3604,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 248759461}
   m_CullTransparentMesh: 1
+--- !u!114 &248759466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248759461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &248984614
 GameObject:
   m_ObjectHideFlags: 0
@@ -3986,6 +4093,7 @@ GameObject:
   - component: {fileID: 285838610}
   - component: {fileID: 285838609}
   - component: {fileID: 285838608}
+  - component: {fileID: 285838611}
   m_Layer: 0
   m_Name: NextButton
   m_TagString: Untagged
@@ -4095,6 +4203,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 285838606}
   m_CullTransparentMesh: 1
+--- !u!114 &285838611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 285838606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &288989872
 GameObject:
   m_ObjectHideFlags: 0
@@ -4108,6 +4233,7 @@ GameObject:
   - component: {fileID: 288989876}
   - component: {fileID: 288989875}
   - component: {fileID: 288989874}
+  - component: {fileID: 288989878}
   m_Layer: 0
   m_Name: Btn_Back
   m_TagString: Untagged
@@ -4233,6 +4359,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 288989872}
   m_CullTransparentMesh: 1
+--- !u!114 &288989878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 288989872}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &296636476
 GameObject:
   m_ObjectHideFlags: 0
@@ -4793,7 +4936,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7690802524416483742, guid: a98c256cd96a773468c2beb4dc62ac6e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a98c256cd96a773468c2beb4dc62ac6e, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -4960,6 +5103,7 @@ GameObject:
   - component: {fileID: 348008058}
   - component: {fileID: 348008057}
   - component: {fileID: 348008056}
+  - component: {fileID: 348008059}
   m_Layer: 0
   m_Name: CaseFileButton
   m_TagString: Untagged
@@ -5081,6 +5225,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 348008054}
   m_CullTransparentMesh: 1
+--- !u!114 &348008059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 348008054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &355526952
 GameObject:
   m_ObjectHideFlags: 0
@@ -5194,7 +5355,6 @@ MonoBehaviour:
   resultButton: {fileID: 1371573466}
   searchMap: {fileID: 166928023}
   nextChapter: {fileID: 444893257}
-  newRoundSuspicionRelief: 20
 --- !u!114 &355526956
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5553,6 +5713,7 @@ GameObject:
   - component: {fileID: 372892530}
   - component: {fileID: 372892529}
   - component: {fileID: 372892528}
+  - component: {fileID: 372892531}
   m_Layer: 0
   m_Name: NextButton
   m_TagString: Untagged
@@ -5662,6 +5823,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 372892526}
   m_CullTransparentMesh: 1
+--- !u!114 &372892531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 372892526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &375392128
 GameObject:
   m_ObjectHideFlags: 0
@@ -6015,6 +6193,7 @@ GameObject:
   - component: {fileID: 395235287}
   - component: {fileID: 395235286}
   - component: {fileID: 395235285}
+  - component: {fileID: 395235288}
   m_Layer: 0
   m_Name: SubmitButton
   m_TagString: Untagged
@@ -6124,6 +6303,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 395235283}
   m_CullTransparentMesh: 1
+--- !u!114 &395235288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395235283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &399031570
 GameObject:
   m_ObjectHideFlags: 0
@@ -8279,7 +8475,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -3851252129474515796, guid: 9dfcfa5a0ab96c44fa1c7d9dc3efe48b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9dfcfa5a0ab96c44fa1c7d9dc3efe48b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8536,6 +8732,7 @@ GameObject:
   - component: {fileID: 583814135}
   - component: {fileID: 583814134}
   - component: {fileID: 583814133}
+  - component: {fileID: 583814136}
   m_Layer: 0
   m_Name: ResultButton
   m_TagString: Untagged
@@ -8645,6 +8842,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 583814131}
   m_CullTransparentMesh: 1
+--- !u!114 &583814136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583814131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &587608154
 GameObject:
   m_ObjectHideFlags: 0
@@ -9767,6 +9981,7 @@ GameObject:
   - component: {fileID: 645155798}
   - component: {fileID: 645155797}
   - component: {fileID: 645155796}
+  - component: {fileID: 645155799}
   m_Layer: 0
   m_Name: NextButton
   m_TagString: Untagged
@@ -9876,6 +10091,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 645155794}
   m_CullTransparentMesh: 1
+--- !u!114 &645155799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 645155794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &650845720
 GameObject:
   m_ObjectHideFlags: 0
@@ -9888,6 +10120,7 @@ GameObject:
   - component: {fileID: 650845724}
   - component: {fileID: 650845723}
   - component: {fileID: 650845722}
+  - component: {fileID: 650845725}
   m_Layer: 0
   m_Name: Speed_0
   m_TagString: Untagged
@@ -9998,6 +10231,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 650845720}
   m_CullTransparentMesh: 1
+--- !u!114 &650845725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 650845720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &657842638
 GameObject:
   m_ObjectHideFlags: 0
@@ -10145,7 +10395,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 515499642126619245, guid: 4645ef17179297e4582640deae852f66, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4645ef17179297e4582640deae852f66, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -11243,6 +11493,7 @@ GameObject:
   - component: {fileID: 735775672}
   - component: {fileID: 735775673}
   - component: {fileID: 735775671}
+  - component: {fileID: 735775676}
   m_Layer: 0
   m_Name: Btn_Back
   m_TagString: Untagged
@@ -11367,6 +11618,23 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -3.3154297}
   m_SizeDelta: {x: 0, y: -22.991}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &735775676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 735775670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &740468807
 GameObject:
   m_ObjectHideFlags: 0
@@ -11516,6 +11784,7 @@ GameObject:
   - component: {fileID: 743967542}
   - component: {fileID: 743967541}
   - component: {fileID: 743967540}
+  - component: {fileID: 743967543}
   m_Layer: 0
   m_Name: CloseButton
   m_TagString: Untagged
@@ -11625,6 +11894,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 743967538}
   m_CullTransparentMesh: 1
+--- !u!114 &743967543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 743967538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &748554356
 GameObject:
   m_ObjectHideFlags: 0
@@ -13319,7 +13605,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 8038019224495822277, guid: 2790578051fbf2d4f910a08aa0879b2c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2790578051fbf2d4f910a08aa0879b2c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13623,6 +13909,7 @@ GameObject:
   - component: {fileID: 838653711}
   - component: {fileID: 838653710}
   - component: {fileID: 838653709}
+  - component: {fileID: 838653712}
   m_Layer: 0
   m_Name: Speed_2
   m_TagString: Untagged
@@ -13733,6 +14020,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 838653707}
   m_CullTransparentMesh: 1
+--- !u!114 &838653712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 838653707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &839583379
 GameObject:
   m_ObjectHideFlags: 0
@@ -13944,6 +14248,7 @@ GameObject:
   - component: {fileID: 851943944}
   - component: {fileID: 851943943}
   - component: {fileID: 851943945}
+  - component: {fileID: 851943946}
   m_Layer: 0
   m_Name: CASE FILES
   m_TagString: Untagged
@@ -14012,7 +14317,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 851943944}
+  m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -14095,11 +14400,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuIconHoverAnimation
   iconImage: {fileID: 1056547095}
-  normalSprite: {fileID: 6447876746356451476, guid: 28565d0f8e709754285dfdccf7c0cd05, type: 3}
-  hoverSprite: {fileID: -1840199313211471714, guid: 0b4108ced3ad4304aac90d7de713b484, type: 3}
+  normalSprite: {fileID: 21300000, guid: 28565d0f8e709754285dfdccf7c0cd05, type: 3}
+  hoverSprite: {fileID: 21300000, guid: 0b4108ced3ad4304aac90d7de713b484, type: 3}
   rotateWhileHovered: 0
   rotationSpeed: 210
   swapDuration: 0.16
+--- !u!114 &851943946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 851943937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &853157395
 GameObject:
   m_ObjectHideFlags: 0
@@ -14249,6 +14571,7 @@ GameObject:
   - component: {fileID: 854943448}
   - component: {fileID: 854943447}
   - component: {fileID: 854943446}
+  - component: {fileID: 854943449}
   m_Layer: 0
   m_Name: SettingsHotspot
   m_TagString: Untagged
@@ -14369,6 +14692,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 854943444}
   m_CullTransparentMesh: 1
+--- !u!114 &854943449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854943444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &899916551
 GameObject:
   m_ObjectHideFlags: 0
@@ -15241,6 +15581,7 @@ GameObject:
   - component: {fileID: 941473977}
   - component: {fileID: 941473976}
   - component: {fileID: 941473975}
+  - component: {fileID: 941473978}
   m_Layer: 0
   m_Name: SettingsHotspot
   m_TagString: Untagged
@@ -15361,6 +15702,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 941473973}
   m_CullTransparentMesh: 1
+--- !u!114 &941473978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941473973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &946979981
 GameObject:
   m_ObjectHideFlags: 0
@@ -15373,6 +15731,7 @@ GameObject:
   - component: {fileID: 946979985}
   - component: {fileID: 946979984}
   - component: {fileID: 946979983}
+  - component: {fileID: 946979986}
   m_Layer: 0
   m_Name: StartButton
   m_TagString: Untagged
@@ -15506,6 +15865,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 946979981}
   m_CullTransparentMesh: 1
+--- !u!114 &946979986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946979981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &947192142
 GameObject:
   m_ObjectHideFlags: 0
@@ -16003,7 +16379,6 @@ MonoBehaviour:
   resultButton: {fileID: 1256070400}
   searchMap: {fileID: 1083973714}
   nextChapter: {fileID: 613231855}
-  newRoundSuspicionRelief: 20
 --- !u!114 &954496007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17956,7 +18331,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 6447876746356451476, guid: 28565d0f8e709754285dfdccf7c0cd05, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 28565d0f8e709754285dfdccf7c0cd05, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -18545,7 +18920,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -6996348207556801637, guid: 9b2de9b979291344b92d7bab579a3be2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9b2de9b979291344b92d7bab579a3be2, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -18714,7 +19089,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1634401100545898919, guid: 04077213cc9b72b419209dbc2ee81d63, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 04077213cc9b72b419209dbc2ee81d63, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -20008,6 +20383,7 @@ GameObject:
   - component: {fileID: 1153788285}
   - component: {fileID: 1153788284}
   - component: {fileID: 1153788283}
+  - component: {fileID: 1153788286}
   m_Layer: 0
   m_Name: SubmitButton
   m_TagString: Untagged
@@ -20117,6 +20493,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1153788281}
   m_CullTransparentMesh: 1
+--- !u!114 &1153788286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153788281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1154543610
 GameObject:
   m_ObjectHideFlags: 0
@@ -21367,7 +21760,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5762955162220442975, guid: f3bc2a680299dd04badc9d4240deaffd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f3bc2a680299dd04badc9d4240deaffd, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -21609,6 +22002,7 @@ GameObject:
   - component: {fileID: 1256070402}
   - component: {fileID: 1256070401}
   - component: {fileID: 1256070400}
+  - component: {fileID: 1256070403}
   m_Layer: 0
   m_Name: ResultButton
   m_TagString: Untagged
@@ -21718,6 +22112,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1256070398}
   m_CullTransparentMesh: 1
+--- !u!114 &1256070403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256070398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1264484614
 GameObject:
   m_ObjectHideFlags: 0
@@ -22516,6 +22927,7 @@ GameObject:
   - component: {fileID: 1324465391}
   - component: {fileID: 1324465390}
   - component: {fileID: 1324465389}
+  - component: {fileID: 1324465392}
   m_Layer: 0
   m_Name: NextButton
   m_TagString: Untagged
@@ -22625,6 +23037,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1324465387}
   m_CullTransparentMesh: 1
+--- !u!114 &1324465392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324465387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1329706809
 GameObject:
   m_ObjectHideFlags: 0
@@ -23423,6 +23852,7 @@ GameObject:
   - component: {fileID: 1371573468}
   - component: {fileID: 1371573467}
   - component: {fileID: 1371573466}
+  - component: {fileID: 1371573469}
   m_Layer: 0
   m_Name: ResultButton
   m_TagString: Untagged
@@ -23532,6 +23962,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1371573464}
   m_CullTransparentMesh: 1
+--- !u!114 &1371573469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371573464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1373677719
 GameObject:
   m_ObjectHideFlags: 0
@@ -24223,7 +24670,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -6525251533827417197, guid: 748872c273dd8fc49b64f391584ad3c5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 748872c273dd8fc49b64f391584ad3c5, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -24253,6 +24700,7 @@ GameObject:
   - component: {fileID: 1419139476}
   - component: {fileID: 1419139475}
   - component: {fileID: 1419139474}
+  - component: {fileID: 1419139477}
   m_Layer: 0
   m_Name: NextButton
   m_TagString: Untagged
@@ -24362,6 +24810,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1419139472}
   m_CullTransparentMesh: 1
+--- !u!114 &1419139477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1419139472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1439694712
 GameObject:
   m_ObjectHideFlags: 0
@@ -25374,6 +25839,7 @@ GameObject:
   - component: {fileID: 1507948996}
   - component: {fileID: 1507948995}
   - component: {fileID: 1507948997}
+  - component: {fileID: 1507948998}
   m_Layer: 0
   m_Name: CHAPTER SELECT
   m_TagString: Untagged
@@ -25442,7 +25908,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 1507948996}
+  m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -25525,11 +25991,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuIconHoverAnimation
   iconImage: {fileID: 1990289999}
-  normalSprite: {fileID: -5660726151704414263, guid: af85ea81c1fc7f048aa815ebd4abfcf5, type: 3}
-  hoverSprite: {fileID: -6165665887390224617, guid: b0f6652fcb60da443ab411ebd6c59b5c, type: 3}
+  normalSprite: {fileID: 21300000, guid: af85ea81c1fc7f048aa815ebd4abfcf5, type: 3}
+  hoverSprite: {fileID: 21300000, guid: b0f6652fcb60da443ab411ebd6c59b5c, type: 3}
   rotateWhileHovered: 0
   rotationSpeed: 210
   swapDuration: 0.16
+--- !u!114 &1507948998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1507948989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1513384716
 GameObject:
   m_ObjectHideFlags: 0
@@ -25889,7 +26372,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5979767925627942625, guid: 328cdf8807c844d44a0170fb471c9672, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 328cdf8807c844d44a0170fb471c9672, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -26554,6 +27037,7 @@ GameObject:
   - component: {fileID: 1558334304}
   - component: {fileID: 1558334303}
   - component: {fileID: 1558334302}
+  - component: {fileID: 1558334305}
   m_Layer: 0
   m_Name: CaseFileButton
   m_TagString: Untagged
@@ -26675,6 +27159,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1558334300}
   m_CullTransparentMesh: 1
+--- !u!114 &1558334305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1558334300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!21 &1574908721
 Material:
   serializedVersion: 8
@@ -26892,6 +27393,7 @@ GameObject:
   - component: {fileID: 1591281183}
   - component: {fileID: 1591281182}
   - component: {fileID: 1591281181}
+  - component: {fileID: 1591281184}
   m_Layer: 0
   m_Name: NextButton
   m_TagString: Untagged
@@ -27001,6 +27503,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1591281179}
   m_CullTransparentMesh: 1
+--- !u!114 &1591281184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591281179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1600942868
 GameObject:
   m_ObjectHideFlags: 0
@@ -27289,6 +27808,7 @@ GameObject:
   - component: {fileID: 1637279305}
   - component: {fileID: 1637279304}
   - component: {fileID: 1637279306}
+  - component: {fileID: 1637279307}
   m_Layer: 0
   m_Name: OPTIONS
   m_TagString: Untagged
@@ -27357,7 +27877,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 1637279305}
+  m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -27440,11 +27960,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuIconHoverAnimation
   iconImage: {fileID: 1095030926}
-  normalSprite: {fileID: -1634401100545898919, guid: 04077213cc9b72b419209dbc2ee81d63, type: 3}
-  hoverSprite: {fileID: -1634401100545898919, guid: 04077213cc9b72b419209dbc2ee81d63, type: 3}
+  normalSprite: {fileID: 21300000, guid: 04077213cc9b72b419209dbc2ee81d63, type: 3}
+  hoverSprite: {fileID: 21300000, guid: 04077213cc9b72b419209dbc2ee81d63, type: 3}
   rotateWhileHovered: 1
   rotationSpeed: 210
   swapDuration: 0.16
+--- !u!114 &1637279307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1637279298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1637763092
 GameObject:
   m_ObjectHideFlags: 0
@@ -28218,7 +28755,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1630021816184374117, guid: eb69fecd2ffeb954d8983139b030cf21, type: 3}
+  m_Sprite: {fileID: 21300000, guid: eb69fecd2ffeb954d8983139b030cf21, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -28323,7 +28860,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 3144551447647334354, guid: d8b1cdf62988a104ebcc7edd7314cf76, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d8b1cdf62988a104ebcc7edd7314cf76, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -28611,6 +29148,9 @@ MonoBehaviour:
   obstacleMinHeight: 150
   obstacleMaxHeight: 200
   obstacleMaxWidth: 240
+  gapFloor: 620
+  tightBurstChance: 0.28
+  maxSameInRow: 2
   distanceText: {fileID: 1074609400}
   chaserText: {fileID: 1614532202}
   messageText: {fileID: 543726151}
@@ -29218,6 +29758,7 @@ GameObject:
   - component: {fileID: 1795447140}
   - component: {fileID: 1795447139}
   - component: {fileID: 1795447138}
+  - component: {fileID: 1795447141}
   m_Layer: 0
   m_Name: SettingsHotspot
   m_TagString: Untagged
@@ -29338,6 +29879,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1795447136}
   m_CullTransparentMesh: 1
+--- !u!114 &1795447141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1795447136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1808830026
 GameObject:
   m_ObjectHideFlags: 0
@@ -30899,6 +31457,7 @@ GameObject:
   - component: {fileID: 1896562611}
   - component: {fileID: 1896562610}
   - component: {fileID: 1896562609}
+  - component: {fileID: 1896562612}
   m_Layer: 0
   m_Name: SubmitButton
   m_TagString: Untagged
@@ -31008,6 +31567,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1896562607}
   m_CullTransparentMesh: 1
+--- !u!114 &1896562612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1896562607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1900342195
 GameObject:
   m_ObjectHideFlags: 0
@@ -31430,6 +32006,7 @@ GameObject:
   - component: {fileID: 1911157939}
   - component: {fileID: 1911157938}
   - component: {fileID: 1911157940}
+  - component: {fileID: 1911157941}
   m_Layer: 0
   m_Name: EXIT
   m_TagString: Untagged
@@ -31498,7 +32075,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 1911157939}
+  m_TargetGraphic: {fileID: 0}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -31581,11 +32158,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuIconHoverAnimation
   iconImage: {fileID: 658561918}
-  normalSprite: {fileID: 515499642126619245, guid: 4645ef17179297e4582640deae852f66, type: 3}
-  hoverSprite: {fileID: 6674931920615415925, guid: 098ba82cb1454594ba94edbbc4937c07, type: 3}
+  normalSprite: {fileID: 21300000, guid: 4645ef17179297e4582640deae852f66, type: 3}
+  hoverSprite: {fileID: 21300000, guid: 098ba82cb1454594ba94edbbc4937c07, type: 3}
   rotateWhileHovered: 0
   rotationSpeed: 210
   swapDuration: 0.16
+--- !u!114 &1911157941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1911157932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1916832793
 GameObject:
   m_ObjectHideFlags: 0
@@ -31923,6 +32517,7 @@ GameObject:
   - component: {fileID: 1943374312}
   - component: {fileID: 1943374311}
   - component: {fileID: 1943374310}
+  - component: {fileID: 1943374313}
   m_Layer: 0
   m_Name: RestartButton
   m_TagString: Untagged
@@ -32032,6 +32627,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1943374308}
   m_CullTransparentMesh: 1
+--- !u!114 &1943374313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1943374308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &1964735876
 GameObject:
   m_ObjectHideFlags: 0
@@ -32363,10 +32975,10 @@ MonoBehaviour:
   dialogueText: {fileID: 2095960754}
   nextButton: {fileID: 645155796}
   frames:
-  - {fileID: -6525251533827417197, guid: 748872c273dd8fc49b64f391584ad3c5, type: 3}
-  - {fileID: -154269249030348198, guid: a3d9324f6c637ce43817c453fb612df8, type: 3}
-  - {fileID: -7465307106225235979, guid: 16097cb3b5c31d5479b2fd4842ec1cd6, type: 3}
-  - {fileID: -7083523246791027351, guid: e1cc2d6ac479ff742bb4609ef76406a6, type: 3}
+  - {fileID: 21300000, guid: 748872c273dd8fc49b64f391584ad3c5, type: 3}
+  - {fileID: 21300000, guid: a3d9324f6c637ce43817c453fb612df8, type: 3}
+  - {fileID: 21300000, guid: 16097cb3b5c31d5479b2fd4842ec1cd6, type: 3}
+  - {fileID: 21300000, guid: e1cc2d6ac479ff742bb4609ef76406a6, type: 3}
   lines:
   - "\uACE0\uC591\uC774 \uBC94\uC8C4\uC870\uC9C1\uC774 \uB3C4\uC2DC\uB97C \uC190\uC5D0
     \uB123\uC5C8\uB2E4.\n\uADF8\uB9AC\uACE0 \uB3C4\uC2EC \uD55C\uBCF5\uD310\uC5D0,
@@ -32483,7 +33095,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5660726151704414263, guid: af85ea81c1fc7f048aa815ebd4abfcf5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: af85ea81c1fc7f048aa815ebd4abfcf5, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -32558,7 +33170,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5585117145177496942, guid: 7713d1e518dd9d549a4ec0c9a65accd9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7713d1e518dd9d549a4ec0c9a65accd9, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -32725,6 +33337,7 @@ GameObject:
   - component: {fileID: 2017897671}
   - component: {fileID: 2017897670}
   - component: {fileID: 2017897669}
+  - component: {fileID: 2017897672}
   m_Layer: 0
   m_Name: NextButton
   m_TagString: Untagged
@@ -32834,6 +33447,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2017897667}
   m_CullTransparentMesh: 1
+--- !u!114 &2017897672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2017897667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &2019028028
 GameObject:
   m_ObjectHideFlags: 0
@@ -33987,6 +34617,7 @@ GameObject:
   - component: {fileID: 2055105864}
   - component: {fileID: 2055105863}
   - component: {fileID: 2055105862}
+  - component: {fileID: 2055105865}
   m_Layer: 0
   m_Name: Speed_1
   m_TagString: Untagged
@@ -34097,6 +34728,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2055105860}
   m_CullTransparentMesh: 1
+--- !u!114 &2055105865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2055105860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &2058445630
 GameObject:
   m_ObjectHideFlags: 0
@@ -34240,6 +34888,7 @@ GameObject:
   - component: {fileID: 2071254488}
   - component: {fileID: 2071254487}
   - component: {fileID: 2071254486}
+  - component: {fileID: 2071254490}
   m_Layer: 0
   m_Name: Btn_Apply
   m_TagString: Untagged
@@ -34365,6 +35014,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2071254484}
   m_CullTransparentMesh: 1
+--- !u!114 &2071254490
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2071254484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &2072612351
 GameObject:
   m_ObjectHideFlags: 0
@@ -35064,6 +35730,7 @@ GameObject:
   - component: {fileID: 2112400355}
   - component: {fileID: 2112400354}
   - component: {fileID: 2112400353}
+  - component: {fileID: 2112400356}
   m_Layer: 0
   m_Name: BackspaceButton
   m_TagString: Untagged
@@ -35173,6 +35840,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2112400351}
   m_CullTransparentMesh: 1
+--- !u!114 &2112400356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2112400351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1 &2118362787
 GameObject:
   m_ObjectHideFlags: 0
@@ -35945,6 +36629,7 @@ GameObject:
   - component: {fileID: 2146481768}
   - component: {fileID: 2146481767}
   - component: {fileID: 2146481766}
+  - component: {fileID: 2146481769}
   m_Layer: 0
   m_Name: CaseFileButton
   m_TagString: Untagged
@@ -36066,6 +36751,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2146481764}
   m_CullTransparentMesh: 1
+--- !u!114 &2146481769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2146481764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e0a84727dc0644abd4440db4f9739e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ButtonTween
+  hoverScale: 1.05
+  pressScale: 0.94
+  punchStrength: 0.12
+  moveTime: 0.1
+  punchTime: 0.22
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
