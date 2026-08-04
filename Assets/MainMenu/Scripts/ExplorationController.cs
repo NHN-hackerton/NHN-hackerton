@@ -30,9 +30,13 @@ namespace TopDogDetective.MainMenu
         /// <summary>탐색으로 획득한 단서(키워드 카드) 목록. 심문 화면 손패가 이걸 읽는다.</summary>
         public static readonly System.Collections.Generic.List<string> CollectedClues = new System.Collections.Generic.List<string>();
 
-        private void Start()
+        // 맵에 들어올 때마다 초기화한다. Start로 두면 한 번만 돌아서,
+        // 재도전으로 맵에 다시 들어왔을 때 Hotspot은 조사 상태가 풀리는데(각자 OnEnable)
+        // 카운터와 단서 목록은 그대로 남아 단서가 두 번씩 쌓인다. (8/4, 카드 중복)
+        private void OnEnable()
         {
             CollectedClues.Clear();
+            found = 0;
             total = 0;
             foreach (var h in GetComponentsInChildren<Hotspot>(true))
                 if (h.AddsClue) total++;   // 단서 주는 핫스팟만 집계 (문 등 제외)
@@ -52,8 +56,9 @@ namespace TopDogDetective.MainMenu
         /// <summary>Hotspot이 조사됐을 때 호출. keywordId는 심문 손패로, displayName은 토스트 표시용.</summary>
         public void AddClue(string keywordId, string displayName)
         {
-            found++;
-            if (!string.IsNullOrEmpty(keywordId)) CollectedClues.Add(keywordId);
+            found = Mathf.Min(found + 1, Mathf.Max(total, 1));   // 카운터가 total을 넘지 않게
+            if (!string.IsNullOrEmpty(keywordId) && !CollectedClues.Contains(keywordId))
+                CollectedClues.Add(keywordId);                    // 같은 단서를 두 번 담지 않는다
             UpdateCounter();
             ShowMessage("〈" + displayName + "〉 단서에 추가됨");
         }

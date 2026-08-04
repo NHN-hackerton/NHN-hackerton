@@ -97,6 +97,15 @@ namespace TopDogDetective.MainMenu
             if (CurrentRun == null) CurrentRun = new RunState();
             run = CurrentRun;
 
+            // 의심도는 조직원별로 0에서 시작한다.
+            // (런에 누적하면 앞 라운드 잔고 때문에 3라운드가 시작부터 발각권에 들어간다.
+            //  의심도는 '그 조직원이 나를 얼마나 의심하는가'이므로 상대가 바뀌면 리셋이 맞다)
+            if (run.Suspicion != 0)
+            {
+                Debug.Log($"[HearingBattle] {enemy.displayName} 심문 시작 — 의심도 {run.Suspicion} → 0");
+                run.SetSuspicion(0);
+            }
+
             var collected = ExplorationController.CollectedClues;
             if (collected != null && collected.Count > 0)
                 foreach (var kw in collected) run.AcquireKeyword(kw);   // 탐색에서 모은 카드
