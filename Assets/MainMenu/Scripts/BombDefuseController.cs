@@ -222,7 +222,9 @@ namespace TopDogDetective.MainMenu
             tmp.fontStyle = FontStyles.Bold;
             tmp.color = new Color(0.98f, 0.86f, 0.55f);
 
-            go.AddComponent<ButtonTween>();   // 런타임 생성이라 씬에서 붙일 수 없다 (누르는 손맛)
+            // 런타임 생성이라 씬에서 붙일 수 없다 (누르는 손맛 + 클릭음)
+            go.AddComponent<ButtonTween>();
+            go.AddComponent<UiClickSound>();
 
             return go.GetComponent<Button>();
         }

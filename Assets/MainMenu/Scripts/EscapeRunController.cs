@@ -105,6 +105,10 @@ namespace TopDogDetective.MainMenu
         [Tooltip("같은 장애물이 이 횟수 넘게 연속으로 나오지 않게 막는다.")]
         [SerializeField] private int maxSameInRow = 2;
 
+        [Header("시작 안내")]
+        [Tooltip("점프 조작 안내를 몇 초 보여줄지")]
+        [SerializeField] private float jumpHintSeconds = 3.5f;
+
         [Header("HUD")]
         [SerializeField] private TMP_Text distanceText;
         [SerializeField] private TMP_Text chaserText;
@@ -205,6 +209,7 @@ namespace TopDogDetective.MainMenu
         // 장애물 셔플백: 한 바퀴 안에서 모든 종류가 한 번씩 나오고, 같은 게 연달아 나오지 않는다
         int lastObstacleIndex = -1;
         int sameInRow = 0;              // 같은 장애물이 연속으로 나온 횟수
+        float hintTimer;                // 시작 안내 문구 남은 시간
         float frameTimer;
         int frameIndex;
 
@@ -249,7 +254,10 @@ namespace TopDogDetective.MainMenu
             }
             else intro = false;
             if (resultButton != null) resultButton.gameObject.SetActive(false);
-            if (messageText != null) messageText.text = diff.flavor;
+            // 시작 문구에 조작법을 얹어 잠깐 알려준다 (도움말에 적어두면 아무도 안 읽는다)
+            if (messageText != null)
+                messageText.text = diff.flavor + "\n<size=80%>스페이스바로 점프 — 길게 누르면 더 높이</size>";
+            hintTimer = jumpHintSeconds;
 
             UpdateHud();
         }
@@ -261,6 +269,7 @@ namespace TopDogDetective.MainMenu
         {
             if (!running) return;
 
+            TickHint(dt);
             AdvanceFrameClock(dt);
             RunIntro(dt);
             HandleJump(dt);
@@ -396,6 +405,15 @@ namespace TopDogDetective.MainMenu
         }
 
         /// <summary>시작 연출: 형사가 자기 자리(중앙)까지 빠르게 달려나간다. 그동안 장애물은 안 나온다.</summary>
+        /// <summary>시작 안내 문구를 잠깐 보여준 뒤 지운다. (부딪힘 안내 같은 다른 문구는 건드리지 않는다)</summary>
+        private void TickHint(float dt)
+        {
+            if (hintTimer <= 0f) return;
+            hintTimer -= dt;
+            if (hintTimer > 0f) return;
+            if (messageText != null) messageText.text = "";
+        }
+
         private void RunIntro(float dt)
         {
             if (!intro || player == null) return;

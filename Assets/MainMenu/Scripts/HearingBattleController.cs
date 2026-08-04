@@ -118,7 +118,8 @@ namespace TopDogDetective.MainMenu
             won     = false;
 
             if (outcomeText != null) outcomeText.text = "";
-            if (replyText != null)   replyText.text = $"{enemy.displayName}와의 심문을 시작한다.";
+            // 이름은 JSON에서 오므로 조사를 받침에 맞춘다 ("신참 조직원와의" → "…원과의")
+            if (replyText != null)   replyText.text = $"{Korean.Gwa(enemy.displayName)}의 심문을 시작한다.";
             if (resultButton != null) resultButton.gameObject.SetActive(false);
             if (resultOverlay != null) resultOverlay.SetActive(false);
             RefreshHud();

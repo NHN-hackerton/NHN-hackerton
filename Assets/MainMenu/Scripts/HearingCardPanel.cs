@@ -225,6 +225,7 @@ namespace TopDogDetective.MainMenu
             var img = go.AddComponent<Image>();
             img.color = CardNormal;
             go.AddComponent<Button>();
+            go.AddComponent<UiClickSound>();   // 카드도 클릭음 (런타임 생성이라 씬에서 못 붙임)
             if (w > 0f && h > 0f)
             {
                 var le = go.AddComponent<LayoutElement>();

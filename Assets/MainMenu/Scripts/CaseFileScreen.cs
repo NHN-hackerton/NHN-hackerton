@@ -124,6 +124,7 @@ namespace TopDogDetective.MainMenu
             {
                 var slot = entry.slots[b];   // 0=물증(위) 1=자백(중간) 2=속내(아래)
                 var band = new GameObject("Band" + (b + 1), typeof(RectTransform), typeof(Image), typeof(Button));
+                band.AddComponent<UiClickSound>();   // 런타임 생성이라 씬에서 붙일 수 없다
                 var brt = band.GetComponent<RectTransform>();
                 brt.SetParent(frt, false);
                 brt.anchorMin = brt.anchorMax = new Vector2(0f, 1f);
