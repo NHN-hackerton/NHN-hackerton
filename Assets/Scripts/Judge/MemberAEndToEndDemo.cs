@@ -8,8 +8,9 @@ namespace TopDogDetective.Judge
     using Data;
 
     /// <summary>
-    /// 조직원 A(신참) end-to-end 데모. Resources/Enemies/member_a_rookie.json을 로드해
+    /// 조직원 end-to-end 데모. Resources/Enemies/{enemyId}.json을 로드해
     /// 실제 배포된 LLM 프록시로 3턴 대화를 돌리고, 코드 획득 + 친밀도 상승을 검증한다.
+    /// 인스펙터의 enemyId만 바꾸면 A·B·C 아무나 테스트할 수 있다.
     ///
     /// [주의] 실제 Claude API를 호출해 토큰을 소모한다.
     ///        runOnStart는 기본 false — 씬에 두고 Play만 눌러도 자동 실행되지 않는다.
@@ -23,6 +24,7 @@ namespace TopDogDetective.Judge
         const string ProxyTokenEnvVar = "PROXY_TOKEN";
 
         [SerializeField] string proxyUrl = "";
+        [SerializeField] string enemyId = "member_a_rookie";
         [SerializeField] bool runOnStart = false;
 
         void Start()
@@ -51,45 +53,32 @@ namespace TopDogDetective.Judge
                 yield break;
             }
 
-            var enemy = EnemyDataLoader.Load("member_a_rookie");
+            var enemy = EnemyDataLoader.Load(enemyId);
             if (enemy == null)
             {
-                Debug.LogError("[MemberAEndToEndDemo] member_a_rookie 데이터를 불러오지 못했습니다.");
+                Debug.LogError($"[MemberAEndToEndDemo] {enemyId} 데이터를 불러오지 못했습니다.");
                 yield break;
             }
 
-            Debug.Log("═══ 조직원 A end-to-end (실제 LLM) 시작 ═══");
+            var scenario = BuildScenario(enemyId);
+            if (scenario == null)
+            {
+                Debug.LogError($"[MemberAEndToEndDemo] '{enemyId}'용 테스트 시나리오가 없습니다. " +
+                               "BuildScenario에 추가하세요.");
+                yield break;
+            }
+
+            Debug.Log($"═══ {enemy.displayName} end-to-end (실제 LLM) 시작 ═══");
 
             var run = new RunState();
-            run.AcquireKeyword("kw_rookie_pride");
-            run.AcquireKeyword("kw_code_digit");
+            foreach (var keywordId in scenario.SeedKeywords)
+                run.AcquireKeyword(keywordId);
 
             var session = new BattleSession(enemy, run);
             var judge = new LlmDialogueJudge(proxyUrl, proxyToken);
 
-            // 1턴 — 치켜세우기 (친밀)
-            yield return DialogueTestRunner.Submit(session, judge, new PlayerUtterance
-            {
-                KeywordCardIds = new List<string> { "kw_rookie_pride" },
-                FrameId = FrameIds.Praise,
-                ComposedText = "요즘 애들 중에 너만큼 야무진 놈이 없대."
-            });
-
-            // 2턴 — 코드 압박 (약점 적중 프레이밍 + 코드 키워드)
-            yield return DialogueTestRunner.Submit(session, judge, new PlayerUtterance
-            {
-                KeywordCardIds = new List<string> { "kw_code_digit" },
-                FrameId = FrameIds.Complicity,
-                ComposedText = "우리끼리니까 하는 말인데, 네 자리 하나만 확인하자."
-            });
-
-            // 3턴 — 잡담으로 무마 (친밀 + 의심 감소)
-            yield return DialogueTestRunner.Submit(session, judge, new PlayerUtterance
-            {
-                KeywordCardIds = new List<string> { "kw_rookie_pride" },
-                FrameId = FrameIds.SmallTalk,
-                ComposedText = "아무튼 오늘 고생했다. 나중에 밥이나 한번 먹자."
-            });
+            foreach (var utterance in scenario.Turns)
+                yield return DialogueTestRunner.Submit(session, judge, utterance);
 
             Debug.Log($"  → 결과: {session.LastOutcome} / 친밀 {run.GetAffinity(enemy.id)}% " +
                       $"/ 의심 {run.Suspicion}% / 코드 {run.ComposeCode()}");
@@ -104,8 +93,99 @@ namespace TopDogDetective.Judge
             else
                 Debug.LogWarning($"  ⚠️ 친밀도 {run.GetAffinity(enemy.id)}% — 목표(100%) 미달");
 
-            Debug.Log("═══ 조직원 A end-to-end 종료 ═══");
+            Debug.Log($"═══ {enemy.displayName} end-to-end 종료 ═══");
         }
+
+        // ── 조직원별 시나리오 ─────────────────────────────────
+        class Scenario
+        {
+            public List<string> SeedKeywords = new();
+            public List<PlayerUtterance> Turns = new();
+        }
+
+        static Scenario BuildScenario(string enemyId) => enemyId switch
+        {
+            "member_a_rookie" => new Scenario
+            {
+                // 인정욕구(need_recognition) — small_talk·praise·complicity에 반응
+                SeedKeywords = new List<string> { "kw_rookie_pride", "kw_code_digit" },
+                Turns = new List<PlayerUtterance>
+                {
+                    new() // 1턴 — 치켜세우기 (친밀)
+                    {
+                        KeywordCardIds = new List<string> { "kw_rookie_pride" },
+                        FrameId = FrameIds.Praise,
+                        ComposedText = "요즘 애들 중에 너만큼 야무진 놈이 없대."
+                    },
+                    new() // 2턴 — 코드 압박 (약점 적중 프레이밍 + 코드 키워드)
+                    {
+                        KeywordCardIds = new List<string> { "kw_code_digit" },
+                        FrameId = FrameIds.Complicity,
+                        ComposedText = "역시 너 정도 되니까 그 중요한 자리도 맡겼겠지. 몇 번째였는지 다시 말해줄 수 있어?"
+                    },
+                    new() // 3턴 — 잡담으로 무마 (친밀 + 의심 감소)
+                    {
+                        KeywordCardIds = new List<string> { "kw_rookie_pride" },
+                        FrameId = FrameIds.SmallTalk,
+                        ComposedText = "아무튼 오늘 고생했다. 나중에 밥이나 한번 먹자."
+                    }
+                }
+            },
+
+            "member_b_keeper" => new Scenario
+            {
+                // 보스 불만(boss_grievance) — empathy·complicity / 술 애착(fondness_for_drink) — small_talk·reciprocity
+                SeedKeywords = new List<string> { "kw_drink_offer", "kw_code_digit" },
+                Turns = new List<PlayerUtterance>
+                {
+                    new() // 1턴 — 잡담으로 긴장 풀기 (친밀)
+                    {
+                        KeywordCardIds = new List<string> { "kw_drink_offer" },
+                        FrameId = FrameIds.SmallTalk,
+                        ComposedText = "오늘따라 피곤해 보인다, 이따 한잔하러 가자."
+                    },
+                    new() // 2턴 — 보스 뒷담화로 공감만 유도 (약점 적중, 코드 얘기는 아직 안 함)
+                    {
+                        FrameId = FrameIds.Empathy,
+                        ComposedText = "보스가 이런 것까지 다 너한테 떠넘기는 거 진짜 너무하다. 너도 매번 이렇게 취급받는 거 지겹지 않아?"
+                    },
+                    new() // 3턴 — 방금 쌓인 공감을 이어받아 공범 의식으로 코드 압박
+                    {
+                        KeywordCardIds = new List<string> { "kw_code_digit" },
+                        FrameId = FrameIds.Complicity,
+                        ComposedText = "그니까 우리끼리는 이런 거 편하게 말해도 되잖아. 혹시 몰라서 그런데 네가 맡은 자리, 나도 알아두면 너 커버 쳐줄 수 있어."
+                    }
+                }
+            },
+
+            "member_c_lieutenant" => new Scenario
+            {
+                // 대질 전제(requiredConfrontationKeywords) — 다른 조직원에게서 이미 얻었다고 가정하고 시드
+                // 지휘 체계 불신(fractured_command_trust) — information_leak·confrontation / 숨겨둔 연민(buried_mercy) — sympathy
+                SeedKeywords = new List<string> { "kw_boss_distrust", "kw_keeper_slip" },
+                Turns = new List<PlayerUtterance>
+                {
+                    new() // 1턴 — 동정심 유발 (친밀)
+                    {
+                        FrameId = FrameIds.Sympathy,
+                        ComposedText = "너도 결국 버려질 거 알잖아, 안타깝다."
+                    },
+                    new() // 2턴 — 대질 정보로 지휘 체계 불신 자극 + 코드 압박 (약점 적중, 대질 전제 충족)
+                    {
+                        KeywordCardIds = new List<string> { "kw_boss_distrust" },
+                        FrameId = FrameIds.Confrontation,
+                        ComposedText = "보스가 이미 너 못 믿는다고 딴 소리 하는 거 나도 다 들었어. 자리 하나만 확인하자."
+                    },
+                    new() // 3턴 — 동정심으로 무마 (친밀 + 의심 감소)
+                    {
+                        FrameId = FrameIds.Sympathy,
+                        ComposedText = "아무튼 너도 조심해. 나중에 또 얘기하자."
+                    }
+                }
+            },
+
+            _ => null
+        };
     }
 #endif
 }
