@@ -253,16 +253,6 @@ namespace TopDogDetective.MainMenu
                 DestroyImmediate(t.GetChild(i).gameObject);
         }
 
-        private static void EnsureHorizontal(RectTransform t)
-        {
-            if (t.GetComponent<GridLayoutGroup>() is GridLayoutGroup g) DestroyImmediate(g);
-            var h = t.GetComponent<HorizontalLayoutGroup>();
-            if (h == null) h = t.gameObject.AddComponent<HorizontalLayoutGroup>();
-            h.spacing = 32; h.childAlignment = TextAnchor.MiddleLeft;   // 왼쪽 슬롯부터 채움
-            h.childControlWidth = true; h.childControlHeight = true;
-            h.childForceExpandWidth = false; h.childForceExpandHeight = false;
-        }
-
         private static void EnsureFramingRow(RectTransform t)
         {
             // 14장을 한 줄로 — 가로로 균등 분할해 컨테이너 폭을 채운다.

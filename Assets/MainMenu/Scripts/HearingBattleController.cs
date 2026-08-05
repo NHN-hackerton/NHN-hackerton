@@ -97,22 +97,40 @@ namespace TopDogDetective.MainMenu
             if (CurrentRun == null) CurrentRun = new RunState();
             run = CurrentRun;
 
-            // 의심도는 조직원별로 0에서 시작한다.
-            // (런에 누적하면 앞 라운드 잔고 때문에 3라운드가 시작부터 발각권에 들어간다.
-            //  의심도는 '그 조직원이 나를 얼마나 의심하는가'이므로 상대가 바뀌면 리셋이 맞다)
-            if (run.Suspicion != 0)
+            // 심문은 늘 처음부터 시작한다 — 의심 0, 친밀 0.
+            //
+            // 의심도: 런에 누적하면 앞 라운드 잔고 때문에 3라운드가 시작부터 발각권에 들어간다.
+            //         '그 조직원이 나를 얼마나 의심하는가'이므로 상대가 바뀌면 리셋이 맞다.
+            // 친밀도: 재도전(실패 후 단서 다시 모아 재입장)인데 친밀이 남아 있으면
+            //         이전 시도의 중간 지점에서 시작해버린다. 1턴 친밀 → 2턴 코드 → 3턴 친밀
+            //         3턴 구성이 무의미해지므로 재도전도 0에서 다시 쌓게 한다.
+            //
+            // 단, 이미 코드를 받아낸 조직원은 통과한 상대다. 그 친밀도(=속내 조각)는 보존한다.
+            bool alreadyPassed = run.HasCode(enemy.secret != null ? enemy.secret.codeIndex : 0);
+            if (!alreadyPassed)
             {
-                Debug.Log($"[HearingBattle] {enemy.displayName} 심문 시작 — 의심도 {run.Suspicion} → 0");
+                int prevSusp = run.Suspicion;
+                int prevAff  = run.GetAffinity(enemyId);
                 run.SetSuspicion(0);
+                run.SetAffinity(enemyId, 0);
+                if (prevSusp != 0 || prevAff != 0)
+                    Debug.Log($"[HearingBattle] {enemy.displayName} 심문 시작 — 의심 {prevSusp}→0, 친밀 {prevAff}→0");
             }
 
+            // 탐색에서 모은 단서를 손패로 넘긴다.
+            // TODO: seedKeywords는 탐색을 건너뛴 에디터 테스트용이다. 정식 경로에서는 쓰지 않는다.
             var collected = ExplorationController.CollectedClues;
             if (collected != null && collected.Count > 0)
-                foreach (var kw in collected) run.AcquireKeyword(kw);   // 탐색에서 모은 카드
+                foreach (var kw in collected) run.AcquireKeyword(kw);
+#if UNITY_EDITOR
             else
-                foreach (var kw in seedKeywords) run.AcquireKeyword(kw); // 탐색 안 거쳤을 때 테스트 폴백
+                foreach (var kw in seedKeywords) run.AcquireKeyword(kw);
+#endif
 
             session = new BattleSession(enemy, run);
+            // TODO: 임시로 Mock 판정에 물려둔 상태다. 지금 심문 결과는 전부 규칙 기반 가짜 판정이다.
+            //       LlmDialogueJudge(proxyUrl, proxyToken)로 교체해야 실제 LLM 판정이 붙는다.
+            //       프록시 URL·토큰을 어디서 읽을지(설정 에셋 / 환경변수) 정해지면 인스펙터 선택으로 바꾼다.
             judge   = new MockDialogueJudge();
             busy    = false;
             won     = false;

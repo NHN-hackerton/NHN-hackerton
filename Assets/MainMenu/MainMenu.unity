@@ -1919,7 +1919,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 2d09b935367c0934c9a21c1264edd5a4, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &166499901
@@ -2194,7 +2194,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 9e38b20201a1d7c4abd60c94658f134c, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &170428547
@@ -2356,7 +2356,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: f34cd2327f9fb7a488d8f13431b75db4, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &173314646
@@ -2816,7 +2816,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: f34cd2327f9fb7a488d8f13431b75db4, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &221066968
@@ -5753,7 +5753,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 2d09b935367c0934c9a21c1264edd5a4, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &356992072
@@ -7288,8 +7288,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
-  volumeScale: 1
+  clip: {fileID: 8300000, guid: 5906fd1799283b44baa119149bec400a, type: 3}
+  volumeScale: 0.9
   stopWhenEmpty: 1
 --- !u!1 &448917390
 GameObject:
@@ -9338,7 +9338,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
   clip: {fileID: 8300000, guid: 898cf5840d4ab384ab6b2b6c0b35a325, type: 3}
   volumeScale: 1
-  stopWhenEmpty: 0
+  stopWhenEmpty: 1
 --- !u!1 &570915244
 GameObject:
   m_ObjectHideFlags: 0
@@ -10563,8 +10563,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
-  volumeScale: 1
+  clip: {fileID: 8300000, guid: b540bc57ac9034f44a17bf32517dca46, type: 3}
+  volumeScale: 0.8
   stopWhenEmpty: 1
 --- !u!1 &618373856
 GameObject:
@@ -14616,7 +14616,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: f34cd2327f9fb7a488d8f13431b75db4, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &815042753
@@ -15141,7 +15141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
   clip: {fileID: 8300000, guid: 898cf5840d4ab384ab6b2b6c0b35a325, type: 3}
   volumeScale: 1
-  stopWhenEmpty: 0
+  stopWhenEmpty: 1
 --- !u!1 &830634727
 GameObject:
   m_ObjectHideFlags: 0
@@ -17060,7 +17060,7 @@ MonoBehaviour:
     \uB098\uB85C \uC6C3\uC5C8\uB2E4."
   fadeGroup: {fileID: 2058906671}
   fadeDuration: 0.35
-  fadeInOnStart: 0
+  fadeInOnStart: 1
   nextScreen: {fileID: 561039956}
   onFinished:
     m_PersistentCalls:
@@ -17155,7 +17155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 914b011997133584f9a57cb50c439773, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &930905359
@@ -18496,7 +18496,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 2d09b935367c0934c9a21c1264edd5a4, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &954721848
@@ -21616,7 +21616,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 9e38b20201a1d7c4abd60c94658f134c, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &1087800417
@@ -24781,6 +24781,7 @@ GameObject:
   - component: {fileID: 1247614181}
   - component: {fileID: 1247614180}
   - component: {fileID: 1247614179}
+  - component: {fileID: 1247614182}
   m_Layer: 0
   m_Name: StartScreen
   m_TagString: Untagged
@@ -24860,6 +24861,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1247614177}
   m_CullTransparentMesh: 1
+--- !u!114 &1247614182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1247614177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
+  clip: {fileID: 8300000, guid: 898cf5840d4ab384ab6b2b6c0b35a325, type: 3}
+  volumeScale: 1
+  stopWhenEmpty: 1
 --- !u!1 &1248201846
 GameObject:
   m_ObjectHideFlags: 0
@@ -30155,7 +30171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 9e38b20201a1d7c4abd60c94658f134c, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &1524367509
@@ -32780,8 +32796,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
-  volumeScale: 1
+  clip: {fileID: 8300000, guid: b540bc57ac9034f44a17bf32517dca46, type: 3}
+  volumeScale: 0.8
   stopWhenEmpty: 1
 --- !u!1 &1661760432
 GameObject:
@@ -33038,7 +33054,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 5906fd1799283b44baa119149bec400a, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &1663949648
@@ -33599,7 +33615,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 5906fd1799283b44baa119149bec400a, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &1730201825
@@ -34051,7 +34067,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: f7c5317a3db259d4a943345ca975a769, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &1756711437
@@ -38028,7 +38044,7 @@ MonoBehaviour:
     \uB3CC\uC544\uC628\uB2E4."
   fadeGroup: {fileID: 1932543870}
   fadeDuration: 0.35
-  fadeInOnStart: 0
+  fadeInOnStart: 1
   nextScreen: {fileID: 1523925499}
   onFinished:
     m_PersistentCalls:
@@ -38084,7 +38100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
   clip: {fileID: 0}
-  volumeScale: 1
+  volumeScale: 0.8
   stopWhenEmpty: 1
 --- !u!1 &1990289997
 GameObject:
@@ -39289,7 +39305,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6537c254ba0ad4a82eec60d79914a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.ScreenBgm
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: f7c5317a3db259d4a943345ca975a769, type: 3}
   volumeScale: 1
   stopWhenEmpty: 1
 --- !u!1 &2050608610
