@@ -106,8 +106,16 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private int maxSameInRow = 2;
 
         [Header("시작 안내")]
-        [Tooltip("점프 조작 안내를 몇 초 보여줄지")]
-        [SerializeField] private float jumpHintSeconds = 3.5f;
+        [Tooltip("화면 중앙에 깜빡이며 뜨는 조작 안내. 비어 있으면 생략된다.")]
+        [SerializeField] private TMP_Text startHintText;
+        [Tooltip("중앙 안내를 몇 초 보여줄지")]
+        [SerializeField] private float jumpHintSeconds = 2f;
+        [Tooltip("깜빡임 주기(초). 작을수록 빠르게 깜빡인다.")]
+        [SerializeField] private float hintBlinkPeriod = 0.4f;
+        [Tooltip("추격전 시작 시 울릴 경보음. 비어 있으면 생략된다.")]
+        [SerializeField] private AudioClip alarmClip;
+        [Tooltip("경보음 배율 (효과음 기준 음량에 곱한다)")]
+        [SerializeField, Range(0f, 5f)] private float alarmVolumeScale = 3f;
 
         [Header("HUD")]
         [SerializeField] private TMP_Text distanceText;
@@ -262,10 +270,19 @@ namespace TopDogDetective.MainMenu
             }
             else intro = false;
             if (resultButton != null) resultButton.gameObject.SetActive(false);
-            // 시작 문구에 조작법을 얹어 잠깐 알려준다 (도움말에 적어두면 아무도 안 읽는다)
-            if (messageText != null)
-                messageText.text = diff.flavor + "\n<size=80%>스페이스바로 점프 — 길게 누르면 더 높이</size>";
+            if (messageText != null) messageText.text = diff.flavor;   // 난이도 문구만 (조작 안내는 중앙에)
+
+            // 조작 안내는 화면 중앙에 깜빡이며 띄운다 (도움말에 적어두면 아무도 안 읽는다)
             hintTimer = jumpHintSeconds;
+            if (startHintText != null)
+            {
+                startHintText.text = "스페이스바를 눌러 장애물 피하기";
+                startHintText.gameObject.SetActive(true);
+            }
+
+            // 사이렌이 울리며 시작 — 추격이 시작됐다는 신호
+            if (alarmClip != null && SfxManager.Instance != null)
+                SfxManager.Instance.Play(alarmClip, alarmVolumeScale);
 
             UpdateHud();
         }
@@ -415,13 +432,33 @@ namespace TopDogDetective.MainMenu
                 chaserImage.sprite = chaserRunFrames[frameIndex % chaserRunFrames.Length];
         }
 
-        /// <summary>시작 안내 문구를 잠깐 보여준 뒤 지운다. (부딪힘 안내 같은 다른 문구는 건드리지 않는다)</summary>
+        /// <summary>
+        /// 중앙 조작 안내를 깜빡이며 보여주다 시간이 지나면 끈다.
+        /// (부딪힘 안내 같은 다른 문구는 건드리지 않는다)
+        /// </summary>
         private void TickHint(float dt)
         {
             if (hintTimer <= 0f) return;
             hintTimer -= dt;
-            if (hintTimer > 0f) return;
-            if (messageText != null) messageText.text = "";
+
+            if (startHintText != null)
+            {
+                if (hintTimer > 0f)
+                {
+                    // 남은 시간을 주기로 나눠 켜짐/꺼짐을 번갈아 — 깜빡이는 경고 느낌
+                    bool on = Mathf.Repeat(hintTimer, hintBlinkPeriod) > hintBlinkPeriod * 0.5f;
+                    var c = startHintText.color;
+                    startHintText.color = new Color(c.r, c.g, c.b, on ? 1f : 0.15f);
+                }
+                else
+                {
+                    var c = startHintText.color;
+                    startHintText.color = new Color(c.r, c.g, c.b, 1f);   // 알파 원복 후 숨김
+                    startHintText.gameObject.SetActive(false);
+                }
+            }
+
+            if (hintTimer <= 0f && messageText != null) messageText.text = "";
         }
 
         /// <summary>시작 연출: 형사가 자기 자리(중앙)까지 빠르게 달려나간다. 그동안 장애물은 안 나온다.</summary>

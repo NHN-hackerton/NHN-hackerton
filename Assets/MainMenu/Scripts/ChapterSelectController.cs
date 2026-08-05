@@ -122,12 +122,11 @@ namespace TopDogDetective.MainMenu
 
         private void OnLockedClicked()
         {
-            // 챕터2는 진엔딩을 보면 해금된다 (콘텐츠는 준비 중)
+            // 해금됐든 아니든 아직 만들 콘텐츠가 없다. 해금 여부를 문구로 구분하면
+            // "열렸는데 왜 안 들어가지"라는 혼란만 주므로 한 가지로 안내한다.
             if (noticeText != null)
-                noticeText.text = Chapter2Unlocked
-                    ? "챕터 2 — 다음 사건은 준비 중입니다. 기다려 주세요."
-                    : "잠겨 있습니다. 진엔딩을 보면 다음 사건이 열립니다.";
-            Debug.Log("[ChapterSelect] 아직 잠겨 있는 챕터입니다.");
+                noticeText.text = "아직 준비 중인 챕터입니다.";
+            Debug.Log("[ChapterSelect] 아직 준비 중인 챕터입니다.");
         }
     }
 }

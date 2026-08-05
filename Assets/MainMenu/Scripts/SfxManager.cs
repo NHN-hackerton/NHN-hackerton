@@ -18,7 +18,7 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private float minInterval = 0.04f;
 
         AudioSource source;
-        float lastPlayTime;
+        float lastClickTime;
 
         private void Awake()
         {
@@ -35,23 +35,32 @@ namespace TopDogDetective.MainMenu
 
         float Volume => Mathf.Clamp01(SettingsController.SfxVolume) * baseVolume;
 
-        /// <summary>버튼 클릭음.</summary>
-        public void PlayClick() => Play(clickClip);
+        /// <summary>버튼 클릭음. 연타로 소리가 뭉치지 않게 최소 간격을 둔다.</summary>
+        public void PlayClick()
+        {
+            if (source == null || clickClip == null) return;
+            // 시간 정지 연출이 들어와도 UI 소리는 나야 하므로 unscaledTime 기준
+            if (Time.unscaledTime - lastClickTime < minInterval) return;
+            lastClickTime = Time.unscaledTime;
+            source.PlayOneShot(clickClip, Volume);
+        }
 
-        public void Play(AudioClip clip)
+        /// <summary>
+        /// 임의의 효과음을 한 번 재생한다. 연타 방어는 걸지 않는다 —
+        /// 폭발음처럼 화면 전환에 맞춰 한 번 울려야 하는 소리가 클릭음에 막히면 안 된다.
+        /// </summary>
+        /// <param name="volumeScale">이 소리만 조절할 배율 (원본 크기가 곡마다 달라서)</param>
+        public void Play(AudioClip clip, float volumeScale = 1f)
         {
             if (source == null || clip == null) return;
-            // 시간 정지 연출이 들어와도 UI 소리는 나야 하므로 unscaledTime 기준
-            if (Time.unscaledTime - lastPlayTime < minInterval) return;
-            lastPlayTime = Time.unscaledTime;
-            source.PlayOneShot(clip, Volume);
+            source.PlayOneShot(clip, Volume * Mathf.Max(0f, volumeScale));
         }
 
         /// <summary>설정 화면에서 슬라이더를 움직일 때 미리듣기용.</summary>
         public void PreviewClick(float sliderValue)
         {
             if (source == null || clickClip == null) return;
-            lastPlayTime = Time.unscaledTime;
+            lastClickTime = Time.unscaledTime;
             source.PlayOneShot(clickClip, Mathf.Clamp01(sliderValue) * baseVolume);
         }
     }
