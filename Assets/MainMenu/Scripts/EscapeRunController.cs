@@ -415,7 +415,6 @@ namespace TopDogDetective.MainMenu
                 chaserImage.sprite = chaserRunFrames[frameIndex % chaserRunFrames.Length];
         }
 
-        /// <summary>시작 연출: 형사가 자기 자리(중앙)까지 빠르게 달려나간다. 그동안 장애물은 안 나온다.</summary>
         /// <summary>시작 안내 문구를 잠깐 보여준 뒤 지운다. (부딪힘 안내 같은 다른 문구는 건드리지 않는다)</summary>
         private void TickHint(float dt)
         {
@@ -425,6 +424,7 @@ namespace TopDogDetective.MainMenu
             if (messageText != null) messageText.text = "";
         }
 
+        /// <summary>시작 연출: 형사가 자기 자리(중앙)까지 빠르게 달려나간다. 그동안 장애물은 안 나온다.</summary>
         private void RunIntro(float dt)
         {
             if (!intro || player == null) return;
