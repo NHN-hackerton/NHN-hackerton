@@ -116,13 +116,20 @@ namespace TopDogDetective.MainMenu
         [Tooltip("진행도 게이지 (0~1)")]
         [SerializeField] private Image progressFill;
 
+        // [조작감 수치의 관계]  플레이테스트로 맞춘 값이며, 아래 관계가 깨지면 점프가 불가능해진다.
+        //   최대 점프 체공  = 2 × jumpVelocity / gravity      = 2×1900/3800 = 1.00초
+        //   최대 점프 이동거리 = 체공 × runSpeed               = 1.00 × 520  = 520px
+        //   짧은 점프 이동거리 = 체공 × jumpCutMultiplier × runSpeed = 343px
+        //   최고 높이       = jumpVelocity² / (2×gravity)     = 475px
+        // → 장애물 간격(gapFloor=620)은 최대 점프 이동거리(520px)보다 커야 착지 후 다시 뛸 틈이 생긴다.
+        //   낮은 장애물(50~65px)은 짧은 점프로만 넘을 수 있게 맞춘 것이다.
         [Header("조작감")]
-        [SerializeField] private float runSpeed = 420f;      // px/초 (장애물이 흘러오는 속도)
-        [SerializeField] private float jumpVelocity = 1150f;
-        [SerializeField] private float gravity = 3200f;
+        [SerializeField] private float runSpeed = 520f;      // px/초 (장애물이 흘러오는 속도)
+        [SerializeField] private float jumpVelocity = 1900f;
+        [SerializeField] private float gravity = 3800f;
         [Tooltip("점프 키를 떼면 상승 속도를 이 비율로 깎는다. 짧게 누르면 낮게, 길게 누르면 높게. (1이면 항상 최고 높이)")]
         [Range(0.1f, 1f)]
-        [SerializeField] private float jumpCutMultiplier = 0.42f;
+        [SerializeField] private float jumpCutMultiplier = 0.66f;
         [Tooltip("이 시간 동안은 키를 떼도 안 깎인다 (너무 찔끔 뛰는 것 방지)")]
         [SerializeField] private float minJumpHold = 0.06f;
         [Tooltip("바닥 Y (플레이어 anchoredPosition.y 기준)")]
@@ -161,8 +168,9 @@ namespace TopDogDetective.MainMenu
             public string flavor;       // 시작 문구
         }
 
-        // 장애물 간격은 점프 체공 거리(약 480px)보다 넉넉히 커야 한다.
+        // 장애물 간격(gapMin)은 최대 점프 이동거리 520px보다 커야 한다. (수치 근거는 위 '조작감' 주석)
         // 안 그러면 착지 전에 다음 장애물이 도착해 점프 자체가 불가능해진다.
+        // 가장 좁은 설정이 gapMin=640이고 gapFloor=620까지 좁아질 수 있어, 착지 시 여유는 100~120px(약 0.2초)이다.
         static Difficulty ForMaxedCount(int maxed) => maxed switch
         {
             >= 3 => new Difficulty { chasers = 1, courseLength = 9800f, gapMin = 860f, gapMax = 1080f,
@@ -262,6 +270,9 @@ namespace TopDogDetective.MainMenu
             UpdateHud();
         }
 
+        // unscaledDeltaTime을 쓴다 — 이 게임은 화면 전환·폭탄 타임어택이 모두 realtime 기준이고
+        // timeScale을 건드리는 곳이 없다. 나중에 timeScale로 일시정지를 넣게 되면
+        // 이 미니게임만 계속 돌게 되므로, 그때 deltaTime으로 바꾸거나 running 플래그로 막아야 한다.
         private void Update() => Tick(Time.unscaledDeltaTime);
 
         /// <summary>한 프레임 진행. (dt를 넘겨받아 테스트에서도 결정적으로 돌릴 수 있게 분리)</summary>
