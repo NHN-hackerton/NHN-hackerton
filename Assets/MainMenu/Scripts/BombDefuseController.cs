@@ -283,6 +283,7 @@ namespace TopDogDetective.MainMenu
         {
             yield return new WaitForSecondsRealtime(1.6f);
             gameObject.SetActive(false);
+            if (bossRoom != null) bossRoom.SetActive(false);   // 보스방을 끄지 않으면 엔딩 뒤에 다시 보인다
             if (nextScreen != null) nextScreen.SetActive(true);
         }
 

@@ -52,6 +52,8 @@ namespace TopDogDetective.MainMenu
         public class ChaserSkin
         {
             public string label = "조직원";
+            [Tooltip("이 조직원의 id (member_a_rookie 등). 친밀 100%면 추격에서 빠진다.")]
+            public string enemyId;
             public Sprite[] runFrames;
             public Sprite jumpFrame;
             [Tooltip("화면상 키(px)")] public float height = 270f;
@@ -95,6 +97,14 @@ namespace TopDogDetective.MainMenu
         [Tooltip("장애물 최대 폭. 가로로 넓으면 점프로 넘을 수 없어 이 값에 맞춰 줄인다.")]
         [SerializeField] private float obstacleMaxWidth = 190f;
 
+        [Header("장애물 랜덤성")]
+        [Tooltip("간격이 이 값보다 좁아지지 않게 한다. 점프 체공 이동거리(약 520px)보다 커야 착지 후 다시 점프할 틈이 생긴다.")]
+        [SerializeField] private float gapFloor = 620f;
+        [Tooltip("이 확률로 '몰아치는 구간'이 나온다 — 간격이 gapFloor~gapMin 사이로 좁아진다.")]
+        [SerializeField, Range(0f, 1f)] private float tightBurstChance = 0.28f;
+        [Tooltip("같은 장애물이 이 횟수 넘게 연속으로 나오지 않게 막는다.")]
+        [SerializeField] private int maxSameInRow = 2;
+
         [Header("HUD")]
         [SerializeField] private TMP_Text distanceText;
         [SerializeField] private TMP_Text chaserText;
@@ -125,7 +135,9 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private float obstacleSpawnX = 2100f;
 
         [Header("결과 화면")]
-        [Tooltip("탈출 성공 시 켤 화면")]
+        [Tooltip("진엔딩 (속내 조각 3개 전부 모았을 때). 없으면 successScreen을 쓴다.")]
+        [SerializeField] private GameObject trueEndingScreen;
+        [Tooltip("탈출 성공 시 켤 화면 (부분 엔딩)")]
         [SerializeField] private GameObject successScreen;
         [Tooltip("붙잡혔을 때 켤 화면")]
         [SerializeField] private GameObject failScreen;
@@ -149,16 +161,16 @@ namespace TopDogDetective.MainMenu
         // 안 그러면 착지 전에 다음 장애물이 도착해 점프 자체가 불가능해진다.
         static Difficulty ForMaxedCount(int maxed) => maxed switch
         {
-            >= 3 => new Difficulty { chasers = 1, courseLength = 9800f, gapMin = 950f, gapMax = 1200f,
+            >= 3 => new Difficulty { chasers = 1, courseLength = 9800f, gapMin = 860f, gapMax = 1080f,
                                      startGap = 260f, hitPenalty = 45f, recoverPerSec = 11f,
                                      flavor = "조직원들이 보스 뒤에서 못 본 척 눈을 감아 준다." },
-            2    => new Difficulty { chasers = 2, courseLength = 10400f, gapMin = 850f, gapMax = 1050f,
+            2    => new Difficulty { chasers = 2, courseLength = 10400f, gapMin = 780f, gapMax = 960f,
                                      startGap = 230f, hitPenalty = 55f, recoverPerSec = 9f,
                                      flavor = "정든 둘은 추격에서 빠졌다." },
-            1    => new Difficulty { chasers = 3, courseLength = 11000f, gapMin = 750f, gapMax = 950f,
+            1    => new Difficulty { chasers = 3, courseLength = 11000f, gapMin = 700f, gapMax = 860f,
                                      startGap = 200f, hitPenalty = 65f, recoverPerSec = 7f,
                                      flavor = "한 명이 망설이다 멈춰 선다." },
-            _    => new Difficulty { chasers = 4, courseLength = 11500f, gapMin = 660f, gapMax = 850f,
+            _    => new Difficulty { chasers = 4, courseLength = 11500f, gapMin = 640f, gapMax = 780f,
                                      startGap = 170f, hitPenalty = 75f, recoverPerSec = 5.5f,
                                      flavor = "아무도 편들어 주지 않는다. 전력 질주." }
         };
@@ -191,8 +203,8 @@ namespace TopDogDetective.MainMenu
         bool jumpCut;         // 이번 점프에서 상승을 이미 끊었는지
 
         // 장애물 셔플백: 한 바퀴 안에서 모든 종류가 한 번씩 나오고, 같은 게 연달아 나오지 않는다
-        readonly List<int> obstacleBag = new();
         int lastObstacleIndex = -1;
+        int sameInRow = 0;              // 같은 장애물이 연속으로 나온 횟수
         float frameTimer;
         int frameIndex;
 
@@ -218,8 +230,8 @@ namespace TopDogDetective.MainMenu
 
             frameTimer = 0f;
             frameIndex = 0;
-            obstacleBag.Clear();
             lastObstacleIndex = -1;
+            sameInRow = 0;
             if (playerImage == null && player != null) playerImage = player.GetComponent<Image>();
             if (chaserImage == null && chaser != null) chaserImage = chaser.GetComponent<Image>();
             chaserVelocityY = 0f;
@@ -409,7 +421,7 @@ namespace TopDogDetective.MainMenu
             if (!intro && progress >= nextSpawnAt)   // 시작 연출 중엔 장애물 없음
             {
                 SpawnObstacle();
-                nextSpawnAt = progress + Random.Range(diff.gapMin, diff.gapMax);
+                nextSpawnAt = progress + NextGap();
             }
 
             float dx = runSpeed * dt;
@@ -431,30 +443,35 @@ namespace TopDogDetective.MainMenu
         }
 
         /// <summary>
-        /// 다음에 쓸 장애물 인덱스. 셔플백에서 하나씩 꺼내므로 종류가 골고루 나오고,
-        /// 백을 새로 채울 때 직전 것과 겹치면 뒤로 밀어 연속 등장을 막는다.
+        /// 다음 장애물까지의 간격. 대부분은 난이도 범위에서 뽑고,
+        /// tightBurstChance 확률로 gapFloor까지 좁혀 '몰아치는 구간'을 만든다.
+        /// gapFloor는 점프 체공 이동거리보다 크게 두어 넘을 수 없는 배치가 나오지 않게 한다.
+        /// </summary>
+        private float NextGap()
+        {
+            float floor = Mathf.Min(gapFloor, diff.gapMin);   // 난이도가 이미 더 좁으면 그걸 존중
+            return Random.value < tightBurstChance
+                ? Random.Range(floor, diff.gapMin)
+                : Random.Range(diff.gapMin, diff.gapMax);
+        }
+
+        /// <summary>
+        /// 다음에 쓸 장애물 인덱스. 매번 무작위로 뽑되(순서·반복 예측 불가),
+        /// 같은 것이 maxSameInRow회를 넘겨 연속으로 나오면 다시 뽑는다.
         /// </summary>
         private int NextObstacleIndex(int count)
         {
             if (count <= 1) return 0;
 
-            if (obstacleBag.Count == 0)
+            int pick = Random.Range(0, count);
+            if (pick == lastObstacleIndex && sameInRow >= Mathf.Max(1, maxSameInRow))
             {
-                for (int i = 0; i < count; i++) obstacleBag.Add(i);
-                // 셔플
-                for (int i = obstacleBag.Count - 1; i > 0; i--)
-                {
-                    int j = Random.Range(0, i + 1);
-                    (obstacleBag[i], obstacleBag[j]) = (obstacleBag[j], obstacleBag[i]);
-                }
-                // 첫 장이 직전과 같으면 뒤쪽과 교환
-                if (obstacleBag[0] == lastObstacleIndex && obstacleBag.Count > 1)
-                    (obstacleBag[0], obstacleBag[obstacleBag.Count - 1]) = (obstacleBag[obstacleBag.Count - 1], obstacleBag[0]);
+                // 연속 한도에 걸렸으면 다른 것으로 바꾼다
+                pick = (pick + 1 + Random.Range(0, count - 1)) % count;
             }
 
-            int pick = obstacleBag[0];
-            obstacleBag.RemoveAt(0);
-            lastObstacleIndex = pick;
+            if (pick == lastObstacleIndex) sameInRow++;
+            else { sameInRow = 1; lastObstacleIndex = pick; }
             return pick;
         }
 
@@ -634,7 +651,10 @@ namespace TopDogDetective.MainMenu
             }
         }
 
-        /// <summary>난이도가 정한 추격 인원(선두 1명 제외)만큼 뒤따르는 추격자를 만든다.</summary>
+        /// <summary>
+        /// 뒤따르는 추격자를 만든다. 선두(보스)는 항상 쫓아오고,
+        /// 마음을 얻은 조직원(친밀 100%)은 추격에서 빠진다.
+        /// </summary>
         private void BuildExtraChasers()
         {
             foreach (var e in extras)
@@ -643,11 +663,20 @@ namespace TopDogDetective.MainMenu
 
             if (chaser == null || extraChaserSkins == null || extraChaserSkins.Length == 0) return;
 
-            int need = Mathf.Max(0, diff.chasers - 1);   // 선두는 이미 씬에 있다
-            for (int i = 0; i < need && i < extraChaserSkins.Length; i++)
+            // 추격에 참여할 조직원만 고른다 (친밀 100%면 제외 — id가 비어 있으면 항상 참여)
+            var joining = new List<ChaserSkin>();
+            foreach (var s in extraChaserSkins)
             {
-                var skin = extraChaserSkins[i];
-                if (skin == null || skin.runFrames == null || skin.runFrames.Length == 0) continue;
+                if (s == null || s.runFrames == null || s.runFrames.Length == 0) continue;
+                bool won = Run != null && !string.IsNullOrEmpty(s.enemyId) && Run.IsAffinityMaxed(s.enemyId);
+                if (won) { Debug.Log($"[Escape] {s.label} — 마음을 얻어 추격에서 빠졌다"); continue; }
+                joining.Add(s);
+            }
+
+            int need = joining.Count;
+            for (int i = 0; i < need; i++)
+            {
+                var skin = joining[i];
 
                 var go = new GameObject(ExtraChaserName + "_" + skin.label, typeof(RectTransform), typeof(Image));
                 var rt = go.GetComponent<RectTransform>();
@@ -732,7 +761,7 @@ namespace TopDogDetective.MainMenu
             if (distanceText != null)
                 distanceText.text = $"{Mathf.Min(progress, diff.courseLength):0} / {diff.courseLength:0}";
             if (chaserText != null)
-                chaserText.text = $"추격 {diff.chasers}명 · 거리 {Mathf.Max(0f, chaserGap):0}";
+                chaserText.text = $"추격 {extras.Count + 1}명 · 거리 {Mathf.Max(0f, chaserGap):0}";   // 선두(보스) + 실제로 따라오는 인원
             if (progressFill != null)
                 progressFill.fillAmount = Mathf.Clamp01(progress / diff.courseLength);
         }
@@ -741,8 +770,14 @@ namespace TopDogDetective.MainMenu
         private void Escaped()
         {
             running = false;
-            if (messageText != null) messageText.text = "탈출 성공!";
-            GoTo(successScreen);
+
+            // 속내 조각 3개 전부 = 세 명 모두 마음을 얻음 → 진엔딩.
+            // 하나라도 비면 도시는 지켰지만 조직은 놓친 부분 엔딩.
+            bool trueEnd = CaseFile.TrueEndingUnlocked(Run);
+            if (messageText != null)
+                messageText.text = trueEnd ? "탈출 성공 — 전원 검거!" : "탈출 성공";
+
+            GoTo(trueEnd && trueEndingScreen != null ? trueEndingScreen : successScreen);
         }
 
         private void Caught()
