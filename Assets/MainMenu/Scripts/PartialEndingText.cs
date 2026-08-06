@@ -35,11 +35,12 @@ namespace TopDogDetective.MainMenu
             int maxed = CaseFile.TruthCount(HearingBattleController.CurrentRun);
             string text = Head + TailFor(maxed) + "\n— 작전 종료: 도시는 지켰다";
 
-            // CutsceneController가 Show()에서 lines[index]를 쓰므로 원본도 바꿔준다
+            // CutsceneController가 Show()에서 lines[index]를 쓰므로 원본도 바꿔준다.
+            // SetLine이 현재 컷이면 타이핑까지 걸어 주므로, 그때는 여기서 또 넣지 않는다.
             var cc = GetComponent<CutsceneController>();
-            cc?.SetLine(0, text);
+            if (cc != null) { cc.SetLine(0, text); return; }
 
-            if (dialogueText != null) dialogueText.text = text;
+            Typewriter.ShowAll(dialogueText, text);
         }
     }
 }

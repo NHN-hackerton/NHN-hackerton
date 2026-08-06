@@ -33,8 +33,13 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private GameObject nextScreen;
         [SerializeField] private UnityEvent onFinished;
 
+        [Header("대사 연출")]
+        [Tooltip("대사를 한 글자씩 출력한다. 속도는 설정 화면의 '대화 출력 속도'를 따른다.")]
+        [SerializeField] private bool typeDialogue = true;
+
         private int index;
         private bool transitioning;
+        private bool typing;      // 대사가 아직 다 나오지 않았는가
 
         private void OnEnable()
         {
@@ -66,21 +71,56 @@ namespace TopDogDetective.MainMenu
         {
             if (lines == null || i < 0 || i >= lines.Length) return;
             lines[i] = text;
-            if (i == index && dialogueText != null) dialogueText.text = text;
+            if (i == index) TypeLine(text);
         }
 
         private void Show()
         {
             if (frames == null || frames.Length == 0) return;
             if (image != null && index < frames.Length) image.sprite = frames[index];
+            TypeLine((lines != null && index < lines.Length) ? lines[index] : "");
+        }
+
+        Coroutine typeCo;
+
+        /// <summary>대사를 한 글자씩 드러낸다. (설정의 '대화 출력 속도'를 따른다)</summary>
+        private void TypeLine(string text)
+        {
+            if (dialogueText == null) return;
+            if (typeCo != null) StopCoroutine(typeCo);
+
+            if (!typeDialogue || !gameObject.activeInHierarchy)
+            {
+                Typewriter.ShowAll(dialogueText, text);
+                return;
+            }
+            typeCo = StartCoroutine(TypeRoutine(text));
+        }
+
+        private IEnumerator TypeRoutine(string text)
+        {
+            typing = true;
+            yield return Typewriter.Reveal(dialogueText, text);
+            typing = false;
+            typeCo = null;
+        }
+
+        /// <summary>타이핑 중이면 즉시 전문을 보여준다. (읽기 빠른 사람이 기다리지 않게)</summary>
+        private void FinishTyping()
+        {
+            if (typeCo != null) { StopCoroutine(typeCo); typeCo = null; }
+            typing = false;
             if (dialogueText != null)
-                dialogueText.text = (lines != null && index < lines.Length) ? lines[index] : "";
+                dialogueText.maxVisibleCharacters = int.MaxValue;
         }
 
         /// <summary>❯ 버튼 / 클릭으로 다음 컷.</summary>
         public void Next()
         {
             if (transitioning) return;
+
+            // 아직 타이핑 중이면 이번 클릭은 '건너뛰기'다 — 못 읽은 대사를 넘겨버리지 않는다
+            if (typing) { FinishTyping(); return; }
             if (fadeGroup == null)   // 페이드 없으면 즉시 전환
             {
                 index++;

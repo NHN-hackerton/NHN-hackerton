@@ -27,6 +27,8 @@ namespace TopDogDetective.MainMenu
         [Header("챕터2 해금 (진엔딩 보상)")]
         [Tooltip("해금되면 이 자물쇠/잠김 표시를 끈다")]
         [SerializeField] private GameObject chapter2Lock;
+        [Tooltip("챕터3 자물쇠. 아직 해금 조건이 없는 챕터라 항상 켜 둔다.")]
+        [SerializeField] private GameObject chapter3Lock;
         [Tooltip("해금 상태를 알려줄 텍스트 (챕터2 부제)")]
         [SerializeField] private TMPro.TMP_Text chapter2Sub;
         [Tooltip("해금된 챕터2를 눌렀을 때 띄울 안내")]
@@ -107,6 +109,10 @@ namespace TopDogDetective.MainMenu
                 float k = unlocked ? 1f : lockedThumbBrightness;
                 chapter2Thumb.color = new Color(k, k, k, 1f);
             }
+
+            // 챕터3은 아직 해금 조건이 없다. 자물쇠를 항상 켜 둬서 챕터2와 같은 잠김 표현을 쓴다.
+            // (해금 조건이 생기면 위 챕터2처럼 조건에 따라 켜고 끄면 된다)
+            if (chapter3Lock != null) chapter3Lock.SetActive(true);
 
             if (noticeText != null) noticeText.text = "";
         }

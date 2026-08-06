@@ -42,6 +42,10 @@ namespace TopDogDetective.MainMenu
         [Tooltip("판정 요청 타임아웃(초)")]
         [SerializeField] private int judgeTimeoutSeconds = 20;
 
+        [Header("대사 연출")]
+        [Tooltip("상대 대사를 한 글자씩 출력한다. 속도는 설정 화면의 '대화 출력 속도'를 따른다.")]
+        [SerializeField] private bool typeReply = true;
+
         [Header("연동")]
         [Tooltip("표정 전환용. 없으면 표정은 생략된다.")]
         [SerializeField] private HearingController hearing;
@@ -81,8 +85,21 @@ namespace TopDogDetective.MainMenu
         /// (심문마다 새로 만들면 확보한 코드가 사라져 보스방 해제가 불가능해진다)</summary>
         public static RunState CurrentRun { get; private set; }
 
+        /// <summary>
+        /// 정식으로 통과한(3턴을 발각 없이 마친) 조직원 id.
+        ///
+        /// "이미 통과한 상대인가"를 RunState.HasCode로 판단하면 안 된다 — 발각으로 실패해도
+        /// 중간에 흘러나온 코드는 백엔드가 이미 커밋해 둔 상태라, 재도전 때 통과한 것으로 착각해
+        /// 의심도·친밀도를 초기화하지 않는다(=시작부터 발각권). 통과 여부는 여기서 따로 센다.
+        /// </summary>
+        static readonly HashSet<string> clearedEnemies = new();
+
         /// <summary>새 런 시작 (챕터 처음부터). 탐색 단서와 함께 초기화된다.</summary>
-        public static void ResetRun() => CurrentRun = null;
+        public static void ResetRun()
+        {
+            CurrentRun = null;
+            clearedEnemies.Clear();
+        }
 
         private EnemyData enemy;
         private RunState run;
@@ -129,8 +146,8 @@ namespace TopDogDetective.MainMenu
             //         이전 시도의 중간 지점에서 시작해버린다. 1턴 친밀 → 2턴 코드 → 3턴 친밀
             //         3턴 구성이 무의미해지므로 재도전도 0에서 다시 쌓게 한다.
             //
-            // 단, 이미 코드를 받아낸 조직원은 통과한 상대다. 그 친밀도(=속내 조각)는 보존한다.
-            bool alreadyPassed = run.HasCode(enemy.secret != null ? enemy.secret.codeIndex : 0);
+            // 단, 이미 통과한 조직원은 다시 볼 일이 없는 상대다. 그 친밀도(=속내 조각)는 보존한다.
+            bool alreadyPassed = clearedEnemies.Contains(enemyId);
             if (!alreadyPassed)
             {
                 int prevSusp = run.Suspicion;
@@ -158,7 +175,7 @@ namespace TopDogDetective.MainMenu
 
             if (outcomeText != null) outcomeText.text = "";
             // 이름은 JSON에서 오므로 조사를 받침에 맞춘다 ("신참 조직원와의" → "…원과의")
-            if (replyText != null)   replyText.text = $"{Korean.Gwa(enemy.displayName)}의 심문을 시작한다.";
+            TypeReply($"{Korean.Gwa(enemy.displayName)}의 심문을 시작한다.");
             if (resultButton != null) resultButton.gameObject.SetActive(false);
             if (resultOverlay != null) resultOverlay.SetActive(false);
             // 지난 심문의 결과창에서 켜둔 블러가 남아 있으면, 새 심문이 옛 화면 스냅샷 위에서 시작된다
@@ -217,7 +234,7 @@ namespace TopDogDetective.MainMenu
 
             if (!session.CanSubmit(utterance, out string reason))
             {
-                if (replyText != null) replyText.text = $"(제출 불가) {reason}";
+                Typewriter.ShowAll(replyText, $"(제출 불가) {reason}");   // 안내는 즉시
                 return;
             }
 
@@ -227,7 +244,7 @@ namespace TopDogDetective.MainMenu
         private IEnumerator SubmitRoutine(PlayerUtterance utterance)
         {
             busy = true;
-            if (replyText != null) replyText.text = "…";   // 판정 대기 연출
+            Typewriter.ShowAll(replyText, "…");   // 판정 대기 연출 (타이핑 없이)
 
             DialogueResult raw = null;
             yield return judge.Judge(session, utterance, r => raw = r);
@@ -247,7 +264,7 @@ namespace TopDogDetective.MainMenu
 
         private void ApplyResultToUi(DialogueResult result, List<string> gainedCards = null)
         {
-            if (replyText != null) replyText.text = result.reply;
+            TypeReply(result.reply);   // 상대 대사는 한 글자씩 (설정의 '대화 출력 속도')
 
             RefreshHud();
             if (hearing != null) hearing.SetExpression(MoodFrom(result));
@@ -283,7 +300,14 @@ namespace TopDogDetective.MainMenu
             if (affinityText != null)  affinityText.text  = $"{session.Affinity}%";
             if (turnText != null)      turnText.text      = $"{session.CurrentTurn}/{BattleSession.MaxTurn}턴";
             if (focusText != null)     focusText.text     = $"집중 {session.FocusRemaining}/{BattleSession.FocusPerTurn}";
-            if (codeText != null)      codeText.text      = session.CodeAcquired ? $"코드 [{session.SessionCodeValue}]" : "코드 [ _ ]";
+            // 심문 중에는 코드를 보여주지 않는다.
+            // 상대가 말끝에 흘리는 건 대사로 읽히면 되고, HUD에 값이 박히면 스포일러다.
+            // 게다가 이 코드를 실제로 챘는지는 3턴을 다 돌고 의심도·친밀도를 보고 정해지므로,
+            // 중간에 띄우면 나중에 못 챈 경우와 어긋난다. 확정된 값은 결과창에서만 보여준다.
+            if (codeText != null)
+                codeText.text = session.IsFinished && session.CodeAcquired
+                    ? $"코드 [{session.SessionCodeValue}]"
+                    : "코드 [ ? ]";
 
             if (suspicionFill != null) suspicionFill.fillAmount = session.Suspicion / 100f;
             if (affinityFill != null)  affinityFill.fillAmount  = session.Affinity / 100f;
@@ -293,15 +317,14 @@ namespace TopDogDetective.MainMenu
         {
             if (outcome == TurnOutcome.Success) { Win(); return; }   // 성공은 자동 전환
 
-            // 코드를 이미 챘으면 발각돼도 라운드는 통과시킨다.
-            // (백엔드 DecideOutcome은 의심도만 보고 발각을 내므로, 코드 확보가 무시된다)
-            // 대가는 친밀 100을 못 채워 '속내 조각'을 놓치는 것 — 진엔딩이 막힌다.
-            if (session != null && session.CodeAcquired) { Win(outcome == TurnOutcome.FailedExposed); return; }
-
-            // 실패(발각·시간초과) → "다시 돌아가기" 버튼
+            // 코드는 심문 '전체'를 마쳤을 때 주는 것이다 — 중간에 값이 흘러나왔어도
+            // 마지막 의심도가 발각선을 넘었으면 빈손으로 나온다. (백엔드 DecideOutcome의 원래 설계)
+            // 그래서 여기서 통과시켜 주지 않는다. 다시 들어와 제대로 끝내야 한다.
             string head = outcome switch
             {
-                TurnOutcome.FailedExposed => "발각됨 — 심문 실패",
+                TurnOutcome.FailedExposed => session.CodeAcquired
+                    ? "발각됨 — 코드를 들고 나오지 못했다"
+                    : "발각됨 — 심문 실패",
                 TurnOutcome.FailedTimeout => "시간 초과 — 코드 미확보 (재도전 가능)",
                 _                         => outcomeText != null ? outcomeText.text : ""
             };
@@ -332,21 +355,17 @@ namespace TopDogDetective.MainMenu
             }
         }
 
-        /// <summary>코드 확보 = 성공. 결과 문구를 보여준 뒤 다음 챕터로.</summary>
-        /// <param name="exposed">막판에 발각됐는가 (코드는 이미 챈 상태)</param>
-        private void Win(bool exposed = false)
+        /// <summary>3턴을 발각 없이 마치고 코드까지 챘을 때. 결과 문구를 보여준 뒤 다음 챕터로.</summary>
+        private void Win()
         {
             if (won) return;
             won = true;
             busy = true;   // 전환 대기 중 추가 제출 차단
 
-            // 발각 통과 경로에서는 백엔드 Finish가 Success가 아니라 열쇠를 주지 않으므로 직접 지급
-            if (exposed && (enemy?.secret?.hasBossRoomKey ?? false))
-                CurrentRun?.GrantBossRoomKey();
+            // 정식으로 통과한 상대로 기록한다 (재도전 판정에 쓴다 — 아래 clearedEnemies 주석 참고)
+            if (!string.IsNullOrEmpty(enemyId)) clearedEnemies.Add(enemyId);
 
-            string head = exposed
-                ? $"들켰지만 코드 [{session.SessionCodeValue}]는 챘다"
-                : $"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!";
+            string head = $"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!";
 
             // 코드를 충분히 확인한 뒤 직접 넘어가게 (자동 전환 X)
             if (resultButton != null)
@@ -357,6 +376,31 @@ namespace TopDogDetective.MainMenu
                 if (outcomeText != null) outcomeText.text = head + AffinityNote;
                 StartCoroutine(WinRoutine());   // 버튼이 없으면 기존 자동 전환 폴백
             }
+        }
+
+        Coroutine replyCo;
+
+        /// <summary>
+        /// 상대 대사를 한 글자씩 출력한다. 다음 판정이 오면 앞 대사는 끊고 새로 시작한다.
+        /// (직접 replyText.text에 넣으면 이전 타이핑이 계속 돌아 글자가 섞인다)
+        /// </summary>
+        private void TypeReply(string text)
+        {
+            if (replyText == null) return;
+            if (replyCo != null) StopCoroutine(replyCo);
+
+            if (!typeReply || !gameObject.activeInHierarchy)
+            {
+                Typewriter.ShowAll(replyText, text);
+                return;
+            }
+            replyCo = StartCoroutine(TypeReplyRoutine(text));
+        }
+
+        private IEnumerator TypeReplyRoutine(string text)
+        {
+            yield return Typewriter.Reveal(replyText, text);
+            replyCo = null;
         }
 
         Coroutine cardNoticeCo;

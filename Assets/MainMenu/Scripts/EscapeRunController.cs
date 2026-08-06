@@ -120,6 +120,8 @@ namespace TopDogDetective.MainMenu
         // 앞부분만 울리고 물러나게 두고, 그 뒤는 추격 BGM이 받는다.
         [Tooltip("경보음을 몇 초 울릴지 (이후 페이드 아웃)")]
         [SerializeField] private float alarmSeconds = 4f;
+        [Tooltip("'부딪혔다' 같은 안내 문구를 몇 초 보여줄지. 지나면 지운다.")]
+        [SerializeField] private float messageSeconds = 3f;
 
         [Header("마무리 구간 (엔딩 직전)")]
         // 결승선을 넘는 순간 바로 화면을 넘기면, 점프 중이던 프레임에서 그림이 멈춘 채
@@ -259,6 +261,7 @@ namespace TopDogDetective.MainMenu
         int lastObstacleIndex = -1;
         int sameInRow = 0;              // 같은 장애물이 연속으로 나온 횟수
         float hintTimer;                // 시작 안내 문구 남은 시간
+        float messageTimer;             // 좌상단 안내 문구 남은 시간 (부딪힘 등)
         float frameTimer;
         int frameIndex;
 
@@ -316,7 +319,7 @@ namespace TopDogDetective.MainMenu
             }
             else intro = false;
             if (resultButton != null) resultButton.gameObject.SetActive(false);
-            if (messageText != null) messageText.text = diff.flavor;   // 난이도 문구만 (조작 안내는 중앙에)
+            ShowMessage(diff.flavor);   // 난이도 문구만 (조작 안내는 중앙에)
 
             // 조작 안내는 화면 중앙에 깜빡이며 띄운다 (도움말에 적어두면 아무도 안 읽는다)
             hintTimer = jumpHintSeconds;
@@ -344,6 +347,7 @@ namespace TopDogDetective.MainMenu
             if (!running) return;
 
             TickHint(dt);
+            TickMessage(dt);
             AdvanceFrameClock(dt);
             RunIntro(dt);
             HandleJump(dt);
@@ -555,7 +559,23 @@ namespace TopDogDetective.MainMenu
                 }
             }
 
-            if (hintTimer <= 0f && messageText != null) messageText.text = "";
+        }
+
+        /// <summary>
+        /// 좌상단 안내 문구를 정해진 시간만 띄운다.
+        /// (타이머 없이 넣으면 '부딪혔다'가 추격이 끝날 때까지 화면에 붙어 있는다)
+        /// </summary>
+        private void ShowMessage(string text)
+        {
+            if (messageText != null) messageText.text = text;
+            messageTimer = messageSeconds;
+        }
+
+        private void TickMessage(float dt)
+        {
+            if (messageTimer <= 0f) return;
+            messageTimer -= dt;
+            if (messageTimer <= 0f && messageText != null) messageText.text = "";
         }
 
         /// <summary>시작 연출: 형사가 자기 자리(중앙)까지 빠르게 달려나간다. 그동안 장애물은 안 나온다.</summary>
@@ -721,7 +741,7 @@ namespace TopDogDetective.MainMenu
         private void OnHit(RectTransform o)
         {
             chaserGap -= diff.hitPenalty;
-            if (messageText != null) messageText.text = "부딪혔다! 거리가 좁혀진다";
+            ShowMessage("부딪혔다! 거리가 좁혀진다");
 
             obstacles.Remove(o);
             Destroy(o.gameObject);
