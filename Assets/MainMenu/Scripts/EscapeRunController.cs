@@ -126,10 +126,12 @@ namespace TopDogDetective.MainMenu
         // 진짜 '달리기만 하는' 구간이 남는다. 2000이면 마지막 720px(약 1.4초)이 깨끗하다.
         [Tooltip("코스 끝에서 이 거리(px)만큼은 장애물을 새로 내보내지 않는다. 0이면 끝까지 나온다.")]
         [SerializeField] private float finishRunDistance = 2000f;
-        [Tooltip("결승선을 넘은 뒤 형사가 화면 밖으로 빠져나갈 x 위치. 장애물 생성 위치(2100)보다 크게 둔다.")]
-        [SerializeField] private float exitX = 2300f;
         [Tooltip("빠져나갈 때의 속도 (평소 달리기보다 빠르게 — 뿌리치고 달아나는 느낌)")]
         [SerializeField] private float exitDashSpeed = 1500f;
+        [Tooltip("형사·추격자가 모두 화면 밖으로 사라진 뒤, 컷씬까지 비워 두는 시간(초)")]
+        [SerializeField] private float exitPauseSeconds = 0.35f;
+        [Tooltip("혹시 아무도 화면을 벗어나지 못하는 상황을 대비한 최대 대기 시간(초)")]
+        [SerializeField] private float exitTimeout = 5f;
 
         [Header("HUD")]
         [SerializeField] private TMP_Text distanceText;
@@ -263,7 +265,9 @@ namespace TopDogDetective.MainMenu
         float chaserGap;     // 추격자와의 거리 (0 이하 = 잡힘)
         float nextSpawnAt;   // 다음 장애물 생성 지점
         bool running;
-        bool finishing;      // 결승선을 넘어 착지를 기다리는 중 (탈출 확정)
+        bool finishing;      // 결승선을 넘어 화면 밖으로 빠져나가는 중 (탈출 확정)
+        float exitHold;      // 전원이 화면을 벗어난 뒤 흐른 시간
+        float exitElapsed;   // 마무리 구간에 들어온 뒤 흐른 시간 (안전장치용)
 
         RunState Run => HearingBattleController.CurrentRun;
 
@@ -277,6 +281,8 @@ namespace TopDogDetective.MainMenu
             nextSpawnAt = 600f;   // 첫 장애물은 조금 뒤에
             running = true;
             finishing = false;
+            exitHold = 0f;
+            exitElapsed = 0f;
 
             frameTimer = 0f;
             frameIndex = 0;
@@ -347,13 +353,22 @@ namespace TopDogDetective.MainMenu
             if (finishing)
             {
                 if (player == null) { Escaped(); return; }
+
+                exitElapsed += dt;
+                if (exitElapsed >= exitTimeout) { Escaped(); return; }   // 안전장치
+
                 if (!Grounded) return;     // 점프 중이면 착지부터 (공중에 뜬 채로 빠져나가지 않게)
 
                 var p = player.anchoredPosition;
                 p.x += exitDashSpeed * dt;
                 player.anchoredPosition = p;
 
-                if (p.x >= exitX) Escaped();
+                // 추격자는 형사 뒤에 붙어 따라오므로 형사보다 늦게 화면을 벗어난다.
+                // 형사만 보고 넘기면 추격자가 화면에 남은 채로 컷씬이 뜬다 — 전부 나갈 때까지 기다린다.
+                if (!AllRunnersOffScreen()) return;
+
+                exitHold += dt;
+                if (exitHold >= exitPauseSeconds) Escaped();
                 return;
             }
 
@@ -364,6 +379,27 @@ namespace TopDogDetective.MainMenu
         /// <summary>플레이어가 바닥에 붙어 있는지 (점프 중이 아닌지).</summary>
         private bool Grounded =>
             player == null || player.anchoredPosition.y <= groundY + 0.01f;
+
+        /// <summary>
+        /// 달리는 좌표계(ObstacleLayer)에서 화면 오른쪽 끝 x.
+        /// ObstacleLayer는 화면 왼쪽 아래에 붙어 있어 x가 화면 좌표와 그대로 맞물린다.
+        /// </summary>
+        private float ScreenRight => ((RectTransform)transform).rect.width;
+
+        /// <summary>형사와 추격자 전원이 오른쪽 화면 밖으로 나갔는가.</summary>
+        private bool AllRunnersOffScreen()
+        {
+            float right = ScreenRight;
+            if (!IsOffRight(player, right)) return false;
+            if (!IsOffRight(chaser, right)) return false;
+            foreach (var e in extras)
+                if (!IsOffRight(e.rt, right)) return false;
+            return true;
+        }
+
+        /// <summary>이 사각형의 왼쪽 끝까지 화면 오른쪽 밖으로 넘어갔는지 (=한 픽셀도 안 보임).</summary>
+        static bool IsOffRight(RectTransform rt, float right)
+            => rt == null || rt.anchoredPosition.x - rt.rect.width * rt.pivot.x > right;
 
         // ── 점프 ─────────────────────────────────────────────
         private void HandleJump(float dt)
