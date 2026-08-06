@@ -13,7 +13,7 @@ namespace TopDogDetective.MainMenu
 
         private void OnEnable()
         {
-            if (controller == null) controller = FindObjectOfType<ChapterSelectController>();
+            if (controller == null) controller = FindAnyObjectByType<ChapterSelectController>();
             if (controller != null) controller.RefreshLocks();
         }
     }

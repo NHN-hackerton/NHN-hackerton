@@ -105,6 +105,40 @@ namespace TopDogDetective.MainMenu
         [Tooltip("같은 장애물이 이 횟수 넘게 연속으로 나오지 않게 막는다.")]
         [SerializeField] private int maxSameInRow = 2;
 
+        [Header("시작 안내")]
+        [Tooltip("화면 중앙에 깜빡이며 뜨는 조작 안내. 비어 있으면 생략된다.")]
+        [SerializeField] private TMP_Text startHintText;
+        [Tooltip("중앙 안내를 몇 초 보여줄지")]
+        [SerializeField] private float jumpHintSeconds = 2f;
+        [Tooltip("깜빡임 주기(초). 작을수록 빠르게 깜빡인다.")]
+        [SerializeField] private float hintBlinkPeriod = 0.4f;
+        [Tooltip("추격전 시작 시 울릴 경보음. 비어 있으면 생략된다.")]
+        [SerializeField] private AudioClip alarmClip;
+        [Tooltip("경보음 배율 (효과음 기준 음량에 곱한다)")]
+        [SerializeField, Range(0f, 5f)] private float alarmVolumeScale = 3f;
+        // 사이렌 원본이 15초라 그냥 틀면 추격(19~22초) 내내 울린다. 시작을 알리는 소리이므로
+        // 앞부분만 울리고 물러나게 두고, 그 뒤는 추격 BGM이 받는다.
+        [Tooltip("경보음을 몇 초 울릴지 (이후 페이드 아웃)")]
+        [SerializeField] private float alarmSeconds = 4f;
+        [Tooltip("'부딪혔다' 같은 안내 문구를 몇 초 보여줄지. 지나면 지운다.")]
+        [SerializeField] private float messageSeconds = 3f;
+
+        [Header("마무리 구간 (엔딩 직전)")]
+        // 결승선을 넘는 순간 바로 화면을 넘기면, 점프 중이던 프레임에서 그림이 멈춘 채
+        // 엔딩으로 튄다 — 공중에 뜬 채로 얼어붙은 것처럼 보인다.
+        // 그래서 (1) 마지막 구간은 장애물을 안 내보내고 (2) 착지해서 달리는 중일 때만 엔딩으로 넘긴다.
+        // 장애물은 화면 밖(obstacleSpawnX=2100)에서 나와 플레이어(playerHomeX=820)까지 약 1280px을 흘러온다.
+        // 그래서 이 값은 1280px보다 넉넉히 커야, 마지막에 생성된 장애물까지 다 지나간 뒤에
+        // 진짜 '달리기만 하는' 구간이 남는다. 2000이면 마지막 720px(약 1.4초)이 깨끗하다.
+        [Tooltip("코스 끝에서 이 거리(px)만큼은 장애물을 새로 내보내지 않는다. 0이면 끝까지 나온다.")]
+        [SerializeField] private float finishRunDistance = 2000f;
+        [Tooltip("빠져나갈 때의 속도 (평소 달리기보다 빠르게 — 뿌리치고 달아나는 느낌)")]
+        [SerializeField] private float exitDashSpeed = 1500f;
+        [Tooltip("형사·추격자가 모두 화면 밖으로 사라진 뒤, 컷씬까지 비워 두는 시간(초)")]
+        [SerializeField] private float exitPauseSeconds = 0.35f;
+        [Tooltip("혹시 아무도 화면을 벗어나지 못하는 상황을 대비한 최대 대기 시간(초)")]
+        [SerializeField] private float exitTimeout = 5f;
+
         [Header("HUD")]
         [SerializeField] private TMP_Text distanceText;
         [SerializeField] private TMP_Text chaserText;
@@ -112,13 +146,33 @@ namespace TopDogDetective.MainMenu
         [Tooltip("진행도 게이지 (0~1)")]
         [SerializeField] private Image progressFill;
 
+        // 게이지 위에 두 표식을 올려, 숫자로 지웠던 '얼마나 왔고 얼마나 붙었는지'를 눈으로 보여준다.
+        // 형사 표식은 게이지 끝(=진행도)에, 추격 표식은 그 뒤로 추격 거리만큼 떨어져 붙는다.
+        // 둘이 맞닿으면 잡히기 직전이다.
+        [Header("게이지 표식")]
+        [Tooltip("게이지 위에서 진행도를 따라 움직이는 형사 표식. 게이지(ProgressBg)의 자식이어야 한다.")]
+        [SerializeField] private RectTransform playerMarker;
+        [Tooltip("형사 뒤에 붙는 추격 표식")]
+        [SerializeField] private RectTransform chaserMarker;
+        [Tooltip("추격 거리가 이 값 이상이면 표식이 최대로 벌어진다 (px)")]
+        [SerializeField] private float markerGapRange = 420f;
+        [Tooltip("표식이 최대로 벌어졌을 때의 간격 (게이지 폭 대비 비율)")]
+        [SerializeField, Range(0.01f, 0.3f)] private float markerMaxSeparation = 0.06f;
+
+        // [조작감 수치의 관계]  플레이테스트로 맞춘 값이며, 아래 관계가 깨지면 점프가 불가능해진다.
+        //   최대 점프 체공  = 2 × jumpVelocity / gravity      = 2×1900/3800 = 1.00초
+        //   최대 점프 이동거리 = 체공 × runSpeed               = 1.00 × 520  = 520px
+        //   짧은 점프 이동거리 = 체공 × jumpCutMultiplier × runSpeed = 343px
+        //   최고 높이       = jumpVelocity² / (2×gravity)     = 475px
+        // → 장애물 간격(gapFloor=620)은 최대 점프 이동거리(520px)보다 커야 착지 후 다시 뛸 틈이 생긴다.
+        //   낮은 장애물(50~65px)은 짧은 점프로만 넘을 수 있게 맞춘 것이다.
         [Header("조작감")]
-        [SerializeField] private float runSpeed = 420f;      // px/초 (장애물이 흘러오는 속도)
-        [SerializeField] private float jumpVelocity = 1150f;
-        [SerializeField] private float gravity = 3200f;
+        [SerializeField] private float runSpeed = 520f;      // px/초 (장애물이 흘러오는 속도)
+        [SerializeField] private float jumpVelocity = 1900f;
+        [SerializeField] private float gravity = 3800f;
         [Tooltip("점프 키를 떼면 상승 속도를 이 비율로 깎는다. 짧게 누르면 낮게, 길게 누르면 높게. (1이면 항상 최고 높이)")]
         [Range(0.1f, 1f)]
-        [SerializeField] private float jumpCutMultiplier = 0.42f;
+        [SerializeField] private float jumpCutMultiplier = 0.66f;
         [Tooltip("이 시간 동안은 키를 떼도 안 깎인다 (너무 찔끔 뛰는 것 방지)")]
         [SerializeField] private float minJumpHold = 0.06f;
         [Tooltip("바닥 Y (플레이어 anchoredPosition.y 기준)")]
@@ -157,8 +211,9 @@ namespace TopDogDetective.MainMenu
             public string flavor;       // 시작 문구
         }
 
-        // 장애물 간격은 점프 체공 거리(약 480px)보다 넉넉히 커야 한다.
+        // 장애물 간격(gapMin)은 최대 점프 이동거리 520px보다 커야 한다. (수치 근거는 위 '조작감' 주석)
         // 안 그러면 착지 전에 다음 장애물이 도착해 점프 자체가 불가능해진다.
+        // 가장 좁은 설정이 gapMin=640이고 gapFloor=620까지 좁아질 수 있어, 착지 시 여유는 100~120px(약 0.2초)이다.
         static Difficulty ForMaxedCount(int maxed) => maxed switch
         {
             >= 3 => new Difficulty { chasers = 1, courseLength = 9800f, gapMin = 860f, gapMax = 1080f,
@@ -205,6 +260,8 @@ namespace TopDogDetective.MainMenu
         // 장애물 셔플백: 한 바퀴 안에서 모든 종류가 한 번씩 나오고, 같은 게 연달아 나오지 않는다
         int lastObstacleIndex = -1;
         int sameInRow = 0;              // 같은 장애물이 연속으로 나온 횟수
+        float hintTimer;                // 시작 안내 문구 남은 시간
+        float messageTimer;             // 좌상단 안내 문구 남은 시간 (부딪힘 등)
         float frameTimer;
         int frameIndex;
 
@@ -215,8 +272,18 @@ namespace TopDogDetective.MainMenu
         float chaserGap;     // 추격자와의 거리 (0 이하 = 잡힘)
         float nextSpawnAt;   // 다음 장애물 생성 지점
         bool running;
+        AudioSource alarmSource;   // 시작 사이렌 (화면이 닫히면 바로 끊는다)
+        bool finishing;      // 결승선을 넘어 화면 밖으로 빠져나가는 중 (탈출 확정)
+        float exitHold;      // 전원이 화면을 벗어난 뒤 흐른 시간
+        float exitElapsed;   // 마무리 구간에 들어온 뒤 흐른 시간 (안전장치용)
 
         RunState Run => HearingBattleController.CurrentRun;
+
+        private void OnDisable()
+        {
+            // 사이렌이 남아 울면서 다음 화면(엔딩 컷씬)으로 넘어가지 않게 끊는다
+            if (alarmSource != null) { Destroy(alarmSource.gameObject); alarmSource = null; }
+        }
 
         private void OnEnable()
         {
@@ -227,6 +294,9 @@ namespace TopDogDetective.MainMenu
             chaserGap = diff.startGap;
             nextSpawnAt = 600f;   // 첫 장애물은 조금 뒤에
             running = true;
+            finishing = false;
+            exitHold = 0f;
+            exitElapsed = 0f;
 
             frameTimer = 0f;
             frameIndex = 0;
@@ -249,11 +319,26 @@ namespace TopDogDetective.MainMenu
             }
             else intro = false;
             if (resultButton != null) resultButton.gameObject.SetActive(false);
-            if (messageText != null) messageText.text = diff.flavor;
+            ShowMessage(diff.flavor);   // 난이도 문구만 (조작 안내는 중앙에)
+
+            // 조작 안내는 화면 중앙에 깜빡이며 띄운다 (도움말에 적어두면 아무도 안 읽는다)
+            hintTimer = jumpHintSeconds;
+            if (startHintText != null)
+            {
+                startHintText.text = "스페이스바를 눌러 장애물 피하기";
+                startHintText.gameObject.SetActive(true);
+            }
+
+            // 사이렌이 울리며 시작 — 추격이 시작됐다는 신호
+            if (alarmClip != null && SfxManager.Instance != null)
+                alarmSource = SfxManager.Instance.PlayFor(alarmClip, alarmSeconds, alarmVolumeScale);
 
             UpdateHud();
         }
 
+        // unscaledDeltaTime을 쓴다 — 이 게임은 화면 전환·폭탄 타임어택이 모두 realtime 기준이고
+        // timeScale을 건드리는 곳이 없다. 나중에 timeScale로 일시정지를 넣게 되면
+        // 이 미니게임만 계속 돌게 되므로, 그때 deltaTime으로 바꾸거나 running 플래그로 막아야 한다.
         private void Update() => Tick(Time.unscaledDeltaTime);
 
         /// <summary>한 프레임 진행. (dt를 넘겨받아 테스트에서도 결정적으로 돌릴 수 있게 분리)</summary>
@@ -261,6 +346,8 @@ namespace TopDogDetective.MainMenu
         {
             if (!running) return;
 
+            TickHint(dt);
+            TickMessage(dt);
             AdvanceFrameClock(dt);
             RunIntro(dt);
             HandleJump(dt);
@@ -275,17 +362,68 @@ namespace TopDogDetective.MainMenu
             UpdateShadow(chaserShadow, chaser);
             UpdateHud();
 
+            // 결승선을 넘었으면 탈출은 확정 — 뒤에서 잡히는 판정은 더 보지 않는다.
+            // 제자리에서 화면이 바뀌면 갑자기 끊긴 느낌이라, 오른쪽 화면 밖까지 달려나가게 두고
+            // 완전히 빠져나간 다음 컷씬으로 넘긴다.
+            if (finishing)
+            {
+                if (player == null) { Escaped(); return; }
+
+                exitElapsed += dt;
+                if (exitElapsed >= exitTimeout) { Escaped(); return; }   // 안전장치
+
+                if (!Grounded) return;     // 점프 중이면 착지부터 (공중에 뜬 채로 빠져나가지 않게)
+
+                var p = player.anchoredPosition;
+                p.x += exitDashSpeed * dt;
+                player.anchoredPosition = p;
+
+                // 추격자는 형사 뒤에 붙어 따라오므로 형사보다 늦게 화면을 벗어난다.
+                // 형사만 보고 넘기면 추격자가 화면에 남은 채로 컷씬이 뜬다 — 전부 나갈 때까지 기다린다.
+                if (!AllRunnersOffScreen()) return;
+
+                exitHold += dt;
+                if (exitHold >= exitPauseSeconds) Escaped();
+                return;
+            }
+
             if (chaserGap <= 0f) { Caught(); return; }
-            if (progress >= diff.courseLength) Escaped();
+            if (progress >= diff.courseLength) finishing = true;   // 다음 프레임부터 화면 밖으로 빠져나간다
         }
+
+        /// <summary>플레이어가 바닥에 붙어 있는지 (점프 중이 아닌지).</summary>
+        private bool Grounded =>
+            player == null || player.anchoredPosition.y <= groundY + 0.01f;
+
+        /// <summary>
+        /// 달리는 좌표계(ObstacleLayer)에서 화면 오른쪽 끝 x.
+        /// ObstacleLayer는 화면 왼쪽 아래에 붙어 있어 x가 화면 좌표와 그대로 맞물린다.
+        /// </summary>
+        private float ScreenRight => ((RectTransform)transform).rect.width;
+
+        /// <summary>형사와 추격자 전원이 오른쪽 화면 밖으로 나갔는가.</summary>
+        private bool AllRunnersOffScreen()
+        {
+            float right = ScreenRight;
+            if (!IsOffRight(player, right)) return false;
+            if (!IsOffRight(chaser, right)) return false;
+            foreach (var e in extras)
+                if (!IsOffRight(e.rt, right)) return false;
+            return true;
+        }
+
+        /// <summary>이 사각형의 왼쪽 끝까지 화면 오른쪽 밖으로 넘어갔는지 (=한 픽셀도 안 보임).</summary>
+        static bool IsOffRight(RectTransform rt, float right)
+            => rt == null || rt.anchoredPosition.x - rt.rect.width * rt.pivot.x > right;
 
         // ── 점프 ─────────────────────────────────────────────
         private void HandleJump(float dt)
         {
             if (player == null) return;
 
-            bool grounded = player.anchoredPosition.y <= groundY + 0.01f;
-            if (grounded && JumpPressed())
+            bool grounded = Grounded;
+            // 결승선을 넘은 뒤에는 새 점프를 받지 않는다 (마지막은 달리는 모습으로 끝나야 한다)
+            if (grounded && !finishing && JumpPressed())
             {
                 velocityY = jumpVelocity;
                 jumpHoldTime = 0f;
@@ -395,6 +533,51 @@ namespace TopDogDetective.MainMenu
                 chaserImage.sprite = chaserRunFrames[frameIndex % chaserRunFrames.Length];
         }
 
+        /// <summary>
+        /// 중앙 조작 안내를 깜빡이며 보여주다 시간이 지나면 끈다.
+        /// (부딪힘 안내 같은 다른 문구는 건드리지 않는다)
+        /// </summary>
+        private void TickHint(float dt)
+        {
+            if (hintTimer <= 0f) return;
+            hintTimer -= dt;
+
+            if (startHintText != null)
+            {
+                if (hintTimer > 0f)
+                {
+                    // 남은 시간을 주기로 나눠 켜짐/꺼짐을 번갈아 — 깜빡이는 경고 느낌
+                    bool on = Mathf.Repeat(hintTimer, hintBlinkPeriod) > hintBlinkPeriod * 0.5f;
+                    var c = startHintText.color;
+                    startHintText.color = new Color(c.r, c.g, c.b, on ? 1f : 0.15f);
+                }
+                else
+                {
+                    var c = startHintText.color;
+                    startHintText.color = new Color(c.r, c.g, c.b, 1f);   // 알파 원복 후 숨김
+                    startHintText.gameObject.SetActive(false);
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// 좌상단 안내 문구를 정해진 시간만 띄운다.
+        /// (타이머 없이 넣으면 '부딪혔다'가 추격이 끝날 때까지 화면에 붙어 있는다)
+        /// </summary>
+        private void ShowMessage(string text)
+        {
+            if (messageText != null) messageText.text = text;
+            messageTimer = messageSeconds;
+        }
+
+        private void TickMessage(float dt)
+        {
+            if (messageTimer <= 0f) return;
+            messageTimer -= dt;
+            if (messageTimer <= 0f && messageText != null) messageText.text = "";
+        }
+
         /// <summary>시작 연출: 형사가 자기 자리(중앙)까지 빠르게 달려나간다. 그동안 장애물은 안 나온다.</summary>
         private void RunIntro(float dt)
         {
@@ -418,7 +601,10 @@ namespace TopDogDetective.MainMenu
         {
             if (obstacleLayer == null) return;
 
-            if (!intro && progress >= nextSpawnAt)   // 시작 연출 중엔 장애물 없음
+            // 시작 연출 중엔 장애물이 없고, 코스 끝 마무리 구간에서도 더 내보내지 않는다
+            // (엔딩 직전에 넘어야 할 게 남아 있으면 점프 중에 화면이 넘어간다)
+            bool inFinishStretch = progress >= diff.courseLength - finishRunDistance;
+            if (!intro && !inFinishStretch && progress >= nextSpawnAt)
             {
                 SpawnObstacle();
                 nextSpawnAt = progress + NextGap();
@@ -555,7 +741,7 @@ namespace TopDogDetective.MainMenu
         private void OnHit(RectTransform o)
         {
             chaserGap -= diff.hitPenalty;
-            if (messageText != null) messageText.text = "부딪혔다! 거리가 좁혀진다";
+            ShowMessage("부딪혔다! 거리가 좁혀진다");
 
             obstacles.Remove(o);
             Destroy(o.gameObject);
@@ -760,10 +946,32 @@ namespace TopDogDetective.MainMenu
         {
             if (distanceText != null)
                 distanceText.text = $"{Mathf.Min(progress, diff.courseLength):0} / {diff.courseLength:0}";
+            // 추격 거리는 숫자로 안 보여준다 — 뒤에 붙은 추격자를 눈으로 보는 게 더 급하고,
+            // 픽셀 몇 개까지 읽히면 연출이 아니라 계기판이 된다. 인원만 남긴다.
             if (chaserText != null)
-                chaserText.text = $"추격 {extras.Count + 1}명 · 거리 {Mathf.Max(0f, chaserGap):0}";   // 선두(보스) + 실제로 따라오는 인원
+                chaserText.text = $"추격 {extras.Count + 1}명";   // 선두(보스) + 실제로 따라오는 인원
+            float t = Mathf.Clamp01(progress / diff.courseLength);
             if (progressFill != null)
-                progressFill.fillAmount = Mathf.Clamp01(progress / diff.courseLength);
+                progressFill.fillAmount = t;
+
+            PlaceMarker(playerMarker, t);
+            // 추격 거리가 좁아질수록 표식이 형사 쪽으로 붙는다 (0 = 겹침 = 잡힘)
+            float sep = markerMaxSeparation * Mathf.Clamp01(Mathf.Max(0f, chaserGap) / Mathf.Max(1f, markerGapRange));
+            PlaceMarker(chaserMarker, t - sep);
+        }
+
+        /// <summary>
+        /// 게이지 폭 위의 비율 위치(0~1)에 표식을 앉힌다.
+        /// 왼쪽은 조금 넘어가도 되게 뒀다 — 출발 직후엔 형사가 0%에 있어 추격 표식이 뒤로 갈 자리가 없고,
+        /// 0에서 막아버리면 시작부터 둘이 겹쳐 잡히기 직전처럼 보인다.
+        /// </summary>
+        private static void PlaceMarker(RectTransform marker, float t)
+        {
+            if (marker == null) return;
+            t = Mathf.Clamp(t, -0.08f, 1f);
+            marker.anchorMin = new Vector2(t, 0.5f);
+            marker.anchorMax = new Vector2(t, 0.5f);
+            marker.anchoredPosition = Vector2.zero;
         }
 
         // ── 결과 ─────────────────────────────────────────────

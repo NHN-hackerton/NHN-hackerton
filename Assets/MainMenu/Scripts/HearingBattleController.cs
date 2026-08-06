@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -22,6 +23,29 @@ namespace TopDogDetective.MainMenu
         [Tooltip("탐색 연동 전까지 임시로 지급할 보유 키워드 (Mock 루프 검증용)")]
         [SerializeField] private string[] seedKeywords = { "kw_rookie_pride", "kw_code_digit" };
 
+        /// <summary>어떤 판정기로 심문을 돌릴지. (IDialogueJudge 구현 선택)</summary>
+        public enum JudgeMode
+        {
+            Mock,   // 규칙 기반 가짜 판정 — 즉시 응답, 통신 없음 (UI 작업·시연 안전판)
+            Llm     // 프록시 경유 실제 LLM 판정
+        }
+
+        [Header("판정기")]
+        [Tooltip("Mock = 규칙 기반 가짜 판정(즉시 응답). Llm = 프록시 경유 실제 LLM 판정.")]
+        [SerializeField] private JudgeMode judgeMode = JudgeMode.Mock;
+        [Tooltip("judge.js 엔드포인트 전체 URL (예: https://xxx.vercel.app/api/judge). " +
+                 "비우면 환경변수 TOPDOG_PROXY_URL을 읽는다.")]
+        [SerializeField] private string proxyUrl = "";
+        [Tooltip("프록시의 PROXY_TOKEN과 같은 값. 저장소에 올라가지 않게 비워 두고 " +
+                 "환경변수 TOPDOG_PROXY_TOKEN으로 넣는 걸 권한다.")]
+        [SerializeField] private string proxyToken = "";
+        [Tooltip("판정 요청 타임아웃(초)")]
+        [SerializeField] private int judgeTimeoutSeconds = 20;
+
+        [Header("대사 연출")]
+        [Tooltip("상대 대사를 한 글자씩 출력한다. 속도는 설정 화면의 '대화 출력 속도'를 따른다.")]
+        [SerializeField] private bool typeReply = true;
+
         [Header("연동")]
         [Tooltip("표정 전환용. 없으면 표정은 생략된다.")]
         [SerializeField] private HearingController hearing;
@@ -34,6 +58,10 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private TMP_Text codeText;
         [SerializeField] private TMP_Text replyText;
         [SerializeField] private TMP_Text outcomeText;
+        [Tooltip("새 카드를 얻었을 때만 손패 위에 잠깐 뜨는 문구. 없으면 생략된다.")]
+        [SerializeField] private TMP_Text cardNoticeText;
+        [Tooltip("새 카드 안내를 몇 초 보여줄지")]
+        [SerializeField] private float cardNoticeSeconds = 2.2f;
 
         [Header("게이지 바 (fillAmount 0~1, 없으면 생략)")]
         [SerializeField] private Image suspicionFill;
@@ -57,8 +85,21 @@ namespace TopDogDetective.MainMenu
         /// (심문마다 새로 만들면 확보한 코드가 사라져 보스방 해제가 불가능해진다)</summary>
         public static RunState CurrentRun { get; private set; }
 
+        /// <summary>
+        /// 정식으로 통과한(3턴을 발각 없이 마친) 조직원 id.
+        ///
+        /// "이미 통과한 상대인가"를 RunState.HasCode로 판단하면 안 된다 — 발각으로 실패해도
+        /// 중간에 흘러나온 코드는 백엔드가 이미 커밋해 둔 상태라, 재도전 때 통과한 것으로 착각해
+        /// 의심도·친밀도를 초기화하지 않는다(=시작부터 발각권). 통과 여부는 여기서 따로 센다.
+        /// </summary>
+        static readonly HashSet<string> clearedEnemies = new();
+
         /// <summary>새 런 시작 (챕터 처음부터). 탐색 단서와 함께 초기화된다.</summary>
-        public static void ResetRun() => CurrentRun = null;
+        public static void ResetRun()
+        {
+            CurrentRun = null;
+            clearedEnemies.Clear();
+        }
 
         private EnemyData enemy;
         private RunState run;
@@ -97,32 +138,84 @@ namespace TopDogDetective.MainMenu
             if (CurrentRun == null) CurrentRun = new RunState();
             run = CurrentRun;
 
-            // 의심도는 조직원별로 0에서 시작한다.
-            // (런에 누적하면 앞 라운드 잔고 때문에 3라운드가 시작부터 발각권에 들어간다.
-            //  의심도는 '그 조직원이 나를 얼마나 의심하는가'이므로 상대가 바뀌면 리셋이 맞다)
-            if (run.Suspicion != 0)
+            // 심문은 늘 처음부터 시작한다 — 의심 0, 친밀 0.
+            //
+            // 의심도: 런에 누적하면 앞 라운드 잔고 때문에 3라운드가 시작부터 발각권에 들어간다.
+            //         '그 조직원이 나를 얼마나 의심하는가'이므로 상대가 바뀌면 리셋이 맞다.
+            // 친밀도: 재도전(실패 후 단서 다시 모아 재입장)인데 친밀이 남아 있으면
+            //         이전 시도의 중간 지점에서 시작해버린다. 1턴 친밀 → 2턴 코드 → 3턴 친밀
+            //         3턴 구성이 무의미해지므로 재도전도 0에서 다시 쌓게 한다.
+            //
+            // 단, 이미 통과한 조직원은 다시 볼 일이 없는 상대다. 그 친밀도(=속내 조각)는 보존한다.
+            bool alreadyPassed = clearedEnemies.Contains(enemyId);
+            if (!alreadyPassed)
             {
-                Debug.Log($"[HearingBattle] {enemy.displayName} 심문 시작 — 의심도 {run.Suspicion} → 0");
+                int prevSusp = run.Suspicion;
+                int prevAff  = run.GetAffinity(enemyId);
                 run.SetSuspicion(0);
+                run.SetAffinity(enemyId, 0);
+                if (prevSusp != 0 || prevAff != 0)
+                    Debug.Log($"[HearingBattle] {enemy.displayName} 심문 시작 — 의심 {prevSusp}→0, 친밀 {prevAff}→0");
             }
 
+            // 탐색에서 모은 단서를 손패로 넘긴다.
+            // TODO: seedKeywords는 탐색을 건너뛴 에디터 테스트용이다. 정식 경로에서는 쓰지 않는다.
             var collected = ExplorationController.CollectedClues;
             if (collected != null && collected.Count > 0)
-                foreach (var kw in collected) run.AcquireKeyword(kw);   // 탐색에서 모은 카드
+                foreach (var kw in collected) run.AcquireKeyword(kw);
+#if UNITY_EDITOR
             else
-                foreach (var kw in seedKeywords) run.AcquireKeyword(kw); // 탐색 안 거쳤을 때 테스트 폴백
+                foreach (var kw in seedKeywords) run.AcquireKeyword(kw);
+#endif
 
             session = new BattleSession(enemy, run);
-            judge   = new MockDialogueJudge();
+            judge   = CreateJudge();
             busy    = false;
             won     = false;
 
             if (outcomeText != null) outcomeText.text = "";
-            if (replyText != null)   replyText.text = $"{enemy.displayName}와의 심문을 시작한다.";
+            // 이름은 JSON에서 오므로 조사를 받침에 맞춘다 ("신참 조직원와의" → "…원과의")
+            TypeReply($"{Korean.Gwa(enemy.displayName)}의 심문을 시작한다.");
             if (resultButton != null) resultButton.gameObject.SetActive(false);
             if (resultOverlay != null) resultOverlay.SetActive(false);
+            // 지난 심문의 결과창에서 켜둔 블러가 남아 있으면, 새 심문이 옛 화면 스냅샷 위에서 시작된다
+            if (blurOverlay != null) blurOverlay.Hide();
+            if (cardNoticeCo != null) { StopCoroutine(cardNoticeCo); cardNoticeCo = null; }
+            SetCardNoticeAlpha(0f);
             RefreshHud();
             OnStateChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// 인스펙터 설정대로 판정기를 만든다. (BattleSession은 IDialogueJudge만 알면 되므로 여기서 갈아끼운다)
+        ///
+        /// 토큰은 씬 파일에 적으면 저장소에 그대로 올라가므로, 비워 두면 환경변수에서 읽는다.
+        /// URL·토큰이 없는데 Llm을 골라 두면 심문 자체가 불가능해지므로 Mock으로 떨어뜨린다
+        /// — 시연 중에 통신이 막혀도 게임은 굴러가야 한다.
+        /// </summary>
+        private IDialogueJudge CreateJudge()
+        {
+            if (judgeMode == JudgeMode.Mock) return new MockDialogueJudge();
+
+            string url   = !string.IsNullOrEmpty(proxyUrl)   ? proxyUrl   : ReadEnv("TOPDOG_PROXY_URL");
+            string token = !string.IsNullOrEmpty(proxyToken) ? proxyToken : ReadEnv("TOPDOG_PROXY_TOKEN");
+
+            if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(token))
+            {
+                Debug.LogWarning("[HearingBattle] 판정기를 Llm으로 골랐지만 프록시 URL/토큰이 없어 Mock으로 진행합니다. " +
+                                 "인스펙터에 넣거나 환경변수 TOPDOG_PROXY_URL / TOPDOG_PROXY_TOKEN을 설정하세요.");
+                return new MockDialogueJudge();
+            }
+
+            Debug.Log("[HearingBattle] 실제 LLM 판정으로 심문을 시작합니다.");
+            return new LlmDialogueJudge(url, token, judgeTimeoutSeconds);
+        }
+
+        /// <summary>환경변수 읽기. 플랫폼에 따라 막혀 있으면 빈 문자열로 취급한다.</summary>
+        static string ReadEnv(string key)
+        {
+            try { return System.Environment.GetEnvironmentVariable(key) ?? ""; }
+            catch { return ""; }   // WebGL 등에서는 접근이 막힌다
         }
 
         /// <summary>제출 가능 여부(카드 UI 버튼 활성/비활성용).</summary>
@@ -141,7 +234,7 @@ namespace TopDogDetective.MainMenu
 
             if (!session.CanSubmit(utterance, out string reason))
             {
-                if (replyText != null) replyText.text = $"(제출 불가) {reason}";
+                Typewriter.ShowAll(replyText, $"(제출 불가) {reason}");   // 안내는 즉시
                 return;
             }
 
@@ -151,30 +244,44 @@ namespace TopDogDetective.MainMenu
         private IEnumerator SubmitRoutine(PlayerUtterance utterance)
         {
             busy = true;
-            if (replyText != null) replyText.text = "…";   // 판정 대기 연출
+            Typewriter.ShowAll(replyText, "…");   // 판정 대기 연출 (타이핑 없이)
 
             DialogueResult raw = null;
             yield return judge.Judge(session, utterance, r => raw = r);
 
+            // 약점을 찌르면 새 키워드 카드가 손패에 들어온다. 판정 전후를 비교해 그것만 골라낸다.
+            // (result.weaknessHit만 보면 '이미 가진 카드를 다시 드러낸' 경우까지 새 카드로 알린다)
+            var before = new HashSet<string>(run.OwnedKeywords);
             DialogueResult result = session.ApplyResult(raw, utterance);
+            var gained = new List<string>();
+            foreach (var id in run.OwnedKeywords)
+                if (!before.Contains(id)) gained.Add(id);
+
             busy = false;
 
-            ApplyResultToUi(result);
+            ApplyResultToUi(result, gained);
         }
 
-        private void ApplyResultToUi(DialogueResult result)
+        private void ApplyResultToUi(DialogueResult result, List<string> gainedCards = null)
         {
-            if (replyText != null) replyText.text = result.reply;
+            TypeReply(result.reply);   // 상대 대사는 한 글자씩 (설정의 '대화 출력 속도')
 
             RefreshHud();
             if (hearing != null) hearing.SetExpression(MoodFrom(result));
 
-            if (outcomeText != null && !session.IsFinished)
+            // 턴 중간에는 화면을 덮는 안내를 띄우지 않는다.
+            // 코드를 챈 것도, 속내를 들은 것도 심문이 끝난 게 아니라 '진행 중'인 사건인데
+            // 블러 + 중앙 문구로 띄우면 결과창처럼 보여서 심문이 끝난 줄 알게 된다.
+            // 그 둘은 HUD 라벨을 튕겨 시선만 끌고, 판정 문구는 3턴이 끝난 뒤 한 번만 보여준다.
+            //
+            // 딱 하나 문구로 알리는 건 '새 카드'다. 손패가 늘어난 건 다음 턴에 당장 쓸 수 있는
+            // 정보인데, 아래에 카드가 조용히 한 장 늘어나는 것만으로는 알아채기 어렵다.
+            if (!session.IsFinished)
             {
-                if (result.affinityMaxed)
-                    ShowFlash($"{enemy.displayName}의 속내를 들었다 — 조각 획득!");
-                else if (result.codeRevealed && !string.IsNullOrEmpty(result.revealedValue))
-                    ShowFlash($"코드 확보: {result.revealedValue}\n남은 턴에 마음을 얻어라", 3f);
+                if (result.affinityMaxed) Pulse(affinityText);
+                else if (result.codeRevealed) Pulse(codeText);
+
+                if (gainedCards != null && gainedCards.Count > 0) ShowCardNotice(gainedCards);
             }
 
             // 코드를 얻어도 3턴까지 간다 (기획서 §4: 간보기 → 찌르기 → 무마·이탈).
@@ -193,7 +300,14 @@ namespace TopDogDetective.MainMenu
             if (affinityText != null)  affinityText.text  = $"{session.Affinity}%";
             if (turnText != null)      turnText.text      = $"{session.CurrentTurn}/{BattleSession.MaxTurn}턴";
             if (focusText != null)     focusText.text     = $"집중 {session.FocusRemaining}/{BattleSession.FocusPerTurn}";
-            if (codeText != null)      codeText.text      = session.CodeAcquired ? $"코드 [{session.SessionCodeValue}]" : "코드 [ _ ]";
+            // 심문 중에는 코드를 보여주지 않는다.
+            // 상대가 말끝에 흘리는 건 대사로 읽히면 되고, HUD에 값이 박히면 스포일러다.
+            // 게다가 이 코드를 실제로 챘는지는 3턴을 다 돌고 의심도·친밀도를 보고 정해지므로,
+            // 중간에 띄우면 나중에 못 챈 경우와 어긋난다. 확정된 값은 결과창에서만 보여준다.
+            if (codeText != null)
+                codeText.text = session.IsFinished && session.CodeAcquired
+                    ? $"코드 [{session.SessionCodeValue}]"
+                    : "코드 [ ? ]";
 
             if (suspicionFill != null) suspicionFill.fillAmount = session.Suspicion / 100f;
             if (affinityFill != null)  affinityFill.fillAmount  = session.Affinity / 100f;
@@ -203,15 +317,14 @@ namespace TopDogDetective.MainMenu
         {
             if (outcome == TurnOutcome.Success) { Win(); return; }   // 성공은 자동 전환
 
-            // 코드를 이미 챘으면 발각돼도 라운드는 통과시킨다.
-            // (백엔드 DecideOutcome은 의심도만 보고 발각을 내므로, 코드 확보가 무시된다)
-            // 대가는 친밀 100을 못 채워 '속내 조각'을 놓치는 것 — 진엔딩이 막힌다.
-            if (session != null && session.CodeAcquired) { Win(outcome == TurnOutcome.FailedExposed); return; }
-
-            // 실패(발각·시간초과) → "다시 돌아가기" 버튼
+            // 코드는 심문 '전체'를 마쳤을 때 주는 것이다 — 중간에 값이 흘러나왔어도
+            // 마지막 의심도가 발각선을 넘었으면 빈손으로 나온다. (백엔드 DecideOutcome의 원래 설계)
+            // 그래서 여기서 통과시켜 주지 않는다. 다시 들어와 제대로 끝내야 한다.
             string head = outcome switch
             {
-                TurnOutcome.FailedExposed => "발각됨 — 심문 실패",
+                TurnOutcome.FailedExposed => session.CodeAcquired
+                    ? "발각됨 — 코드를 들고 나오지 못했다"
+                    : "발각됨 — 심문 실패",
                 TurnOutcome.FailedTimeout => "시간 초과 — 코드 미확보 (재도전 가능)",
                 _                         => outcomeText != null ? outcomeText.text : ""
             };
@@ -242,21 +355,17 @@ namespace TopDogDetective.MainMenu
             }
         }
 
-        /// <summary>코드 확보 = 성공. 결과 문구를 보여준 뒤 다음 챕터로.</summary>
-        /// <param name="exposed">막판에 발각됐는가 (코드는 이미 챈 상태)</param>
-        private void Win(bool exposed = false)
+        /// <summary>3턴을 발각 없이 마치고 코드까지 챘을 때. 결과 문구를 보여준 뒤 다음 챕터로.</summary>
+        private void Win()
         {
             if (won) return;
             won = true;
             busy = true;   // 전환 대기 중 추가 제출 차단
 
-            // 발각 통과 경로에서는 백엔드 Finish가 Success가 아니라 열쇠를 주지 않으므로 직접 지급
-            if (exposed && (enemy?.secret?.hasBossRoomKey ?? false))
-                CurrentRun?.GrantBossRoomKey();
+            // 정식으로 통과한 상대로 기록한다 (재도전 판정에 쓴다 — 아래 clearedEnemies 주석 참고)
+            if (!string.IsNullOrEmpty(enemyId)) clearedEnemies.Add(enemyId);
 
-            string head = exposed
-                ? $"들켰지만 코드 [{session.SessionCodeValue}]는 챘다"
-                : $"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!";
+            string head = $"심문 종료 — 코드 [{session.SessionCodeValue}] 확보!";
 
             // 코드를 충분히 확인한 뒤 직접 넘어가게 (자동 전환 X)
             if (resultButton != null)
@@ -269,35 +378,85 @@ namespace TopDogDetective.MainMenu
             }
         }
 
-        Coroutine flashCo;
+        Coroutine replyCo;
 
-        /// <summary>턴 중 안내 문구를 잠깐 띄웠다가 지운다 (심문이 끝난 게 아니므로 남겨두지 않는다).</summary>
-        private void ShowFlash(string text, float seconds = 4f)
+        /// <summary>
+        /// 상대 대사를 한 글자씩 출력한다. 다음 판정이 오면 앞 대사는 끊고 새로 시작한다.
+        /// (직접 replyText.text에 넣으면 이전 타이핑이 계속 돌아 글자가 섞인다)
+        /// </summary>
+        private void TypeReply(string text)
         {
-            if (outcomeText == null) return;
-            if (flashCo != null) StopCoroutine(flashCo);
-            flashCo = StartCoroutine(FlashRoutine(text, seconds));
+            if (replyText == null) return;
+            if (replyCo != null) StopCoroutine(replyCo);
+
+            if (!typeReply || !gameObject.activeInHierarchy)
+            {
+                Typewriter.ShowAll(replyText, text);
+                return;
+            }
+            replyCo = StartCoroutine(TypeReplyRoutine(text));
         }
 
-        private IEnumerator FlashRoutine(string text, float seconds)
+        private IEnumerator TypeReplyRoutine(string text)
         {
-            // 문구를 넣기 전에 배경을 흐리게 떠 둔다 (문구가 블러에 같이 찍히지 않도록)
-            if (blurOverlay != null)
+            yield return Typewriter.Reveal(replyText, text);
+            replyCo = null;
+        }
+
+        Coroutine cardNoticeCo;
+
+        /// <summary>
+        /// 새로 얻은 카드를 손패 위에 잠깐 띄운다. 화면을 덮지 않고(블러 없음) 스스로 사라진다.
+        /// </summary>
+        private void ShowCardNotice(List<string> ids)
+        {
+            if (cardNoticeText == null) return;
+
+            var names = new List<string>();
+            foreach (var id in ids) names.Add($"〈{HearingCardPanel.CardName(id)}〉");
+            cardNoticeText.text = $"새 카드 {string.Join(" ", names)}";
+
+            if (cardNoticeCo != null) StopCoroutine(cardNoticeCo);
+            cardNoticeCo = StartCoroutine(CardNoticeRoutine());
+        }
+
+        private IEnumerator CardNoticeRoutine()
+        {
+            var rt = cardNoticeText.rectTransform;
+            rt.DOKill();
+            rt.localScale = Vector3.one;
+            rt.DOPunchScale(Vector3.one * 0.2f, 0.35f, 5, 0.6f).SetUpdate(true);
+
+            // 끝에서 서서히 사라지게 — 갑자기 없어지면 못 본 사람은 뜬 줄도 모른다
+            SetCardNoticeAlpha(1f);
+            yield return new WaitForSecondsRealtime(cardNoticeSeconds);
+            for (float t = 0f; t < 0.4f; t += Time.unscaledDeltaTime)
             {
-                blurOverlay.Show();
+                SetCardNoticeAlpha(1f - t / 0.4f);
                 yield return null;
             }
-            outcomeText.text = text;
+            SetCardNoticeAlpha(0f);
+            cardNoticeCo = null;
+        }
 
-            yield return new WaitForSecondsRealtime(seconds);
+        private void SetCardNoticeAlpha(float a)
+        {
+            if (cardNoticeText == null) return;
+            var c = cardNoticeText.color;
+            cardNoticeText.color = new Color(c.r, c.g, c.b, a);
+        }
 
-            bool finished = session != null && session.IsFinished;
-            if (!finished)
-            {
-                outcomeText.text = "";
-                if (blurOverlay != null) blurOverlay.Hide();
-            }
-            flashCo = null;
+        /// <summary>
+        /// HUD 라벨을 한 번 튕겨 방금 바뀐 값에 시선을 끈다 (진행을 막지 않는 피드백).
+        /// 화면을 덮는 안내 대신 쓰는 것이므로 짧고 가볍게 둔다.
+        /// </summary>
+        private void Pulse(TMP_Text label)
+        {
+            if (label == null) return;
+            var rt = label.rectTransform;
+            rt.DOKill();
+            rt.localScale = Vector3.one;
+            rt.DOPunchScale(Vector3.one * 0.35f, 0.4f, 6, 0.6f).SetUpdate(true);
         }
 
         /// <summary>친밀 100% 달성 여부에 따라 결과창에 덧붙일 문구 (속내 조각 안내).</summary>

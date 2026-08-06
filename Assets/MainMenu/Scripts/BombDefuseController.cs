@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -52,7 +54,11 @@ namespace TopDogDetective.MainMenu
         [Tooltip("다시 시작 시 돌아갈 화면 (사건 선택 등)")]
         [SerializeField] private GameObject restartScreen;
 
-        // 키패드에 깔 문자 — 정답 3자리 + 헷갈리게 하는 더미
+        // 키패드에 깔 문자 — 정답 3자리(K·7·Q) + 헷갈리게 하는 더미 9개.
+        //
+        // [주의] 이 배열은 EnemyData.secret.codeValue와 별개로 하드코딩돼 있다.
+        //        조직원의 codeValue를 여기 없는 문자로 바꾸면 플레이어가 정답을 입력할 방법이 사라진다.
+        //        그래서 VerifyKeypadCoversAnswer()가 키패드를 만들 때마다 대조해 에러로 알린다.
         static readonly string[] KeyChars =
         { "K", "Q", "7", "3", "M", "9", "B", "4", "X", "2", "R", "8" };
 
@@ -181,8 +187,16 @@ namespace TopDogDetective.MainMenu
         private void BuildKeypad()
         {
             if (keypadContainer == null) return;
+            // Destroy는 프레임 끝에 지워지므로, 바로 아래에서 키를 다시 만들면 이전 키가 한 프레임 남아
+            // GridLayout이 개수를 잘못 세고 배치가 흔들린다. 부모에서 먼저 떼어내 계산에서 제외하고 지운다.
             for (int i = keypadContainer.childCount - 1; i >= 0; i--)
-                DestroyImmediate(keypadContainer.GetChild(i).gameObject);
+            {
+                var child = keypadContainer.GetChild(i);
+                child.SetParent(null, false);
+                Destroy(child.gameObject);
+            }
+
+            VerifyKeypadCoversAnswer();
 
             var grid = keypadContainer.GetComponent<GridLayoutGroup>();
             if (grid == null) grid = keypadContainer.gameObject.AddComponent<GridLayoutGroup>();
@@ -197,6 +211,30 @@ namespace TopDogDetective.MainMenu
                 string c = ch;
                 MakeKey(c).onClick.AddListener(() => Append(c));
             }
+        }
+
+        /// <summary>
+        /// 확보한 코드의 모든 문자가 키패드에 있는지 대조한다.
+        /// 없으면 플레이어가 정답을 입력할 수 없으므로(진행 불가) 에러로 알린다.
+        /// </summary>
+        private void VerifyKeypadCoversAnswer()
+        {
+            if (Run == null || !Run.HasAllCodes) return;   // 아직 다 못 모았으면 대조할 정답이 없다
+
+            string answer = Run.ComposeCode();
+            var missing = new List<string>();
+            foreach (char c in answer)
+            {
+                bool found = false;
+                foreach (string k in KeyChars)
+                    if (string.Equals(k, c.ToString(), StringComparison.OrdinalIgnoreCase)) { found = true; break; }
+                if (!found) missing.Add(c.ToString());
+            }
+
+            if (missing.Count > 0)
+                Debug.LogError($"[BombDefuse] 정답 '{answer}'의 문자 [{string.Join(", ", missing)}]가 키패드에 없습니다. " +
+                               "EnemyData의 codeValue를 바꿨다면 BombDefuseController.KeyChars에도 추가해야 " +
+                               "플레이어가 입력할 수 있습니다.");
         }
 
         private Button MakeKey(string label)
@@ -221,6 +259,10 @@ namespace TopDogDetective.MainMenu
             tmp.fontSizeMin = 10; tmp.fontSizeMax = 44;
             tmp.fontStyle = FontStyles.Bold;
             tmp.color = new Color(0.98f, 0.86f, 0.55f);
+
+            // 런타임 생성이라 씬에서 붙일 수 없다 (누르는 손맛 + 클릭음)
+            go.AddComponent<ButtonTween>();
+            go.AddComponent<UiClickSound>();
 
             return go.GetComponent<Button>();
         }

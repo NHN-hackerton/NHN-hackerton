@@ -75,9 +75,15 @@ namespace TopDogDetective.MainMenu
         {
             if (rowContainer == null) return;
 
+            // 부모에서 먼저 떼어내고 삭제한다 — Destroy는 프레임 끝에 처리돼서, 바로 아래에서
+            // 줄을 다시 만들면 옛 줄이 같은 프레임에 남아 두 번 그려진다. (DestroyImmediate는 에디터용)
             for (int i = rowContainer.childCount - 1; i >= 0; i--)
-                if (rowContainer.GetChild(i).name.StartsWith(RowName))
-                    DestroyImmediate(rowContainer.GetChild(i).gameObject);
+            {
+                var child = rowContainer.GetChild(i);
+                if (!child.name.StartsWith(RowName)) continue;
+                child.SetParent(null, false);
+                Destroy(child.gameObject);
+            }
 
             var entries = CaseFile.Build(Run);
             for (int i = 0; i < entries.Count; i++)
@@ -124,6 +130,7 @@ namespace TopDogDetective.MainMenu
             {
                 var slot = entry.slots[b];   // 0=물증(위) 1=자백(중간) 2=속내(아래)
                 var band = new GameObject("Band" + (b + 1), typeof(RectTransform), typeof(Image), typeof(Button));
+                band.AddComponent<UiClickSound>();   // 런타임 생성이라 씬에서 붙일 수 없다
                 var brt = band.GetComponent<RectTransform>();
                 brt.SetParent(frt, false);
                 brt.anchorMin = brt.anchorMax = new Vector2(0f, 1f);
@@ -174,7 +181,7 @@ namespace TopDogDetective.MainMenu
             tmp.fontSize = size;
             tmp.color = color;
             tmp.alignment = align;
-            tmp.enableWordWrapping = false;
+            tmp.textWrappingMode = TextWrappingModes.NoWrap;
             tmp.raycastTarget = false;
             return tmp;
         }

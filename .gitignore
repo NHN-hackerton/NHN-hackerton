@@ -408,7 +408,11 @@ StyleCopReport.xml
 *_p.c
 *_h.h
 *.ilk
-*.meta
+# [주의] 여기에 *.meta 를 넣으면 안 된다.
+#   Visual Studio 산출물 목록이지만 확장자가 같아서 Unity 에셋의 .meta까지 무시된다.
+#   Unity .meta에는 에셋 GUID와 임포트 설정이 들어 있고, 씬은 파일명이 아니라 GUID로 에셋을 찾는다.
+#   커밋하지 않으면 팀원 로컬에서 GUID가 새로 발급돼 씬 참조(스프라이트·폰트·스크립트)가 전부 깨진다.
+#   (2026-07-31 PR #14 revert가 이 문제 때문이었다)
 *.obj
 *.iobj
 *.pch
