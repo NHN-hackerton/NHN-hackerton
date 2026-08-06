@@ -17,6 +17,8 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private string keywordId = "";              // 실제 키워드 카드 ID (예: kw_rookie_pride) — 심문 손패로 전달
         [SerializeField] private string tooltipLabel = "조사하기";   // 호버 툴팁 문구 (문은 "심문하기")
         [SerializeField] private bool addsClue = true;               // false면 단서 안 주고 액션만
+        [SerializeField] private bool requiresAllClues = false;      // true면(심문 문) 단서 다 모아야 열림
+        [SerializeField] private string lockedMessage = "더 조사해보세요";  // 덜 모았을 때 밑에 뜨는 문구
         [SerializeField] private UnityEvent onInvestigated;          // 클릭 시 추가 동작(예: 심문 화면 열기)
 
         public bool AddsClue { get { return addsClue; } }
@@ -72,9 +74,18 @@ namespace TopDogDetective.MainMenu
         public void OnPointerClick(PointerEventData e)
         {
             if (investigated) return;
+            if (controller == null) controller = GetComponentInParent<ExplorationController>(true);
+
+            // 심문 문: 단서를 다 모으기 전엔 못 들어감 — 문은 잠긴 채 안내만
+            if (requiresAllClues && controller != null && !controller.AllCluesFound)
+            {
+                controller.HideTooltip();
+                controller.ShowMessage(lockedMessage);
+                return;   // investigated 세팅 안 함 → 다시 조사하고 재클릭 가능
+            }
+
             investigated = true;
             hovering = false;
-            if (controller == null) controller = GetComponentInParent<ExplorationController>(true);
             if (controller != null) { controller.HideTooltip(); if (addsClue) controller.AddClue(keywordId, clueName); }
             if (onInvestigated != null) onInvestigated.Invoke();
         }

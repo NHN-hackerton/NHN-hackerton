@@ -40,6 +40,8 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private Image affinityFill;
 
         [Header("결과 → 다음 (심문 종료 시)")]
+        [Tooltip("결과 표시 중 배경을 덮는 어두운 판. 결과 문구/버튼만 도드라지게 한다.")]
+        [SerializeField] private GameObject resultOverlay;
         [Tooltip("중앙 결과 버튼. 평소 숨김, 종료 시 표시.")]
         [SerializeField] private Button resultButton;
         [Tooltip("실패 시 돌아갈 탐색 맵 (Chapter1Map)")]
@@ -48,6 +50,13 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private GameObject nextChapter;
 
         private bool won;   // 코드 확보 성공 처리 완료 (중복 방지)
+
+        /// <summary>런(챕터 1회 플레이) 전체가 공유하는 상태. 라운드를 넘겨 코드·친밀·의심이 누적된다.
+        /// (심문마다 새로 만들면 확보한 코드가 사라져 보스방 해제가 불가능해진다)</summary>
+        public static RunState CurrentRun { get; private set; }
+
+        /// <summary>새 런 시작 (챕터 처음부터). 탐색 단서와 함께 초기화된다.</summary>
+        public static void ResetRun() => CurrentRun = null;
 
         private EnemyData enemy;
         private RunState run;
@@ -82,7 +91,10 @@ namespace TopDogDetective.MainMenu
                 return;
             }
 
-            run = new RunState();
+            // 런 상태는 라운드를 넘겨 유지한다 (확보한 코드·친밀·의심 누적)
+            if (CurrentRun == null) CurrentRun = new RunState();
+            run = CurrentRun;
+
             var collected = ExplorationController.CollectedClues;
             if (collected != null && collected.Count > 0)
                 foreach (var kw in collected) run.AcquireKeyword(kw);   // 탐색에서 모은 카드
@@ -97,6 +109,7 @@ namespace TopDogDetective.MainMenu
             if (outcomeText != null) outcomeText.text = "";
             if (replyText != null)   replyText.text = $"{enemy.displayName}와의 심문을 시작한다.";
             if (resultButton != null) resultButton.gameObject.SetActive(false);
+            if (resultOverlay != null) resultOverlay.SetActive(false);
             RefreshHud();
             OnStateChanged?.Invoke();
         }
@@ -185,6 +198,7 @@ namespace TopDogDetective.MainMenu
                     TurnOutcome.FailedTimeout => "시간 초과 — 코드 미확보 (재도전 가능)",
                     _                         => outcomeText.text
                 }) + AffinityNote;
+            if (resultOverlay != null) resultOverlay.SetActive(true);   // 배경 덮기
             if (resultButton != null)
             {
                 var lbl = resultButton.GetComponentInChildren<TMP_Text>();
@@ -199,8 +213,17 @@ namespace TopDogDetective.MainMenu
             if (won) return;
             won = true;
             busy = true;   // 전환 대기 중 추가 제출 차단
+            if (resultOverlay != null) resultOverlay.SetActive(true);   // 배경 덮기
             if (outcomeText != null) outcomeText.text = $"심문 성공 — 코드 [{session.SessionCodeValue}] 확보!" + AffinityNote;
-            StartCoroutine(WinRoutine());
+
+            // 코드를 충분히 확인한 뒤 직접 넘어가게 (자동 전환 X)
+            if (resultButton != null)
+            {
+                var lbl = resultButton.GetComponentInChildren<TMP_Text>();
+                if (lbl != null) lbl.text = "빠져나가기";
+                resultButton.gameObject.SetActive(true);
+            }
+            else StartCoroutine(WinRoutine());   // 버튼이 없으면 기존 자동 전환 폴백
         }
 
         /// <summary>친밀 100% 달성 시 결과창에 덧붙일 문구.</summary>
@@ -210,16 +233,20 @@ namespace TopDogDetective.MainMenu
 
         private IEnumerator WinRoutine()
         {
-            yield return new WaitForSecondsRealtime(1.4f);   // 성공 문구 잠깐 노출
+            yield return new WaitForSecondsRealtime(5f);   // 확보한 코드를 충분히 읽을 시간
             gameObject.SetActive(false);                      // 심문 화면 닫기
             if (nextChapter != null) nextChapter.SetActive(true);
         }
 
-        /// <summary>실패 결과 버튼 클릭: 탐색 맵으로 복귀(재도전).</summary>
+        /// <summary>결과 버튼 클릭: 성공이면 다음 챕터로, 실패면 탐색 맵으로 복귀(재도전).</summary>
         private void OnResultClicked()
         {
             gameObject.SetActive(false);
-            if (searchMap != null) searchMap.SetActive(true);
+            if (won)
+            {
+                if (nextChapter != null) nextChapter.SetActive(true);
+            }
+            else if (searchMap != null) searchMap.SetActive(true);
         }
 
         /// <summary>결과를 조직원 표정으로 매핑. (의심/친밀/발각 흐름 기반 휴리스틱)</summary>
