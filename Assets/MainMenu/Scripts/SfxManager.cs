@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace TopDogDetective.MainMenu
@@ -54,6 +55,45 @@ namespace TopDogDetective.MainMenu
         {
             if (source == null || clip == null) return;
             source.PlayOneShot(clip, Volume * Mathf.Max(0f, volumeScale));
+        }
+
+        /// <summary>
+        /// 길게 울리는 소리(사이렌 등)를 정해진 시간만 재생한다.
+        ///
+        /// PlayOneShot은 한 번 시작하면 중간에 끊을 수 없어서, 15초짜리 사이렌을 그렇게 틀면
+        /// 추격 내내 울린다. 그래서 전용 AudioSource를 만들어 재생하고 시간이 지나면 페이드 아웃한다.
+        /// 돌려주는 AudioSource를 들고 있으면 화면이 닫힐 때 더 일찍 끊을 수도 있다.
+        /// </summary>
+        /// <param name="seconds">이 시간이 지나면 페이드 아웃을 시작한다</param>
+        public AudioSource PlayFor(AudioClip clip, float seconds, float volumeScale = 1f, float fadeSeconds = 0.8f)
+        {
+            if (clip == null) return null;
+
+            var go = new GameObject("Sfx_" + clip.name);
+            go.transform.SetParent(transform, false);
+            var src = go.AddComponent<AudioSource>();
+            src.clip = clip;
+            src.volume = Mathf.Clamp01(Volume * Mathf.Max(0f, volumeScale));
+            src.playOnAwake = false;
+            src.loop = false;
+            src.Play();
+
+            StartCoroutine(StopAfter(src, seconds, fadeSeconds));
+            return src;
+        }
+
+        private IEnumerator StopAfter(AudioSource src, float seconds, float fadeSeconds)
+        {
+            yield return new WaitForSecondsRealtime(seconds);
+            if (src == null) yield break;
+
+            float from = src.volume;
+            for (float t = 0f; t < fadeSeconds && src != null; t += Time.unscaledDeltaTime)
+            {
+                src.volume = from * (1f - t / fadeSeconds);
+                yield return null;
+            }
+            if (src != null) Destroy(src.gameObject);
         }
 
         /// <summary>설정 화면에서 슬라이더를 움직일 때 미리듣기용.</summary>

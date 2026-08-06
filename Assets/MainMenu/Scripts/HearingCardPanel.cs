@@ -133,7 +133,7 @@ namespace TopDogDetective.MainMenu
                 if (lbl != null)
                 {
                     lbl.fontSizeMax = 30; lbl.fontStyle = FontStyles.Bold;
-                    lbl.enableWordWrapping = false;   // 내가 넣은 \n만 쓰고, TMP가 4자를 3/1로 또 쪼개지 않게
+                    lbl.textWrappingMode = TextWrappingModes.NoWrap;   // 내가 넣은 \n만 쓰고, TMP가 4자를 3/1로 또 쪼개지 않게
                 }
                 img.GetComponent<Button>().onClick.AddListener(() => ToggleKeyword(kid));
                 keywordCards[kid] = img;

@@ -116,6 +116,10 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private AudioClip alarmClip;
         [Tooltip("경보음 배율 (효과음 기준 음량에 곱한다)")]
         [SerializeField, Range(0f, 5f)] private float alarmVolumeScale = 3f;
+        // 사이렌 원본이 15초라 그냥 틀면 추격(19~22초) 내내 울린다. 시작을 알리는 소리이므로
+        // 앞부분만 울리고 물러나게 두고, 그 뒤는 추격 BGM이 받는다.
+        [Tooltip("경보음을 몇 초 울릴지 (이후 페이드 아웃)")]
+        [SerializeField] private float alarmSeconds = 4f;
 
         [Header("마무리 구간 (엔딩 직전)")]
         // 결승선을 넘는 순간 바로 화면을 넘기면, 점프 중이던 프레임에서 그림이 멈춘 채
@@ -265,11 +269,18 @@ namespace TopDogDetective.MainMenu
         float chaserGap;     // 추격자와의 거리 (0 이하 = 잡힘)
         float nextSpawnAt;   // 다음 장애물 생성 지점
         bool running;
+        AudioSource alarmSource;   // 시작 사이렌 (화면이 닫히면 바로 끊는다)
         bool finishing;      // 결승선을 넘어 화면 밖으로 빠져나가는 중 (탈출 확정)
         float exitHold;      // 전원이 화면을 벗어난 뒤 흐른 시간
         float exitElapsed;   // 마무리 구간에 들어온 뒤 흐른 시간 (안전장치용)
 
         RunState Run => HearingBattleController.CurrentRun;
+
+        private void OnDisable()
+        {
+            // 사이렌이 남아 울면서 다음 화면(엔딩 컷씬)으로 넘어가지 않게 끊는다
+            if (alarmSource != null) { Destroy(alarmSource.gameObject); alarmSource = null; }
+        }
 
         private void OnEnable()
         {
@@ -317,7 +328,7 @@ namespace TopDogDetective.MainMenu
 
             // 사이렌이 울리며 시작 — 추격이 시작됐다는 신호
             if (alarmClip != null && SfxManager.Instance != null)
-                SfxManager.Instance.Play(alarmClip, alarmVolumeScale);
+                alarmSource = SfxManager.Instance.PlayFor(alarmClip, alarmSeconds, alarmVolumeScale);
 
             UpdateHud();
         }
