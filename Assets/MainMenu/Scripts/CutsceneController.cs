@@ -94,12 +94,15 @@ namespace TopDogDetective.MainMenu
         private IEnumerator NextRoutine()
         {
             transitioning = true;
-            yield return Fade(1f, 0f);            // 현재 컷 페이드 아웃
 
-            index++;
+            // 마지막 컷은 페이드 아웃하지 않고 곧바로 다음 화면으로 넘긴다.
+            // 컷 사이에서는 검게 사라졌다가 다음 컷이 이어받지만, 마지막엔 이어받을 게 없어서
+            // '검은 화면이 잠깐 뜬 다음 맵이 나타나는' 끊김으로 보인다.
             int count = frames != null ? frames.Length : 0;
-            if (index >= count) { Finish(); yield break; }   // 페이드 아웃된 채 다음 화면으로
+            if (index + 1 >= count) { Finish(); yield break; }
 
+            yield return Fade(1f, 0f);            // 현재 컷 페이드 아웃
+            index++;
             Show();                                // 안 보이는 동안 다음 컷으로 교체
             yield return Fade(0f, 1f);            // 페이드 인
             transitioning = false;

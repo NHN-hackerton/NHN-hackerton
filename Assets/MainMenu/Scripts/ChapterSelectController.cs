@@ -31,6 +31,10 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private TMPro.TMP_Text chapter2Sub;
         [Tooltip("해금된 챕터2를 눌렀을 때 띄울 안내")]
         [SerializeField] private TMPro.TMP_Text noticeText;
+        [Tooltip("챕터2 미리보기 이미지. 잠겨 있으면 어둡게, 해금되면 밝게 보여준다.")]
+        [SerializeField] private Image chapter2Thumb;
+        [Tooltip("잠긴 미리보기의 밝기 (1 = 원래 색)")]
+        [SerializeField, Range(0f, 1f)] private float lockedThumbBrightness = 0.42f;
 
         [Header("씬")]
         [SerializeField] private string gameSceneName = "Game";
@@ -46,6 +50,26 @@ namespace TopDogDetective.MainMenu
 
         /// <summary>진엔딩 컷씬이 끝나면 호출 — 챕터2를 해금한다.</summary>
         public static void UnlockChapter2() => Chapter2Unlocked = true;
+
+        // 이 해금은 PlayerPrefs에 남아 게임을 다시 켜도 유지된다(=보상). 그래서 테스트로 진엔딩을
+        // 한 번 보면 그 PC에서는 계속 해금 상태다. 시연 전에 잠긴 상태로 되돌리려면 아래를 쓴다.
+        /// <summary>챕터2를 다시 잠근다 (시연·테스트용).</summary>
+        [ContextMenu("챕터2 해금 초기화")]
+        public void ResetChapter2Lock()
+        {
+            Chapter2Unlocked = false;
+            RefreshLocks();
+            Debug.Log("[ChapterSelect] 챕터2 해금 초기화 — 다시 잠김");
+        }
+
+#if UNITY_EDITOR
+        [UnityEditor.MenuItem("Top Dog/챕터2 해금 초기화")]
+        private static void ResetChapter2LockMenu()
+        {
+            Chapter2Unlocked = false;
+            Debug.Log("[ChapterSelect] 챕터2 해금 초기화 — 다시 잠김 (에디터 메뉴)");
+        }
+#endif
 
         private void Start()
         {
@@ -76,6 +100,14 @@ namespace TopDogDetective.MainMenu
             if (chapter2Sub != null)
                 // 이모지는 폰트(Galmuri11)에 없어 네모로 뜨므로 쓰지 않는다
                 chapter2Sub.text = unlocked ? "해금됨 — 다음 사건 준비 중" : "잠김";
+
+            // 미리보기: 잠겨 있으면 어둡게 깔아두고, 해금되면 원래 색으로 드러낸다
+            if (chapter2Thumb != null)
+            {
+                float k = unlocked ? 1f : lockedThumbBrightness;
+                chapter2Thumb.color = new Color(k, k, k, 1f);
+            }
+
             if (noticeText != null) noticeText.text = "";
         }
 

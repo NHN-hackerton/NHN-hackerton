@@ -41,6 +41,10 @@ namespace TopDogDetective.MainMenu
             { "kw_keeper_slip",    "금고지기 실토" },
         };
 
+        /// <summary>키워드 ID를 카드에 적히는 이름으로. (모르는 ID는 ID를 그대로 보여준다)</summary>
+        public static string CardName(string keywordId)
+            => KeywordNames.TryGetValue(keywordId, out var n) ? n : keywordId;
+
         readonly HashSet<string> selectedKeywords = new();
         string selectedFrame;
         readonly Dictionary<string, Image> keywordCards = new();
@@ -103,9 +107,11 @@ namespace TopDogDetective.MainMenu
             keywordCards.Clear();
             if (keywordContainer == null) return;
             ClearChildren(keywordContainer);
-            // 레이아웃 그룹 제거 — 카드를 배경 슬롯 좌표에 직접 앉힌다
-            var hlg = keywordContainer.GetComponent<HorizontalLayoutGroup>(); if (hlg != null) DestroyImmediate(hlg);
-            var glg = keywordContainer.GetComponent<GridLayoutGroup>();       if (glg != null) DestroyImmediate(glg);
+            // 레이아웃 그룹은 지우지 말고 꺼둔다 — 카드를 배경 슬롯 좌표에 직접 앉히기 때문에
+            // 레이아웃이 살아 있으면 좌표를 다시 덮어쓴다. Destroy는 프레임 끝에 처리돼서
+            // 이번 프레임 레이아웃을 못 막지만, enabled=false는 즉시 먹는다.
+            var hlg = keywordContainer.GetComponent<HorizontalLayoutGroup>(); if (hlg != null) hlg.enabled = false;
+            var glg = keywordContainer.GetComponent<GridLayoutGroup>();       if (glg != null) glg.enabled = false;
 
             var owned = (battle != null && battle.Session != null)
                 ? battle.Session.Run.OwnedKeywords : null;
@@ -248,16 +254,23 @@ namespace TopDogDetective.MainMenu
 
         private static void ClearChildren(Transform t)
         {
-            // 즉시 삭제 — 지연 Destroy면 같은 프레임 Rebuild 시 옛 카드가 남아 중복된다.
+            // Destroy는 프레임 끝에 처리돼서, 같은 프레임에 Rebuild하면 옛 카드가 남아 중복된다.
+            // 그래서 부모에서 먼저 떼어내(=자식 목록에서 즉시 사라짐) 삭제만 지연시킨다.
+            // (DestroyImmediate는 에디터 스크립트용이라 런타임에선 이 방식이 안전하다)
             for (int i = t.childCount - 1; i >= 0; i--)
-                DestroyImmediate(t.GetChild(i).gameObject);
+            {
+                var child = t.GetChild(i).gameObject;
+                child.transform.SetParent(null, false);
+                Destroy(child);
+            }
         }
 
         private static void EnsureFramingRow(RectTransform t)
         {
             // 14장을 한 줄로 — 가로로 균등 분할해 컨테이너 폭을 채운다.
-            if (t.GetComponent<GridLayoutGroup>() is GridLayoutGroup g) DestroyImmediate(g);
+            if (t.GetComponent<GridLayoutGroup>() is GridLayoutGroup g) g.enabled = false;   // 지우지 말고 끈다 (위 주석 참고)
             var h = t.GetComponent<HorizontalLayoutGroup>();
+            if (h != null) h.enabled = true;
             if (h == null) h = t.gameObject.AddComponent<HorizontalLayoutGroup>();
             h.spacing = 6; h.childAlignment = TextAnchor.MiddleCenter;
             h.childControlWidth = true; h.childControlHeight = true;

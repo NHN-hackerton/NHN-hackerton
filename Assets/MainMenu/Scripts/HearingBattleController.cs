@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -34,6 +35,10 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private TMP_Text codeText;
         [SerializeField] private TMP_Text replyText;
         [SerializeField] private TMP_Text outcomeText;
+        [Tooltip("새 카드를 얻었을 때만 손패 위에 잠깐 뜨는 문구. 없으면 생략된다.")]
+        [SerializeField] private TMP_Text cardNoticeText;
+        [Tooltip("새 카드 안내를 몇 초 보여줄지")]
+        [SerializeField] private float cardNoticeSeconds = 2.2f;
 
         [Header("게이지 바 (fillAmount 0~1, 없으면 생략)")]
         [SerializeField] private Image suspicionFill;
@@ -140,6 +145,10 @@ namespace TopDogDetective.MainMenu
             if (replyText != null)   replyText.text = $"{Korean.Gwa(enemy.displayName)}의 심문을 시작한다.";
             if (resultButton != null) resultButton.gameObject.SetActive(false);
             if (resultOverlay != null) resultOverlay.SetActive(false);
+            // 지난 심문의 결과창에서 켜둔 블러가 남아 있으면, 새 심문이 옛 화면 스냅샷 위에서 시작된다
+            if (blurOverlay != null) blurOverlay.Hide();
+            if (cardNoticeCo != null) { StopCoroutine(cardNoticeCo); cardNoticeCo = null; }
+            SetCardNoticeAlpha(0f);
             RefreshHud();
             OnStateChanged?.Invoke();
         }
@@ -175,25 +184,39 @@ namespace TopDogDetective.MainMenu
             DialogueResult raw = null;
             yield return judge.Judge(session, utterance, r => raw = r);
 
+            // 약점을 찌르면 새 키워드 카드가 손패에 들어온다. 판정 전후를 비교해 그것만 골라낸다.
+            // (result.weaknessHit만 보면 '이미 가진 카드를 다시 드러낸' 경우까지 새 카드로 알린다)
+            var before = new HashSet<string>(run.OwnedKeywords);
             DialogueResult result = session.ApplyResult(raw, utterance);
+            var gained = new List<string>();
+            foreach (var id in run.OwnedKeywords)
+                if (!before.Contains(id)) gained.Add(id);
+
             busy = false;
 
-            ApplyResultToUi(result);
+            ApplyResultToUi(result, gained);
         }
 
-        private void ApplyResultToUi(DialogueResult result)
+        private void ApplyResultToUi(DialogueResult result, List<string> gainedCards = null)
         {
             if (replyText != null) replyText.text = result.reply;
 
             RefreshHud();
             if (hearing != null) hearing.SetExpression(MoodFrom(result));
 
-            if (outcomeText != null && !session.IsFinished)
+            // 턴 중간에는 화면을 덮는 안내를 띄우지 않는다.
+            // 코드를 챈 것도, 속내를 들은 것도 심문이 끝난 게 아니라 '진행 중'인 사건인데
+            // 블러 + 중앙 문구로 띄우면 결과창처럼 보여서 심문이 끝난 줄 알게 된다.
+            // 그 둘은 HUD 라벨을 튕겨 시선만 끌고, 판정 문구는 3턴이 끝난 뒤 한 번만 보여준다.
+            //
+            // 딱 하나 문구로 알리는 건 '새 카드'다. 손패가 늘어난 건 다음 턴에 당장 쓸 수 있는
+            // 정보인데, 아래에 카드가 조용히 한 장 늘어나는 것만으로는 알아채기 어렵다.
+            if (!session.IsFinished)
             {
-                if (result.affinityMaxed)
-                    ShowFlash($"{enemy.displayName}의 속내를 들었다 — 조각 획득!");
-                else if (result.codeRevealed && !string.IsNullOrEmpty(result.revealedValue))
-                    ShowFlash($"코드 확보: {result.revealedValue}\n남은 턴에 마음을 얻어라", 3f);
+                if (result.affinityMaxed) Pulse(affinityText);
+                else if (result.codeRevealed) Pulse(codeText);
+
+                if (gainedCards != null && gainedCards.Count > 0) ShowCardNotice(gainedCards);
             }
 
             // 코드를 얻어도 3턴까지 간다 (기획서 §4: 간보기 → 찌르기 → 무마·이탈).
@@ -288,35 +311,60 @@ namespace TopDogDetective.MainMenu
             }
         }
 
-        Coroutine flashCo;
+        Coroutine cardNoticeCo;
 
-        /// <summary>턴 중 안내 문구를 잠깐 띄웠다가 지운다 (심문이 끝난 게 아니므로 남겨두지 않는다).</summary>
-        private void ShowFlash(string text, float seconds = 4f)
+        /// <summary>
+        /// 새로 얻은 카드를 손패 위에 잠깐 띄운다. 화면을 덮지 않고(블러 없음) 스스로 사라진다.
+        /// </summary>
+        private void ShowCardNotice(List<string> ids)
         {
-            if (outcomeText == null) return;
-            if (flashCo != null) StopCoroutine(flashCo);
-            flashCo = StartCoroutine(FlashRoutine(text, seconds));
+            if (cardNoticeText == null) return;
+
+            var names = new List<string>();
+            foreach (var id in ids) names.Add($"〈{HearingCardPanel.CardName(id)}〉");
+            cardNoticeText.text = $"새 카드 {string.Join(" ", names)}";
+
+            if (cardNoticeCo != null) StopCoroutine(cardNoticeCo);
+            cardNoticeCo = StartCoroutine(CardNoticeRoutine());
         }
 
-        private IEnumerator FlashRoutine(string text, float seconds)
+        private IEnumerator CardNoticeRoutine()
         {
-            // 문구를 넣기 전에 배경을 흐리게 떠 둔다 (문구가 블러에 같이 찍히지 않도록)
-            if (blurOverlay != null)
+            var rt = cardNoticeText.rectTransform;
+            rt.DOKill();
+            rt.localScale = Vector3.one;
+            rt.DOPunchScale(Vector3.one * 0.2f, 0.35f, 5, 0.6f).SetUpdate(true);
+
+            // 끝에서 서서히 사라지게 — 갑자기 없어지면 못 본 사람은 뜬 줄도 모른다
+            SetCardNoticeAlpha(1f);
+            yield return new WaitForSecondsRealtime(cardNoticeSeconds);
+            for (float t = 0f; t < 0.4f; t += Time.unscaledDeltaTime)
             {
-                blurOverlay.Show();
+                SetCardNoticeAlpha(1f - t / 0.4f);
                 yield return null;
             }
-            outcomeText.text = text;
+            SetCardNoticeAlpha(0f);
+            cardNoticeCo = null;
+        }
 
-            yield return new WaitForSecondsRealtime(seconds);
+        private void SetCardNoticeAlpha(float a)
+        {
+            if (cardNoticeText == null) return;
+            var c = cardNoticeText.color;
+            cardNoticeText.color = new Color(c.r, c.g, c.b, a);
+        }
 
-            bool finished = session != null && session.IsFinished;
-            if (!finished)
-            {
-                outcomeText.text = "";
-                if (blurOverlay != null) blurOverlay.Hide();
-            }
-            flashCo = null;
+        /// <summary>
+        /// HUD 라벨을 한 번 튕겨 방금 바뀐 값에 시선을 끈다 (진행을 막지 않는 피드백).
+        /// 화면을 덮는 안내 대신 쓰는 것이므로 짧고 가볍게 둔다.
+        /// </summary>
+        private void Pulse(TMP_Text label)
+        {
+            if (label == null) return;
+            var rt = label.rectTransform;
+            rt.DOKill();
+            rt.localScale = Vector3.one;
+            rt.DOPunchScale(Vector3.one * 0.35f, 0.4f, 6, 0.6f).SetUpdate(true);
         }
 
         /// <summary>친밀 100% 달성 여부에 따라 결과창에 덧붙일 문구 (속내 조각 안내).</summary>
