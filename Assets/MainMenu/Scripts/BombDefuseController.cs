@@ -1,0 +1,346 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using TopDogDetective.Data;
+
+namespace TopDogDetective.MainMenu
+{
+    /// <summary>
+    /// 보스방 폭탄 해제 단말기. 확보한 코드 3자리를 순서대로 입력해 해제한다.
+    /// 키패드 버튼은 런타임에 생성하고(문자 = 조직원들에게서 뜯어낸 코드값 + 더미),
+    /// 정답은 RunState.VerifyCode가 판정한다.
+    /// </summary>
+    public class BombDefuseController : MonoBehaviour
+    {
+        [Header("표시")]
+        [Tooltip("입력 중인 코드 (예: K7_)")]
+        [SerializeField] private TMP_Text displayText;
+        [Tooltip("안내·결과 문구")]
+        [SerializeField] private TMP_Text messageText;
+        [Tooltip("포스트잇의 조합 순서 힌트")]
+        [SerializeField] private TMP_Text hintText;
+
+        [Header("입력")]
+        [Tooltip("키패드 버튼이 생성될 부모")]
+        [SerializeField] private RectTransform keypadContainer;
+        [SerializeField] private Button backspaceButton;
+        [SerializeField] private Button submitButton;
+        [SerializeField] private Button closeButton;
+        [SerializeField] private TMP_FontAsset font;
+
+        [Header("타임어택")]
+        [Tooltip("제한 시간(초). 짧을수록 긴박하다. 인스펙터에서 조절.")]
+        [SerializeField] private float timeLimit = 10f;
+        [Tooltip("남은 시간 표시 (0:00)")]
+        [SerializeField] private TMP_Text timerText;
+        [Tooltip("이 시간 이하로 남으면 타이머가 빨갛게 깜빡인다")]
+        [SerializeField] private float dangerTime = 5f;
+
+        [Header("해제 후")]
+        [Tooltip("해제 성공 시 켤 화면 (탈출 시퀀스 등). 없으면 이 화면만 닫힌다.")]
+        [SerializeField] private GameObject nextScreen;
+        [Tooltip("닫기(뒤로) 시 돌아갈 화면")]
+        [SerializeField] private GameObject bossRoom;
+        [Tooltip("시간 초과(폭발) 시 켤 화면. 없으면 '다시 시작' 버튼이 뜬다.")]
+        [SerializeField] private GameObject failScreen;
+
+        [Header("다시 시작 (폭발 후)")]
+        [Tooltip("폭발 시 중앙에 뜨는 버튼. 평소 숨김.")]
+        [SerializeField] private Button restartButton;
+        [Tooltip("다시 시작 시 돌아갈 화면 (사건 선택 등)")]
+        [SerializeField] private GameObject restartScreen;
+
+        // 키패드에 깔 문자 — 정답 3자리(K·7·Q) + 헷갈리게 하는 더미 9개.
+        //
+        // [주의] 이 배열은 EnemyData.secret.codeValue와 별개로 하드코딩돼 있다.
+        //        조직원의 codeValue를 여기 없는 문자로 바꾸면 플레이어가 정답을 입력할 방법이 사라진다.
+        //        그래서 VerifyKeypadCoversAnswer()가 키패드를 만들 때마다 대조해 에러로 알린다.
+        static readonly string[] KeyChars =
+        { "K", "Q", "7", "3", "M", "9", "B", "4", "X", "2", "R", "8" };
+
+        readonly StringBuilder input = new StringBuilder();
+        bool defused;
+        bool exploded;
+        float remaining;
+
+        /// <summary>타이머가 도는 중인지 (해제·폭발 전).</summary>
+        bool Ticking => !defused && !exploded;
+
+        RunState Run => HearingBattleController.CurrentRun;
+
+        private void OnEnable()
+        {
+            input.Length = 0;
+            defused = false;
+            exploded = false;
+            remaining = timeLimit;   // 화면 열 때마다 리셋 (재도전)
+
+            if (backspaceButton != null)
+            {
+                backspaceButton.onClick.RemoveListener(Backspace);
+                backspaceButton.onClick.AddListener(Backspace);
+            }
+            if (submitButton != null)
+            {
+                submitButton.onClick.RemoveListener(Submit);
+                submitButton.onClick.AddListener(Submit);
+            }
+            if (closeButton != null)
+            {
+                closeButton.onClick.RemoveListener(Close);
+                closeButton.onClick.AddListener(Close);
+            }
+            if (restartButton != null)
+            {
+                restartButton.onClick.RemoveListener(Restart);
+                restartButton.onClick.AddListener(Restart);
+                restartButton.gameObject.SetActive(false);   // 폭발 전엔 숨김
+            }
+
+            BuildKeypad();
+            ShowHint();
+            UpdateDisplay();
+            UpdateTimer();
+            if (messageText != null) messageText.text = "코드 세 자리를 입력하세요.";
+        }
+
+        private void Update()
+        {
+            if (!Ticking) return;
+
+            remaining -= Time.unscaledDeltaTime;
+            if (remaining <= 0f)
+            {
+                remaining = 0f;
+                UpdateTimer();
+                Explode();
+                return;
+            }
+            UpdateTimer();
+        }
+
+        private void UpdateTimer()
+        {
+            if (timerText == null) return;
+            int total = Mathf.CeilToInt(remaining);
+            timerText.text = string.Format("{0}:{1:00}", total / 60, total % 60);
+
+            // 위험 구간에서 빨갛게 깜빡임
+            if (remaining <= dangerTime)
+            {
+                bool on = Mathf.Repeat(remaining, 0.6f) > 0.3f;
+                timerText.color = on ? new Color(1f, 0.25f, 0.2f) : new Color(0.6f, 0.15f, 0.12f);
+            }
+            else timerText.color = new Color(1f, 0.72f, 0.3f);
+        }
+
+        /// <summary>시간 초과 — 폭탄이 터진다.</summary>
+        private void Explode()
+        {
+            exploded = true;
+            if (messageText != null) messageText.text = "시간 초과 — 폭탄이 터졌다…";
+            if (submitButton != null) submitButton.interactable = false;
+            if (closeButton != null) closeButton.gameObject.SetActive(false);
+            StartCoroutine(ExplodedRoutine());
+        }
+
+        private IEnumerator ExplodedRoutine()
+        {
+            yield return new WaitForSecondsRealtime(1.4f);
+
+            if (failScreen != null)     // 폭발 엔딩
+            {
+                gameObject.SetActive(false);
+                if (bossRoom != null) bossRoom.SetActive(false);
+                failScreen.SetActive(true);
+                yield break;
+            }
+
+            // 엔딩 화면이 없을 때의 폴백 — 이 화면을 껐다 켜면 안 된다.
+            // SetActive(true)가 OnEnable을 다시 불러 exploded=false, remaining=timeLimit으로
+            // 초기화되므로, "다시 시작" 버튼 뒤에서 타이머가 다시 돌다 또 터진다.
+            // 화면은 켜 둔 채 폭발 상태를 유지하고 버튼만 띄운다.
+            if (restartButton != null)
+            {
+                var lbl = restartButton.GetComponentInChildren<TMP_Text>();
+                if (lbl != null) lbl.text = "다시 시작";
+                restartButton.gameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>다시 시작: 런 상태·수집 단서를 비우고 처음 화면으로 돌아간다.</summary>
+        public void Restart()
+        {
+            HearingBattleController.ResetRun();          // 코드·친밀·의심 초기화
+            ExplorationController.CollectedClues.Clear(); // 모은 단서 초기화
+
+            if (restartButton != null) restartButton.gameObject.SetActive(false);
+            gameObject.SetActive(false);
+            if (bossRoom != null) bossRoom.SetActive(false);
+            if (restartScreen != null) restartScreen.SetActive(true);
+        }
+
+        /// <summary>포스트잇 힌트 = 조합 순서만. 값(정답)은 보여주지 않는다 — 플레이어가 기억해야 한다.</summary>
+        private void ShowHint()
+        {
+            if (hintText == null) return;
+            hintText.text = "순서: 신참 → 금고지기 → 측근";
+        }
+
+        private void BuildKeypad()
+        {
+            if (keypadContainer == null) return;
+            // Destroy는 프레임 끝에 지워지므로, 바로 아래에서 키를 다시 만들면 이전 키가 한 프레임 남아
+            // GridLayout이 개수를 잘못 세고 배치가 흔들린다. 부모에서 먼저 떼어내 계산에서 제외하고 지운다.
+            for (int i = keypadContainer.childCount - 1; i >= 0; i--)
+            {
+                var child = keypadContainer.GetChild(i);
+                child.SetParent(null, false);
+                Destroy(child.gameObject);
+            }
+
+            VerifyKeypadCoversAnswer();
+
+            var grid = keypadContainer.GetComponent<GridLayoutGroup>();
+            if (grid == null) grid = keypadContainer.gameObject.AddComponent<GridLayoutGroup>();
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = 4;
+            grid.spacing = new Vector2(10f, 10f);
+            grid.childAlignment = TextAnchor.MiddleCenter;
+            grid.cellSize = new Vector2(96f, 96f);
+
+            foreach (var ch in KeyChars)
+            {
+                string c = ch;
+                MakeKey(c).onClick.AddListener(() => Append(c));
+            }
+        }
+
+        /// <summary>
+        /// 확보한 코드의 모든 문자가 키패드에 있는지 대조한다.
+        /// 없으면 플레이어가 정답을 입력할 수 없으므로(진행 불가) 에러로 알린다.
+        /// </summary>
+        private void VerifyKeypadCoversAnswer()
+        {
+            if (Run == null || !Run.HasAllCodes) return;   // 아직 다 못 모았으면 대조할 정답이 없다
+
+            string answer = Run.ComposeCode();
+            var missing = new List<string>();
+            foreach (char c in answer)
+            {
+                bool found = false;
+                foreach (string k in KeyChars)
+                    if (string.Equals(k, c.ToString(), StringComparison.OrdinalIgnoreCase)) { found = true; break; }
+                if (!found) missing.Add(c.ToString());
+            }
+
+            if (missing.Count > 0)
+                Debug.LogError($"[BombDefuse] 정답 '{answer}'의 문자 [{string.Join(", ", missing)}]가 키패드에 없습니다. " +
+                               "EnemyData의 codeValue를 바꿨다면 BombDefuseController.KeyChars에도 추가해야 " +
+                               "플레이어가 입력할 수 있습니다.");
+        }
+
+        private Button MakeKey(string label)
+        {
+            var go = new GameObject("Key_" + label, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(keypadContainer, false);
+
+            var img = go.GetComponent<Image>();
+            img.color = new Color(0.16f, 0.11f, 0.06f, 0.95f);
+
+            var textGO = new GameObject("Label", typeof(RectTransform));
+            textGO.transform.SetParent(go.transform, false);
+            var rt = textGO.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+
+            var tmp = textGO.AddComponent<TextMeshProUGUI>();
+            tmp.text = label;
+            if (font != null) tmp.font = font;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.enableAutoSizing = true;
+            tmp.fontSizeMin = 10; tmp.fontSizeMax = 44;
+            tmp.fontStyle = FontStyles.Bold;
+            tmp.color = new Color(0.98f, 0.86f, 0.55f);
+
+            // 런타임 생성이라 씬에서 붙일 수 없다 (누르는 손맛 + 클릭음)
+            go.AddComponent<ButtonTween>();
+            go.AddComponent<UiClickSound>();
+
+            return go.GetComponent<Button>();
+        }
+
+        private void Append(string c)
+        {
+            if (!Ticking) return;
+            if (input.Length >= RunState.TotalCodeDigits) return;
+            input.Append(c);
+            UpdateDisplay();
+        }
+
+        private void Backspace()
+        {
+            if (!Ticking || input.Length == 0) return;
+            input.Length -= 1;
+            UpdateDisplay();
+        }
+
+        private void UpdateDisplay()
+        {
+            if (displayText == null) return;
+            var sb = new StringBuilder();
+            for (int i = 0; i < RunState.TotalCodeDigits; i++)
+                sb.Append(i < input.Length ? input[i].ToString() : "_").Append(' ');
+            displayText.text = sb.ToString().TrimEnd();
+
+            if (submitButton != null)
+                submitButton.interactable = Ticking && input.Length == RunState.TotalCodeDigits;
+        }
+
+        private void Submit()
+        {
+            if (!Ticking || Run == null) return;
+
+            if (!Run.HasAllCodes)
+            {
+                if (messageText != null) messageText.text = "아직 코드를 다 알아내지 못했다.";
+                return;
+            }
+
+            if (Run.VerifyCode(input.ToString()))
+            {
+                defused = true;
+                Run.MarkBombDefused();
+                if (messageText != null) messageText.text = "해제 성공 — 폭탄이 멈췄다!";
+                if (submitButton != null) submitButton.interactable = false;
+                if (closeButton != null) closeButton.gameObject.SetActive(false);   // 해제 후엔 돌아갈 곳 없음
+                StartCoroutine(DefusedRoutine());
+            }
+            else
+            {
+                if (messageText != null) messageText.text = "틀렸다. 다시 확인해라.";
+                input.Length = 0;
+                UpdateDisplay();
+            }
+        }
+
+        private IEnumerator DefusedRoutine()
+        {
+            yield return new WaitForSecondsRealtime(1.6f);
+            gameObject.SetActive(false);
+            if (bossRoom != null) bossRoom.SetActive(false);   // 보스방을 끄지 않으면 엔딩 뒤에 다시 보인다
+            if (nextScreen != null) nextScreen.SetActive(true);
+        }
+
+        /// <summary>닫기 — 보스방으로 돌아간다.</summary>
+        public void Close()
+        {
+            gameObject.SetActive(false);
+            if (bossRoom != null) bossRoom.SetActive(true);
+        }
+    }
+}

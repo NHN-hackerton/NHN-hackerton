@@ -110,6 +110,7 @@ namespace TopDogDetective.MainMenu
             PlayerPrefs.SetInt(KeySpeed, pendingSpeed);
             PlayerPrefs.Save();
             ApplyMasterToEngine(pendingMaster);
+            if (BgmManager.Instance != null) BgmManager.Instance.ApplyVolume();   // 재생 중인 곡에 즉시 반영
             Debug.Log("[Settings] 적용됨 " +
                       $"(master={pendingMaster:0.00}, bgm={pendingBgm:0.00}, sfx={pendingSfx:0.00}, speed={pendingSpeed})");
         }
@@ -119,6 +120,7 @@ namespace TopDogDetective.MainMenu
         {
             // pending을 저장값으로 되돌리고 엔진 상태도 복구
             ApplyMasterToEngine(MasterVolume);
+            if (BgmManager.Instance != null) BgmManager.Instance.ApplyVolume();   // 미리듣기 취소
             if (settingsScreen != null) settingsScreen.SetActive(false);
         }
 
@@ -131,8 +133,19 @@ namespace TopDogDetective.MainMenu
             ApplyMasterToEngine(v); // 미리듣기
         }
 
-        private void OnBgmChanged(float v) => pendingBgm = v;
-        private void OnSfxChanged(float v) => pendingSfx = v;
+        private void OnBgmChanged(float v)
+        {
+            pendingBgm = v;
+            if (BgmManager.Instance != null) BgmManager.Instance.PreviewVolume(v);   // 미리듣기
+        }
+
+        private void OnSfxChanged(float v)
+        {
+            pendingSfx = v;
+            // 효과음은 지속음이 아니라서 움직이는 동안 들려줘야 감이 온다.
+            // 드래그 중에도 계속 불리므로, 겹쳐 울리지 않게 PreviewClick 쪽에서 간격을 둔다.
+            if (SfxManager.Instance != null) SfxManager.Instance.PreviewClick(v);
+        }
 
         private void OnSpeedSelected(int idx)
         {
