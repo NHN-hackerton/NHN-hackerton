@@ -326,7 +326,9 @@ namespace TopDogDetective.MainMenu
                 TurnOutcome.FailedExposed => session.CodeAcquired
                     ? "발각됨 — 코드를 들고 나오지 못했다"
                     : "발각됨 — 심문 실패",
-                TurnOutcome.FailedTimeout => "시간 초과 — 코드 미확보 (재도전 가능)",
+                // 백엔드 이름은 FailedTimeout이지만 심문에 제한 시간은 없다. 3턴을 다 쓴 것이므로
+                // 플레이어에게는 '턴 종료'로 알린다. ("시간 초과"는 폭탄 해제에만 쓰는 말)
+                TurnOutcome.FailedTimeout => "턴 종료 — 코드 미확보 (재도전 가능)",
                 _                         => outcomeText != null ? outcomeText.text : ""
             };
             RevealResult(head + AffinityNote, "다시 돌아가기");
