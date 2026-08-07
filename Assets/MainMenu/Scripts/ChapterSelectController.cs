@@ -31,8 +31,10 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private GameObject chapter3Lock;
         [Tooltip("해금 상태를 알려줄 텍스트 (챕터2 부제)")]
         [SerializeField] private TMPro.TMP_Text chapter2Sub;
-        [Tooltip("해금된 챕터2를 눌렀을 때 띄울 안내")]
+        [Tooltip("잠긴 챕터를 눌렀을 때 띄울 안내")]
         [SerializeField] private TMPro.TMP_Text noticeText;
+        [Tooltip("챕터2 버튼. 해금 전후로 안내 문구가 달라져서 따로 받는다.")]
+        [SerializeField] private Button chapter2Button;
         [Tooltip("챕터2 미리보기 이미지. 잠겨 있으면 어둡게, 해금되면 밝게 보여준다.")]
         [SerializeField] private Image chapter2Thumb;
         [Tooltip("잠긴 미리보기의 밝기 (1 = 원래 색)")]
@@ -81,9 +83,18 @@ namespace TopDogDetective.MainMenu
             if (chapter1Button != null) chapter1Button.onClick.AddListener(SelectChapter1);
             if (backButton != null)     backButton.onClick.AddListener(Back);
             if (mapBackButton != null)  mapBackButton.onClick.AddListener(BackFromMap);
+            // 챕터2는 해금 여부에 따라 안내가 달라지므로 따로 붙인다.
+            // (lockedButtons에 챕터2가 같이 들어 있어도 이쪽이 뒤에 걸려 덮어쓰지 않게 구분)
             if (lockedButtons != null)
                 foreach (var b in lockedButtons)
-                    if (b != null) b.onClick.AddListener(OnLockedClicked);
+                {
+                    if (b == null) continue;
+                    bool isChapter2 = chapter2Button != null && b == chapter2Button;
+                    if (isChapter2) b.onClick.AddListener(OnChapter2Clicked);
+                    else            b.onClick.AddListener(OnLockedClicked);
+                }
+            if (chapter2Button != null && (lockedButtons == null || System.Array.IndexOf(lockedButtons, chapter2Button) < 0))
+                chapter2Button.onClick.AddListener(OnChapter2Clicked);
 
             if (chapterScreen != null) chapterScreen.SetActive(false);
             if (chapter1Map != null) chapter1Map.SetActive(false);
@@ -167,10 +178,21 @@ namespace TopDogDetective.MainMenu
             if (chapterScreen != null) chapterScreen.SetActive(true);
         }
 
+        /// <summary>챕터2 — 진엔딩 전이면 조건을, 해금 뒤엔 준비 중임을 알린다.</summary>
+        private void OnChapter2Clicked()
+        {
+            // 해금 조건은 '진엔딩' = 세 조직원의 속내 조각을 다 모은 상태(수사기록 완성)다.
+            // "완료하세요"는 그냥 클리어로 읽히므로 조건을 그대로 적어 준다.
+            string msg = Chapter2Unlocked
+                ? "아직 준비 중인 챕터입니다."
+                : "챕터 1 수사기록을 완성하세요.";
+            if (noticeText != null) noticeText.text = msg;
+            Debug.Log("[ChapterSelect] 챕터2 — " + msg);
+        }
+
+        /// <summary>해금 조건 자체가 아직 없는 챕터(3).</summary>
         private void OnLockedClicked()
         {
-            // 해금됐든 아니든 아직 만들 콘텐츠가 없다. 해금 여부를 문구로 구분하면
-            // "열렸는데 왜 안 들어가지"라는 혼란만 주므로 한 가지로 안내한다.
             if (noticeText != null)
                 noticeText.text = "아직 준비 중인 챕터입니다.";
             Debug.Log("[ChapterSelect] 아직 준비 중인 챕터입니다.");

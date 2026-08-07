@@ -30,15 +30,24 @@ namespace TopDogDetective.MainMenu
         };
 
         // 키워드 표시명 (실제 카드 데이터 붙기 전까지 임시)
+        //
+        // 라운드별로 그 조직원의 약점에 쓰이는 카드만 나오게 배치돼 있다.
+        //   1라 신참(인정욕구)      : 야근 기록 · 자부심 · 비밀번호 메모
+        //   2라 금고지기(불만·술)   : 금고번호 · 한잔 약속 · 보스 뒷담화
+        //   3라 측근(지휘불신·연민) : 보스 불신 · 금고지기 실토 · 버려진 조직원
+        // 이 중 백엔드가 id로 확인하는 건 측근의 대질 요구 두 개(kw_boss_distrust,
+        // kw_keeper_slip)뿐이고, 나머지는 문장을 만들어 LLM 판정에 넘기는 재료다.
         static readonly Dictionary<string, string> KeywordNames = new()
         {
-            { "kw_rookie_pride", "자부심" },
-            { "kw_code_digit",   "금고번호" },
-            { "kw_password",     "비밀번호" },
+            { "kw_night_shift",    "야근 기록" },
+            { "kw_rookie_pride",   "자부심" },
+            { "kw_password",       "비밀번호" },
+            { "kw_code_digit",     "금고번호" },
             { "kw_drink",          "한잔 약속" },
             { "kw_boss_grievance", "보스 뒷담화" },
             { "kw_boss_distrust",  "보스 불신" },
             { "kw_keeper_slip",    "금고지기 실토" },
+            { "kw_discarded",      "버려진 조직원" },
         };
 
         /// <summary>키워드 ID를 카드에 적히는 이름으로. (모르는 ID는 ID를 그대로 보여준다)</summary>
