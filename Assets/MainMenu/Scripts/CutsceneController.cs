@@ -87,7 +87,11 @@ namespace TopDogDetective.MainMenu
         private void TypeLine(string text)
         {
             if (dialogueText == null) return;
-            if (typeCo != null) StopCoroutine(typeCo);
+            // 코루틴 핸들과 진행 플래그는 항상 같이 정리한다.
+            // 아래 즉시 출력 경로에서 typing을 안 내리면 true로 굳어, 다음 클릭 한 번이
+            // '건너뛰기'로 소모되고 컷이 안 넘어간다.
+            if (typeCo != null) { StopCoroutine(typeCo); typeCo = null; }
+            typing = false;
 
             if (!typeDialogue || !gameObject.activeInHierarchy)
             {

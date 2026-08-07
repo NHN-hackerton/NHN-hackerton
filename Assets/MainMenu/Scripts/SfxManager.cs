@@ -100,6 +100,9 @@ namespace TopDogDetective.MainMenu
         public void PreviewClick(float sliderValue)
         {
             if (source == null || clickClip == null) return;
+            // 슬라이더는 드래그하는 동안 매 프레임 onValueChanged를 던진다.
+            // 여기서 간격을 안 두면 미리듣기가 프레임마다 겹쳐 울려 소리가 뭉갠다.
+            if (Time.unscaledTime - lastClickTime < minInterval) return;
             lastClickTime = Time.unscaledTime;
             source.PlayOneShot(clickClip, Mathf.Clamp01(sliderValue) * baseVolume);
         }

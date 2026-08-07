@@ -43,6 +43,9 @@ namespace TopDogDetective.MainMenu
 
         const string Chapter2UnlockedKey = "TopDog.Chapter2Unlocked";
 
+        Color thumbBaseColor;   // 씬에 지정된 미리보기 원래 색 (밝기 배율의 기준)
+        bool thumbBaseCached;
+
         /// <summary>진엔딩을 본 적이 있는가 (플레이를 넘겨 유지된다).</summary>
         public static bool Chapter2Unlocked
         {
@@ -103,11 +106,17 @@ namespace TopDogDetective.MainMenu
                 // 이모지는 폰트(Galmuri11)에 없어 네모로 뜨므로 쓰지 않는다
                 chapter2Sub.text = unlocked ? "해금됨 — 다음 사건 준비 중" : "잠김";
 
-            // 미리보기: 잠겨 있으면 어둡게 깔아두고, 해금되면 원래 색으로 드러낸다
+            // 미리보기: 잠겨 있으면 어둡게 깔아두고, 해금되면 원래 색으로 드러낸다.
+            // 흰색·알파1로 덮어쓰면 씬에 잡아둔 틴트와 투명도가 사라지므로,
+            // 처음 색을 한 번 기억해 두고 거기에 밝기 배율만 곱한다. (툴팁의 "1 = 원래 색"과 일치)
             if (chapter2Thumb != null)
             {
+                if (!thumbBaseCached) { thumbBaseColor = chapter2Thumb.color; thumbBaseCached = true; }
                 float k = unlocked ? 1f : lockedThumbBrightness;
-                chapter2Thumb.color = new Color(k, k, k, 1f);
+                chapter2Thumb.color = new Color(thumbBaseColor.r * k,
+                                                thumbBaseColor.g * k,
+                                                thumbBaseColor.b * k,
+                                                thumbBaseColor.a);
             }
 
             // 챕터3은 아직 해금 조건이 없다. 자물쇠를 항상 켜 둬서 챕터2와 같은 잠김 표현을 쓴다.

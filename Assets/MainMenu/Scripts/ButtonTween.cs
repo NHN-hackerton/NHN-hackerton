@@ -67,7 +67,9 @@ namespace TopDogDetective.MainMenu
         {
             EnsureInit();
             hovering = false;
-            if (Usable) ScaleTo(1f, moveTime);
+            // 나갈 때는 Usable을 보지 않는다. 커서를 올린 뒤 버튼이 interactable=false가 되면
+            // OnDisable도 안 불려서(비활성화가 아니라 상호작용만 끈 것) 확대된 채로 굳는다.
+            ScaleTo(1f, moveTime);
         }
 
         public void OnPointerDown(PointerEventData e)

@@ -23,6 +23,7 @@ namespace TopDogDetective.MainMenu
         AudioClip current;
         Tween fade;
         float clipScale = 1f;   // 트랙별 보정 (곡마다 녹음 레벨이 달라서)
+        bool stopping;          // 정지 페이드가 도는 중 (음량을 되돌리면 안 되는 구간)
 
         private void Awake()
         {
@@ -55,6 +56,7 @@ namespace TopDogDetective.MainMenu
             if (clip == current && source.isPlaying) { ApplyVolume(); return; }
 
             current = clip;
+            stopping = false;   // 정지 페이드 중이었다면 이 재생이 덮어쓴다
             fade?.Kill();
 
             source.clip = clip;
@@ -69,15 +71,19 @@ namespace TopDogDetective.MainMenu
             if (source == null) return;
             fade?.Kill();
             current = null;
+            stopping = true;
             fade = DOTween.To(() => source.volume, v => source.volume = v, 0f, fadeTime)
                           .SetUpdate(true)
-                          .OnComplete(() => source.Stop());
+                          .OnComplete(() => { source.Stop(); stopping = false; });
         }
 
         /// <summary>설정 적용/취소 후 호출 — 저장된 값으로 음량을 되돌린다.</summary>
         public void ApplyVolume()
         {
             if (source == null) return;
+            // 정지 페이드 중에 음량을 되돌리면, 트윈이 죽어 OnComplete의 source.Stop()이 영영 안 불린다.
+            // 꺼지던 곡이 제 음량으로 되살아나 다음 화면까지 따라온다.
+            if (stopping) return;
             fade?.Kill();
             source.volume = TargetVolume;
         }
@@ -89,6 +95,7 @@ namespace TopDogDetective.MainMenu
         public void PreviewVolume(float sliderValue)
         {
             if (source == null) return;
+            if (stopping) return;   // 위와 같은 이유 — 꺼지는 중인 곡은 건드리지 않는다
             fade?.Kill();
             source.volume = Mathf.Clamp01(sliderValue) * baseVolume * clipScale;
         }

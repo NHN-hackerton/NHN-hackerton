@@ -76,9 +76,17 @@ namespace TopDogDetective.MainMenu
             if (investigated) return;
             if (controller == null) controller = GetComponentInParent<ExplorationController>(true);
 
-            // 심문 문: 단서를 다 모으기 전엔 못 들어감 — 문은 잠긴 채 안내만
-            if (requiresAllClues && controller != null && !controller.AllCluesFound)
+            // 심문 문: 단서를 다 모으기 전엔 못 들어감 — 문은 잠긴 채 안내만.
+            // 컨트롤러를 못 찾았을 때도 닫아 둔다(fail-closed). 계층이 바뀌어 참조가 끊기면
+            // 조건이 통째로 사라져 단서 없이도 문이 열려버리기 때문이다.
+            if (requiresAllClues && (controller == null || !controller.AllCluesFound))
             {
+                if (controller == null)
+                {
+                    Debug.LogError($"[Hotspot] {name}: 부모에서 ExplorationController를 찾지 못해 문을 열지 않습니다. " +
+                                   "핫스팟이 맵 밖으로 빠졌는지 확인하세요.");
+                    return;
+                }
                 controller.HideTooltip();
                 controller.ShowMessage(lockedMessage);
                 return;   // investigated 세팅 안 함 → 다시 조사하고 재클릭 가능

@@ -252,7 +252,8 @@ namespace TopDogDetective.MainMenu
         readonly List<ExtraChaser> extras = new();
         const string ExtraChaserName = "ExtraChaser";
 
-        float playerStartX;   // 씬에 배치된 원래 x (되돌리기용)
+        float playerStartX;       // 씬에 배치된 원래 x (되돌리기용)
+        bool playerStartXCached;  // 위 값을 기억했는가 (0도 유효한 좌표라 값으로 판단하면 안 된다)
         bool intro;           // 중앙까지 달려가는 중
         float jumpHoldTime;   // 이번 점프에서 키를 누른 시간
         bool jumpCut;         // 이번 점프에서 상승을 이미 끊었는지
@@ -313,7 +314,9 @@ namespace TopDogDetective.MainMenu
             ClearObstacles();
             if (player != null)
             {
-                if (playerStartX == 0f) playerStartX = player.anchoredPosition.x;   // 최초 1회 기억
+                // 최초 1회만 기억한다. 값이 0인지로 판단하면, 씬에서 시작 x가 실제로 0일 때
+                // 재도전마다 (이미 이동한) 현재 좌표로 덮어써져 시작 위치가 밀린다.
+                if (!playerStartXCached) { playerStartX = player.anchoredPosition.x; playerStartXCached = true; }
                 player.anchoredPosition = new Vector2(playerStartX, groundY);
                 intro = playerStartX < playerHomeX - 1f;
             }
@@ -753,6 +756,13 @@ namespace TopDogDetective.MainMenu
             if (scrollingBackgrounds == null) return;
             float dx = runSpeed * dt * 0.6f;   // 배경은 조금 느리게 (원근감)
 
+            // 되돌림 거리는 '실제로 이어 붙은 타일 수'로 계산해야 한다.
+            // 인스펙터에서 배열 크기만 늘리고 슬롯을 비워 두면 Length가 실제보다 커져
+            // 배경 사이에 빈 틈이 주기적으로 지나간다.
+            int tiles = 0;
+            foreach (var bg in scrollingBackgrounds) if (bg != null) tiles++;
+            if (tiles == 0) return;
+
             foreach (var bg in scrollingBackgrounds)
             {
                 if (bg == null) continue;
@@ -760,7 +770,7 @@ namespace TopDogDetective.MainMenu
 
                 float w = bg.rect.width;
                 if (bg.anchoredPosition.x <= -w)
-                    bg.anchoredPosition += new Vector2(w * scrollingBackgrounds.Length, 0f);
+                    bg.anchoredPosition += new Vector2(w * tiles, 0f);
             }
         }
 

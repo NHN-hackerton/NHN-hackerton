@@ -152,13 +152,20 @@ namespace TopDogDetective.MainMenu
         {
             yield return new WaitForSecondsRealtime(1.4f);
 
-            gameObject.SetActive(false);
-            if (bossRoom != null) bossRoom.SetActive(false);
-
-            if (failScreen != null) failScreen.SetActive(true);   // 폭발 엔딩
-            else if (restartButton != null)                        // 엔딩 화면 없을 때만 폴백
+            if (failScreen != null)     // 폭발 엔딩
             {
-                gameObject.SetActive(true);
+                gameObject.SetActive(false);
+                if (bossRoom != null) bossRoom.SetActive(false);
+                failScreen.SetActive(true);
+                yield break;
+            }
+
+            // 엔딩 화면이 없을 때의 폴백 — 이 화면을 껐다 켜면 안 된다.
+            // SetActive(true)가 OnEnable을 다시 불러 exploded=false, remaining=timeLimit으로
+            // 초기화되므로, "다시 시작" 버튼 뒤에서 타이머가 다시 돌다 또 터진다.
+            // 화면은 켜 둔 채 폭발 상태를 유지하고 버튼만 띄운다.
+            if (restartButton != null)
+            {
                 var lbl = restartButton.GetComponentInChildren<TMP_Text>();
                 if (lbl != null) lbl.text = "다시 시작";
                 restartButton.gameObject.SetActive(true);

@@ -142,7 +142,8 @@ namespace TopDogDetective.MainMenu
         private void OnSfxChanged(float v)
         {
             pendingSfx = v;
-            // 효과음은 지속음이 아니라서, 슬라이더를 놓는 순간마다 한 번 들려줘야 감이 온다
+            // 효과음은 지속음이 아니라서 움직이는 동안 들려줘야 감이 온다.
+            // 드래그 중에도 계속 불리므로, 겹쳐 울리지 않게 PreviewClick 쪽에서 간격을 둔다.
             if (SfxManager.Instance != null) SfxManager.Instance.PreviewClick(v);
         }
 

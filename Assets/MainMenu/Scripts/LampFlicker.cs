@@ -95,11 +95,15 @@ namespace TopDogDetective.MainMenu
                 {
                     glitchUntil = now + glitchTime;
                     glitchLeft--;
-                    if (glitchLeft <= 0) ScheduleNextGlitch();
+                    // 여기서 ScheduleNextGlitch()를 부르면 glitchUntil이 0으로 초기화되고,
+                    // 바로 아래 계산이 그 0을 써서 밝기가 엉뚱하게 튄다.
+                    // 마지막 한 번도 제대로 어두워졌다 돌아오도록, 예약은 구간이 끝난 뒤에 한다.
                 }
                 // 깜빡이는 동안은 어둡게 (다음 프레임에 복귀하며 튀는 느낌)
                 float t = Mathf.PingPong((glitchUntil - now) / glitchTime, 1f);
                 k *= Mathf.Lerp(1f, glitchDark, t);
+
+                if (glitchLeft <= 0 && now >= glitchUntil) ScheduleNextGlitch();
             }
 
             target.color = driveAlpha

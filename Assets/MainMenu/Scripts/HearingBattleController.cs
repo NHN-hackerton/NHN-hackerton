@@ -36,9 +36,10 @@ namespace TopDogDetective.MainMenu
         [Tooltip("judge.js 엔드포인트 전체 URL (예: https://xxx.vercel.app/api/judge). " +
                  "비우면 환경변수 TOPDOG_PROXY_URL을 읽는다.")]
         [SerializeField] private string proxyUrl = "";
-        [Tooltip("프록시의 PROXY_TOKEN과 같은 값. 저장소에 올라가지 않게 비워 두고 " +
-                 "환경변수 TOPDOG_PROXY_TOKEN으로 넣는 걸 권한다.")]
-        [SerializeField] private string proxyToken = "";
+        // 토큰은 인스펙터에 넣을 수 없게 막아둔다.
+        // [SerializeField]로 두면 값을 한 번 넣는 순간 씬 YAML에 평문으로 박혀 그대로 커밋된다.
+        // "비워 두세요"라는 안내로는 실수를 못 막으므로, 아예 환경변수에서만 읽는다.
+        [System.NonSerialized] private string proxyToken = "";
         [Tooltip("판정 요청 타임아웃(초)")]
         [SerializeField] private int judgeTimeoutSeconds = 20;
 
@@ -189,7 +190,7 @@ namespace TopDogDetective.MainMenu
         /// <summary>
         /// 인스펙터 설정대로 판정기를 만든다. (BattleSession은 IDialogueJudge만 알면 되므로 여기서 갈아끼운다)
         ///
-        /// 토큰은 씬 파일에 적으면 저장소에 그대로 올라가므로, 비워 두면 환경변수에서 읽는다.
+        /// URL은 비밀이 아니라 인스펙터에 둬도 되지만, 토큰은 환경변수에서만 읽는다(위 필드 주석 참고).
         /// URL·토큰이 없는데 Llm을 골라 두면 심문 자체가 불가능해지므로 Mock으로 떨어뜨린다
         /// — 시연 중에 통신이 막혀도 게임은 굴러가야 한다.
         /// </summary>
@@ -203,7 +204,7 @@ namespace TopDogDetective.MainMenu
             if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(token))
             {
                 Debug.LogWarning("[HearingBattle] 판정기를 Llm으로 골랐지만 프록시 URL/토큰이 없어 Mock으로 진행합니다. " +
-                                 "인스펙터에 넣거나 환경변수 TOPDOG_PROXY_URL / TOPDOG_PROXY_TOKEN을 설정하세요.");
+                                 "환경변수 TOPDOG_PROXY_URL / TOPDOG_PROXY_TOKEN을 설정하세요. (토큰은 인스펙터에 넣을 수 없다)");
                 return new MockDialogueJudge();
             }
 

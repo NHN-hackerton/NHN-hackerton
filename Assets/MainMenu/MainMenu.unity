@@ -2468,8 +2468,8 @@ MonoBehaviour:
   - kw_code_digit
   judgeMode: 0
   proxyUrl: 
-  proxyToken: 
   judgeTimeoutSeconds: 20
+  typeReply: 1
   hearing: {fileID: 132843766}
   suspicionText: {fileID: 1793262039}
   affinityText: {fileID: 1832053871}
@@ -3069,6 +3069,7 @@ MonoBehaviour:
   onFinished:
     m_PersistentCalls:
       m_Calls: []
+  typeDialogue: 1
 --- !u!114 &170428551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3688,6 +3689,7 @@ MonoBehaviour:
   onFinished:
     m_PersistentCalls:
       m_Calls: []
+  typeDialogue: 1
 --- !u!114 &197450420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7150,8 +7152,8 @@ MonoBehaviour:
   - kw_keeper_slip
   judgeMode: 0
   proxyUrl: 
-  proxyToken: 
   judgeTimeoutSeconds: 20
+  typeReply: 1
   hearing: {fileID: 355526956}
   suspicionText: {fileID: 2019028030}
   affinityText: {fileID: 1033432107}
@@ -9038,6 +9040,7 @@ MonoBehaviour:
   onFinished:
     m_PersistentCalls:
       m_Calls: []
+  typeDialogue: 1
 --- !u!114 &444893260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12814,6 +12817,7 @@ MonoBehaviour:
   onFinished:
     m_PersistentCalls:
       m_Calls: []
+  typeDialogue: 1
 --- !u!114 &613231858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17141,6 +17145,7 @@ MonoBehaviour:
   onFinished:
     m_PersistentCalls:
       m_Calls: []
+  typeDialogue: 1
 --- !u!114 &812358009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19862,6 +19867,7 @@ MonoBehaviour:
   onFinished:
     m_PersistentCalls:
       m_Calls: []
+  typeDialogue: 1
 --- !u!114 &928380688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21351,8 +21357,8 @@ MonoBehaviour:
   - kw_boss_grievance
   judgeMode: 0
   proxyUrl: 
-  proxyToken: 
   judgeTimeoutSeconds: 20
+  typeReply: 1
   hearing: {fileID: 954496007}
   suspicionText: {fileID: 501001531}
   affinityText: {fileID: 2118362789}
@@ -36231,7 +36237,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.19449432, y: 0.24654622}
   m_AnchorMax: {x: 0.32016757, y: 0.282678}
-  m_AnchoredPosition: {x: 45.50415, y: 18.499054}
+  m_AnchoredPosition: {x: 45.50415, y: 18.499023}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1520802079
@@ -38833,6 +38839,7 @@ MonoBehaviour:
   onFinished:
     m_PersistentCalls:
       m_Calls: []
+  typeDialogue: 1
 --- !u!114 &1637763095
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45029,6 +45036,7 @@ MonoBehaviour:
   onFinished:
     m_PersistentCalls:
       m_Calls: []
+  typeDialogue: 1
 --- !u!114 &1976507226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46469,6 +46477,7 @@ MonoBehaviour:
   onFinished:
     m_PersistentCalls:
       m_Calls: []
+  typeDialogue: 1
 --- !u!114 &2050361777
 MonoBehaviour:
   m_ObjectHideFlags: 0

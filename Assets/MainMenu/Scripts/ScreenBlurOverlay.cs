@@ -23,6 +23,9 @@ namespace TopDogDetective.MainMenu
         private Image img;
         private Texture2D blurred;
         private Coroutine co;
+        // 캡처하려고 잠깐 숨긴 것들. 지역변수로 두면 캡처 도중 코루틴이 끊겼을 때
+        // 목록째 사라져 그 오브젝트들이 영영 꺼진 채로 남는다.
+        private readonly List<GameObject> hidden = new();
 
         private void Awake()
         {
@@ -36,6 +39,7 @@ namespace TopDogDetective.MainMenu
         {
             if (!gameObject.activeInHierarchy) return;
             if (co != null) StopCoroutine(co);
+            RestoreHidden();                     // 앞 캡처가 끊겼다면 먼저 되살린다
             co = StartCoroutine(ShowRoutine());
         }
 
@@ -43,8 +47,16 @@ namespace TopDogDetective.MainMenu
         public void Hide()
         {
             if (co != null) { StopCoroutine(co); co = null; }
+            RestoreHidden();
             if (img != null) img.enabled = false;
             Release();
+        }
+
+        /// <summary>캡처하려고 숨겨둔 오브젝트를 원래대로 켠다.</summary>
+        private void RestoreHidden()
+        {
+            foreach (var g in hidden) if (g != null) g.SetActive(true);
+            hidden.Clear();
         }
 
         private IEnumerator ShowRoutine()
@@ -52,15 +64,14 @@ namespace TopDogDetective.MainMenu
             if (img == null) img = GetComponent<Image>();
             img.enabled = false;   // 이전 블러가 다시 찍히지 않도록
 
-            var restore = new List<GameObject>();
             if (hideWhileCapturing != null)
                 foreach (var g in hideWhileCapturing)
-                    if (g != null && g.activeSelf) { g.SetActive(false); restore.Add(g); }
+                    if (g != null && g.activeSelf) { g.SetActive(false); hidden.Add(g); }
 
             yield return new WaitForEndOfFrame();   // 이 프레임 렌더가 끝난 뒤에 캡처
 
             Texture2D full = ScreenCapture.CaptureScreenshotAsTexture();
-            foreach (var g in restore) if (g != null) g.SetActive(true);
+            RestoreHidden();
             if (full == null) { co = null; yield break; }
 
             int w = Mathf.Clamp(blurWidth, 24, full.width);
