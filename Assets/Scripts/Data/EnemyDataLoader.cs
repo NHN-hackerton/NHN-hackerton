@@ -18,6 +18,23 @@ namespace TopDogDetective.Data
         //  같은 인스턴스를 공유해 상태가 오염될 수 있다.)
         static readonly Dictionary<string, string> jsonCache = new();
 
+        // 에디터에서는 캐시를 쓰지 않는다.
+        //
+        // 이 캐시에는 무효화 경로가 없어서, 밸런싱 중 조직원 JSON을 고쳐도 에디터가
+        // 도메인을 리로드하기 전까지 옛 텍스트가 계속 나온다. Play 종료로도,
+        // AssetDatabase.Refresh로도 안 지워지고 EditorUtility.RequestScriptReload가
+        // 필요했다 — 그 사이 수정 전 데이터로 테스트하고 "고쳐도 효과가 없다"고
+        // 잘못 결론 내리게 된다(실제로 겪음). 조직원 JSON은 3개뿐이라 에디터에서
+        // 매번 다시 읽어도 비용이 없다. 빌드에서는 그대로 캐싱한다.
+        //
+        // const가 아니라 static readonly인 이유: const면 빌드 구성에 따라
+        // 아래 분기가 상수 조건이 돼 '도달 불가 코드' 경고가 난다.
+#if UNITY_EDITOR
+        static readonly bool UseJsonCache = false;
+#else
+        static readonly bool UseJsonCache = true;
+#endif
+
         public static EnemyData Load(string enemyId)
         {
             if (string.IsNullOrEmpty(enemyId))
@@ -26,7 +43,8 @@ namespace TopDogDetective.Data
                 return null;
             }
 
-            if (!jsonCache.TryGetValue(enemyId, out string jsonText))
+            string jsonText = null;
+            if (!UseJsonCache || !jsonCache.TryGetValue(enemyId, out jsonText))
             {
                 var asset = Resources.Load<TextAsset>($"{ResourceFolder}/{enemyId}");
                 if (asset == null)
@@ -35,7 +53,7 @@ namespace TopDogDetective.Data
                     return null;
                 }
                 jsonText = asset.text;
-                jsonCache[enemyId] = jsonText;
+                if (UseJsonCache) jsonCache[enemyId] = jsonText;
             }
 
             EnemyData enemy;
