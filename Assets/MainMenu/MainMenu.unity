@@ -2466,7 +2466,7 @@ MonoBehaviour:
   seedKeywords:
   - kw_rookie_pride
   - kw_code_digit
-  judgeMode: 0
+  judgeMode: 1
   proxyUrl: 
   judgeTimeoutSeconds: 20
   typeReply: 1
@@ -7147,7 +7147,7 @@ MonoBehaviour:
   - kw_code_digit
   - kw_boss_distrust
   - kw_keeper_slip
-  judgeMode: 0
+  judgeMode: 1
   proxyUrl: 
   judgeTimeoutSeconds: 20
   typeReply: 1
@@ -21336,7 +21336,7 @@ MonoBehaviour:
   - kw_code_digit
   - kw_drink
   - kw_boss_grievance
-  judgeMode: 0
+  judgeMode: 1
   proxyUrl: 
   judgeTimeoutSeconds: 20
   typeReply: 1
