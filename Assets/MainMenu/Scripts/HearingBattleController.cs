@@ -34,12 +34,11 @@ namespace TopDogDetective.MainMenu
         [Tooltip("Mock = 규칙 기반 가짜 판정(즉시 응답). Llm = 프록시 경유 실제 LLM 판정.")]
         [SerializeField] private JudgeMode judgeMode = JudgeMode.Mock;
         [Tooltip("judge.js 엔드포인트 전체 URL (예: https://xxx.vercel.app/api/judge). " +
-                 "비우면 환경변수 TOPDOG_PROXY_URL을 읽는다.")]
+                 "비우면 Resources/ProxyConfig.json → 환경변수 TOPDOG_PROXY_URL 순으로 읽는다.")]
         [SerializeField] private string proxyUrl = "";
         // 토큰은 인스펙터에 넣을 수 없게 막아둔다.
         // [SerializeField]로 두면 값을 한 번 넣는 순간 씬 YAML에 평문으로 박혀 그대로 커밋된다.
-        // "비워 두세요"라는 안내로는 실수를 못 막으므로, 아예 환경변수에서만 읽는다.
-        [System.NonSerialized] private string proxyToken = "";
+        // "비워 두세요"라는 안내로는 실수를 못 막으므로, 아예 ProxyConfig에서만 읽는다.
         [Tooltip("판정 요청 타임아웃(초)")]
         [SerializeField] private int judgeTimeoutSeconds = 20;
 
@@ -190,7 +189,7 @@ namespace TopDogDetective.MainMenu
         /// <summary>
         /// 인스펙터 설정대로 판정기를 만든다. (BattleSession은 IDialogueJudge만 알면 되므로 여기서 갈아끼운다)
         ///
-        /// URL은 비밀이 아니라 인스펙터에 둬도 되지만, 토큰은 환경변수에서만 읽는다(위 필드 주석 참고).
+        /// URL은 비밀이 아니라 인스펙터에 둬도 되지만, 토큰은 ProxyConfig에서만 읽는다(위 필드 주석 참고).
         /// URL·토큰이 없는데 Llm을 골라 두면 심문 자체가 불가능해지므로 Mock으로 떨어뜨린다
         /// — 시연 중에 통신이 막혀도 게임은 굴러가야 한다.
         /// </summary>
@@ -198,25 +197,19 @@ namespace TopDogDetective.MainMenu
         {
             if (judgeMode == JudgeMode.Mock) return new MockDialogueJudge();
 
-            string url   = !string.IsNullOrEmpty(proxyUrl)   ? proxyUrl   : ReadEnv("TOPDOG_PROXY_URL");
-            string token = !string.IsNullOrEmpty(proxyToken) ? proxyToken : ReadEnv("TOPDOG_PROXY_TOKEN");
+            // 인스펙터 URL은 배포처를 임시로 갈아끼울 때만 쓰는 덮어쓰기 값이다.
+            string url   = !string.IsNullOrWhiteSpace(proxyUrl) ? proxyUrl.Trim() : ProxyConfig.Url;
+            string token = ProxyConfig.Token;
 
-            if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(token))
+            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(token))
             {
-                Debug.LogWarning("[HearingBattle] 판정기를 Llm으로 골랐지만 프록시 URL/토큰이 없어 Mock으로 진행합니다. " +
-                                 "환경변수 TOPDOG_PROXY_URL / TOPDOG_PROXY_TOKEN을 설정하세요. (토큰은 인스펙터에 넣을 수 없다)");
+                Debug.LogWarning("[HearingBattle] 판정기를 Llm으로 골랐지만 프록시 접속 정보가 없어 Mock으로 진행합니다. " +
+                                 ProxyConfig.DescribeProblem());
                 return new MockDialogueJudge();
             }
 
             Debug.Log("[HearingBattle] 실제 LLM 판정으로 심문을 시작합니다.");
             return new LlmDialogueJudge(url, token, judgeTimeoutSeconds);
-        }
-
-        /// <summary>환경변수 읽기. 플랫폼에 따라 막혀 있으면 빈 문자열로 취급한다.</summary>
-        static string ReadEnv(string key)
-        {
-            try { return System.Environment.GetEnvironmentVariable(key) ?? ""; }
-            catch { return ""; }   // WebGL 등에서는 접근이 막힌다
         }
 
         /// <summary>제출 가능 여부(카드 UI 버튼 활성/비활성용).</summary>

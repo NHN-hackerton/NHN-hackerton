@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,14 +14,13 @@ namespace TopDogDetective.Judge
     /// [주의] 실제 Claude API를 호출해 토큰을 소모한다.
     ///        runOnStart는 기본 false — 씬에 두고 Play만 눌러도 자동 실행되지 않는다.
     ///        인스펙터에서 컴포넌트 우클릭 → "Run End-to-End (LLM 호출, 토큰 소모됨)"로 직접 실행한다.
-    ///        proxyToken은 씬 파일에 남지 않도록 인스펙터가 아니라 환경변수(PROXY_TOKEN)로 넘긴다.
-    ///        터미널에서 `export PROXY_TOKEN=...` 설정 후 그 터미널에서 Unity를 실행하면 된다.
+    ///        접속 정보는 씬 파일에 남지 않도록 ProxyConfig에서 읽는다
+    ///        (Resources/ProxyConfig.json → 환경변수 TOPDOG_PROXY_URL / TOPDOG_PROXY_TOKEN).
     /// </summary>
 #if UNITY_EDITOR
     public class MemberAEndToEndDemo : MonoBehaviour
     {
-        const string ProxyTokenEnvVar = "PROXY_TOKEN";
-
+        [Tooltip("비우면 ProxyConfig의 URL을 쓴다. 다른 배포처로 임시로 붙일 때만 채운다.")]
         [SerializeField] string proxyUrl = "";
         [SerializeField] string enemyId = "member_a_rookie";
         [SerializeField] bool runOnStart = false;
@@ -37,19 +35,12 @@ namespace TopDogDetective.Judge
 
         IEnumerator Run()
         {
-            string proxyToken = Environment.GetEnvironmentVariable(ProxyTokenEnvVar);
+            string url   = !string.IsNullOrWhiteSpace(proxyUrl) ? proxyUrl.Trim() : ProxyConfig.Url;
+            string proxyToken = ProxyConfig.Token;
 
-            if (string.IsNullOrWhiteSpace(proxyUrl))
+            if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(proxyToken))
             {
-                Debug.LogError("[MemberAEndToEndDemo] proxyUrl이 비어 있습니다. " +
-                               "인스펙터에 배포된 judge.js URL을 입력하세요.");
-                yield break;
-            }
-
-            if (string.IsNullOrWhiteSpace(proxyToken))
-            {
-                Debug.LogError($"[MemberAEndToEndDemo] 환경변수 {ProxyTokenEnvVar}이 설정되지 않았습니다. " +
-                               $"터미널에서 export {ProxyTokenEnvVar}=... 설정 후 그 터미널에서 Unity를 실행하세요.");
+                Debug.LogError("[MemberAEndToEndDemo] " + ProxyConfig.DescribeProblem());
                 yield break;
             }
 
@@ -75,7 +66,7 @@ namespace TopDogDetective.Judge
                 run.AcquireKeyword(keywordId);
 
             var session = new BattleSession(enemy, run);
-            var judge = new LlmDialogueJudge(proxyUrl, proxyToken);
+            var judge = new LlmDialogueJudge(url, proxyToken);
 
             foreach (var utterance in scenario.Turns)
                 yield return DialogueTestRunner.Submit(session, judge, utterance);

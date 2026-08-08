@@ -9,7 +9,11 @@ const PROXY_TOKEN = process.env.PROXY_TOKEN;
 function setCorsHeaders(res) {
   res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // X-Proxy-Token이 빠지면 브라우저가 preflight 단계에서 요청을 막는다 —
+  // Unity WebGL 빌드는 예외 없이 이 경로를 타므로, 빠지면 배포판에서 100% 실패한다.
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Proxy-Token');
+  // preflight 결과를 캐싱해 판정 1회당 왕복 2번을 1번으로 줄인다.
+  res.setHeader('Access-Control-Max-Age', '86400');
 }
 
 module.exports = async function handler(req, res) {

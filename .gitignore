@@ -722,3 +722,7 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/unity,visualstudio,visualstudiocode,rider,macos,windows
+# LLM 프록시 접속 정보 (URL·토큰) — 커밋 금지.
+# 템플릿은 Assets/Resources/ProxyConfig.example.json으로 커밋된다.
+/Assets/Resources/ProxyConfig.json
+/Assets/Resources/ProxyConfig.json.meta
