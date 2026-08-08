@@ -89,3 +89,22 @@ curl -X POST http://localhost:3000/api/judge \
   간접 호출만 대상 — 직접 호출은 `X-Proxy-Token`으로 막음)
 - Claude API 요청 20초 타임아웃
 - 모델: `claude-sonnet-4-6`
+
+## Unity 쪽 접속 설정
+
+Unity는 `Assets/Resources/ProxyConfig.json`에서 URL·토큰을 읽는다
+(없으면 환경변수 `TOPDOG_PROXY_URL` / `TOPDOG_PROXY_TOKEN`으로 보완 — 단 **환경변수는
+WebGL 빌드에서 동작하지 않는다**. 브라우저 샌드박스가 환경변수 접근을 막기 때문에,
+배포판에서 실제 판정을 쓰려면 반드시 이 JSON을 채워야 한다).
+
+```bash
+cp Assets/Resources/ProxyConfig.example.json Assets/Resources/ProxyConfig.json
+# proxyUrl · proxyToken을 채운다. proxyToken은 Vercel의 PROXY_TOKEN과 같은 값.
+```
+
+`ProxyConfig.json`은 `.gitignore` 대상이라 커밋되지 않는다. 커밋되는 건
+`ProxyConfig.example.json` 템플릿뿐이다.
+
+> ⚠️ `Access-Control-Allow-Headers`에 `X-Proxy-Token`이 없으면 브라우저가 preflight
+> 단계에서 요청을 거부해 **WebGL 빌드는 예외 없이 실패한다**. 이 헤더를 고친 뒤에는
+> 반드시 재배포해야 반영된다 — 배포된 함수는 옛 코드를 그대로 들고 있다.
