@@ -31,6 +31,20 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private Button applyButton;
         [SerializeField] private Button backButton;
 
+        // 게임 도중 빠져나갈 길이 여기밖에 없다. 탐색 맵·심문·보스방에는 나가기 버튼이 없고,
+        // 설정창은 모든 화면에서 열리므로 한 곳에 두면 전부 커버된다.
+        [Header("메뉴로 나가기 (진행 중인 런을 버린다)")]
+        [SerializeField] private Button quitButton;
+        [Tooltip("돌아갈 화면 (메인 메뉴)")]
+        [SerializeField] private GameObject menuScreen;
+        [Tooltip("나갈 때도 계속 켜 둘 것 (공용 배경 등)")]
+        [SerializeField] private GameObject[] keepActive;
+        [Tooltip("실수로 눌러 런이 날아가지 않게, 한 번 더 눌러야 실행된다")]
+        [SerializeField] private float confirmSeconds = 3f;
+
+        string quitLabelDefault;
+        float quitArmedUntil;
+
         // ---- 저장 키 ----
         private const string KeyMaster = "settings.masterVol";
         private const string KeyBgm    = "settings.bgmVol";
@@ -84,6 +98,12 @@ namespace TopDogDetective.MainMenu
 
             if (applyButton != null) applyButton.onClick.AddListener(Apply);
             if (backButton != null)  backButton.onClick.AddListener(Back);
+            if (quitButton != null)
+            {
+                var lbl = quitButton.GetComponentInChildren<TMPro.TMP_Text>();
+                quitLabelDefault = lbl != null ? lbl.text : "메뉴로 나가기";
+                quitButton.onClick.AddListener(OnQuitClicked);
+            }
 
             if (settingsScreen != null) settingsScreen.SetActive(false);
         }
@@ -116,6 +136,59 @@ namespace TopDogDetective.MainMenu
         }
 
         /// <summary>뒤로가기: 저장 안 한 변경은 되돌리고 설정창만 닫는다(아래 화면 복귀).</summary>
+        /// <summary>나가기 1번째 클릭은 확인 요청, 2번째가 실행. (실수로 런을 날리지 않게)</summary>
+        private void OnQuitClicked()
+        {
+            var lbl = quitButton != null ? quitButton.GetComponentInChildren<TMPro.TMP_Text>() : null;
+
+            if (Time.unscaledTime <= quitArmedUntil)
+            {
+                if (lbl != null) lbl.text = quitLabelDefault;
+                quitArmedUntil = 0f;
+                QuitToMenu();
+                return;
+            }
+
+            quitArmedUntil = Time.unscaledTime + confirmSeconds;
+            if (lbl != null) lbl.text = "정말 나가기?";
+        }
+
+        private void Update()
+        {
+            // 확인 시간이 지나면 문구를 되돌린다 (누른 걸 잊고 나중에 또 누르면 바로 나가버리므로)
+            if (quitArmedUntil > 0f && Time.unscaledTime > quitArmedUntil)
+            {
+                quitArmedUntil = 0f;
+                var lbl = quitButton != null ? quitButton.GetComponentInChildren<TMPro.TMP_Text>() : null;
+                if (lbl != null) lbl.text = quitLabelDefault;
+            }
+        }
+
+        /// <summary>진행 중인 런을 버리고 메인 메뉴로 돌아간다.</summary>
+        public void QuitToMenu()
+        {
+            HearingBattleController.ResetRun();             // 코드·친밀·의심·통과 기록 초기화
+            ExplorationController.CollectedClues.Clear();   // 모은 단서 초기화
+
+            // 진행 중이던 화면이 남아 있으면 클릭을 먹거나 위에 겹쳐 보인다.
+            // 화면이 나중에 추가돼도 빠지지 않게, 메뉴와 예외 목록만 남기고 전부 끈다.
+            if (menuScreen != null && menuScreen.transform.parent != null)
+            {
+                foreach (Transform t in menuScreen.transform.parent)
+                {
+                    if (t.gameObject == menuScreen) continue;
+                    bool keep = false;
+                    if (keepActive != null)
+                        foreach (var k in keepActive) if (k != null && k == t.gameObject) keep = true;
+                    if (!keep) t.gameObject.SetActive(false);
+                }
+                menuScreen.SetActive(true);
+            }
+
+            if (settingsScreen != null) settingsScreen.SetActive(false);
+            Debug.Log("[Settings] 메뉴로 나가기 — 진행 중이던 런을 버렸다");
+        }
+
         public void Back()
         {
             // pending을 저장값으로 되돌리고 엔진 상태도 복구
