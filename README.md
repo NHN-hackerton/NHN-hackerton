@@ -11,7 +11,7 @@
 <br> 
 
 <!-- 배포 후 아래 URL을 채우세요 -->
-### ▶️ [지금 바로 브라우저에서 플레이하기](배포_URL_여기에)
+### ▶️ [지금 바로 브라우저에서 플레이하기(클릭)](배포_URL_여기에)
 
 <sub>*별도 설치 · 유료 라이선스 없이 링크 클릭만으로 실행됩니다. (데스크톱 브라우저 권장)* </sub>
 
@@ -153,6 +153,7 @@
 | LLM               | <img src="https://img.shields.io/badge/Claude-D97757?style=for-the-badge&logo=anthropic&logoColor=white">          | 자연어 설득·사회적 판단처럼 태그 매칭으로 불가능한 판정을 위임                            |
 | Backend Proxy     | <img src="https://img.shields.io/badge/vercel-000000?style=for-the-badge&logo=vercel&logoColor=white">             | API 키를 클라이언트(빌드)에 노출하지 않기 위한 서버리스 중계, Git 연동 자동 배포          |
 | Data Format       | <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white">                 | 조직원(EnemyData) 페르소나·약점·저항을 코드 수정 없이 데이터로 관리                      |
+| UI Animation      | <img src="https://img.shields.io/badge/DOTween-1B1B1B?style=for-the-badge&logoColor=white">                        | 버튼·카드·HUD 트윈 연출 (Demigiant DOTween, Asset Store 무료 버전)                        |
 | Code Review       | <img src="https://img.shields.io/badge/CodeRabbit-FF570A?style=for-the-badge&logo=coderabbit&logoColor=white">     | PR마다 AI 기반 자동 코드 리뷰로 일관된 코드 품질 유지                                    |
 | Version Control   | <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white"> <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white"> | 전체 소스·커밋 히스토리를 단일 저장소로 관리 (대회 규정)                                 |
 
@@ -244,6 +245,20 @@ Unity Hub → Projects → Add → 클론한 폴더 선택 → 실행
 ┣ 📂 .github
 ┃ ┗ 📜 PULL_REQUEST_TEMPLATE.md
 ┣ 📂 Assets
+┃ ┣ 📂 MainMenu                 # 로비·탐색·심문·보스방·추격전·엔딩 UI/연출 (전 화면 단일 씬)
+┃ ┃ ┣ 📂 Art / Audio / Fonts    # 화면별 아트·BGM·SFX·폰트
+┃ ┃ ┣ 📂 Scripts                # 화면별 컨트롤러 34개
+┃ ┃ ┃ ┣ 📜 ExplorationController.cs   # 탐색(단서 수집)
+┃ ┃ ┃ ┣ 📜 HearingBattleController.cs # 심문(3턴 대화, Mock↔LLM 판정기 선택)
+┃ ┃ ┃ ┣ 📜 HearingCardPanel.cs        # 키워드·프레이밍 카드 조립 UI
+┃ ┃ ┃ ┣ 📜 BombDefuseController.cs    # 보스방 폭탄 해제 (타임어택)
+┃ ┃ ┃ ┣ 📜 EscapeRunController.cs     # 추격 탈출 미니게임
+┃ ┃ ┃ ┣ 📜 CaseFile.cs / CaseFileScreen.cs   # 수사기록·엔딩 조건 계산
+┃ ┃ ┃ ┣ 📜 CutsceneController.cs / Typewriter.cs
+┃ ┃ ┃ ┗ 📜 BgmManager.cs / SfxManager.cs / ButtonTween.cs 등
+┃ ┃ ┗ 📜 MainMenu.unity
+┃ ┣ 📂 Plugins
+┃ ┃ ┗ 📂 Demigiant/DOTween      # UI 트윈 애니메이션 라이브러리
 ┃ ┣ 📂 Resources
 ┃ ┃ ┗ 📂 Enemies                # 조직원 데이터 (JSON)
 ┃ ┣ 📂 Scenes
