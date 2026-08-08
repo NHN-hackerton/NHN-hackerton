@@ -2466,8 +2466,8 @@ MonoBehaviour:
   seedKeywords:
   - kw_rookie_pride
   - kw_code_digit
-  judgeMode: 1
-  proxyUrl: https://nhn-hackerton.vercel.app/api/judge
+  judgeMode: 0
+  proxyUrl: 
   judgeTimeoutSeconds: 20
   typeReply: 1
   hearing: {fileID: 132843766}
@@ -7147,8 +7147,8 @@ MonoBehaviour:
   - kw_code_digit
   - kw_boss_distrust
   - kw_keeper_slip
-  judgeMode: 1
-  proxyUrl: https://nhn-hackerton.vercel.app/api/judge
+  judgeMode: 0
+  proxyUrl: 
   judgeTimeoutSeconds: 20
   typeReply: 1
   hearing: {fileID: 355526956}
@@ -21336,8 +21336,8 @@ MonoBehaviour:
   - kw_code_digit
   - kw_drink
   - kw_boss_grievance
-  judgeMode: 1
-  proxyUrl: https://nhn-hackerton.vercel.app/api/judge
+  judgeMode: 0
+  proxyUrl: 
   judgeTimeoutSeconds: 20
   typeReply: 1
   hearing: {fileID: 954496007}
