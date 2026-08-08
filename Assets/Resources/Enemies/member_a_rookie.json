@@ -32,7 +32,7 @@
       "id": "direct_demand",
       "label": "직설적 요구",
       "trigger": "아무런 친분·맥락 없이 코드나 비밀번호를 대놓고 내놓으라고 다그칠 때. 칭찬·공범 의식·잡담으로 감싼 부드러운 질문은 여기에 해당하지 않는다.",
-      "suspicionPenalty": 20
+      "suspicionPenalty": 10
     }
   ],
 
