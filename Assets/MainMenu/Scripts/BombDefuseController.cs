@@ -1,17 +1,19 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using TopDogDetective.Data;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 namespace TopDogDetective.MainMenu
 {
     /// <summary>
-    /// 보스방 폭탄 해제 단말기. 확보한 코드 3자리를 순서대로 입력해 해제한다.
-    /// 키패드 버튼은 런타임에 생성하고(문자 = 조직원들에게서 뜯어낸 코드값 + 더미),
+    /// 보스방 폭탄 해제 단말기. 확보한 코드 3자리를 키보드로 직접 쳐서 해제한다.
+    /// (화면 키패드를 누르는 방식이었으나, 타자로 치는 긴박함을 살리려고 키보드 입력으로 바꿨다.
+    ///  그래서 정답 문자를 키패드에 깔아둘 필요도 없어졌다 — 아무 영문·숫자나 칠 수 있다.)
     /// 정답은 RunState.VerifyCode가 판정한다.
     /// </summary>
     public class BombDefuseController : MonoBehaviour
@@ -25,12 +27,11 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private TMP_Text hintText;
 
         [Header("입력")]
-        [Tooltip("키패드 버튼이 생성될 부모")]
-        [SerializeField] private RectTransform keypadContainer;
+        [Tooltip("한 글자 지우기 (Backspace 키와 같은 일)")]
         [SerializeField] private Button backspaceButton;
+        [Tooltip("확인 (Enter 키와 같은 일)")]
         [SerializeField] private Button submitButton;
         [SerializeField] private Button closeButton;
-        [SerializeField] private TMP_FontAsset font;
 
         [Header("타임어택")]
         [Tooltip("제한 시간(초). 짧을수록 긴박하다. 인스펙터에서 조절.")]
@@ -54,18 +55,11 @@ namespace TopDogDetective.MainMenu
         [Tooltip("다시 시작 시 돌아갈 화면 (사건 선택 등)")]
         [SerializeField] private GameObject restartScreen;
 
-        // 키패드에 깔 문자 — 정답 3자리(K·7·Q) + 헷갈리게 하는 더미 9개.
-        //
-        // [주의] 이 배열은 EnemyData.secret.codeValue와 별개로 하드코딩돼 있다.
-        //        조직원의 codeValue를 여기 없는 문자로 바꾸면 플레이어가 정답을 입력할 방법이 사라진다.
-        //        그래서 VerifyKeypadCoversAnswer()가 키패드를 만들 때마다 대조해 에러로 알린다.
-        static readonly string[] KeyChars =
-        { "K", "Q", "7", "3", "M", "9", "B", "4", "X", "2", "R", "8" };
-
         readonly StringBuilder input = new StringBuilder();
         bool defused;
         bool exploded;
         float remaining;
+        bool keyboardBound;
 
         /// <summary>타이머가 도는 중인지 (해제·폭발 전).</summary>
         bool Ticking => !defused && !exploded;
@@ -101,16 +95,23 @@ namespace TopDogDetective.MainMenu
                 restartButton.gameObject.SetActive(false);   // 폭발 전엔 숨김
             }
 
-            BuildKeypad();
+            BindKeyboard();
             ShowHint();
             UpdateDisplay();
             UpdateTimer();
-            if (messageText != null) messageText.text = "코드 세 자리를 입력하세요.";
+            if (messageText != null)
+                messageText.text = keyboardBound
+                    ? "키보드로 코드 세 자리를 입력하세요.\n(Enter 확인 · Backspace 지우기)"
+                    : "키보드를 연결해 주세요.";
         }
+
+        private void OnDisable() => UnbindKeyboard();
 
         private void Update()
         {
             if (!Ticking) return;
+
+            ReadKeyboardKeys();
 
             remaining -= Time.unscaledDeltaTime;
             if (remaining <= 0f)
@@ -191,87 +192,78 @@ namespace TopDogDetective.MainMenu
             hintText.text = "순서: 신참 → 금고지기 → 측근";
         }
 
-        private void BuildKeypad()
+        // ── 키보드 입력 ──────────────────────────────────────
+        // 이 프로젝트는 Input System(New)만 켜져 있어서(activeInputHandler=1) Input.inputString이
+        // 예외를 던진다. 글자는 Keyboard.current.onTextInput으로 받고, 레거시 빌드도 굴러가게 양쪽을 둔다.
+
+        private void BindKeyboard()
         {
-            if (keypadContainer == null) return;
-            // Destroy는 프레임 끝에 지워지므로, 바로 아래에서 키를 다시 만들면 이전 키가 한 프레임 남아
-            // GridLayout이 개수를 잘못 세고 배치가 흔들린다. 부모에서 먼저 떼어내 계산에서 제외하고 지운다.
-            for (int i = keypadContainer.childCount - 1; i >= 0; i--)
+#if ENABLE_INPUT_SYSTEM
+            if (keyboardBound) return;
+            if (Keyboard.current == null)
             {
-                var child = keypadContainer.GetChild(i);
-                child.SetParent(null, false);
-                Destroy(child.gameObject);
+                // 키보드가 없으면 코드를 넣을 방법이 없다. 안내 문구가 이유를 대신 말해 준다.
+                Debug.LogWarning("[BombDefuse] 키보드를 찾지 못했습니다 — 코드를 입력할 수 없습니다.");
+                return;
             }
-
-            VerifyKeypadCoversAnswer();
-
-            var grid = keypadContainer.GetComponent<GridLayoutGroup>();
-            if (grid == null) grid = keypadContainer.gameObject.AddComponent<GridLayoutGroup>();
-            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 4;
-            grid.spacing = new Vector2(10f, 10f);
-            grid.childAlignment = TextAnchor.MiddleCenter;
-            grid.cellSize = new Vector2(96f, 96f);
-
-            foreach (var ch in KeyChars)
-            {
-                string c = ch;
-                MakeKey(c).onClick.AddListener(() => Append(c));
-            }
+            Keyboard.current.onTextInput += OnTextInput;
+            keyboardBound = true;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            keyboardBound = true;   // 레거시는 Input.inputString을 매 프레임 읽으므로 붙일 게 없다
+#endif
         }
 
-        /// <summary>
-        /// 확보한 코드의 모든 문자가 키패드에 있는지 대조한다.
-        /// 없으면 플레이어가 정답을 입력할 수 없으므로(진행 불가) 에러로 알린다.
-        /// </summary>
-        private void VerifyKeypadCoversAnswer()
+        private void UnbindKeyboard()
         {
-            if (Run == null || !Run.HasAllCodes) return;   // 아직 다 못 모았으면 대조할 정답이 없다
-
-            string answer = Run.ComposeCode();
-            var missing = new List<string>();
-            foreach (char c in answer)
-            {
-                bool found = false;
-                foreach (string k in KeyChars)
-                    if (string.Equals(k, c.ToString(), StringComparison.OrdinalIgnoreCase)) { found = true; break; }
-                if (!found) missing.Add(c.ToString());
-            }
-
-            if (missing.Count > 0)
-                Debug.LogError($"[BombDefuse] 정답 '{answer}'의 문자 [{string.Join(", ", missing)}]가 키패드에 없습니다. " +
-                               "EnemyData의 codeValue를 바꿨다면 BombDefuseController.KeyChars에도 추가해야 " +
-                               "플레이어가 입력할 수 있습니다.");
+#if ENABLE_INPUT_SYSTEM
+            if (!keyboardBound) return;
+            // 화면이 꺼진 뒤에도 타자가 들어오면 안 된다. 그 사이 장치가 바뀌었을 수 있어 null 검사.
+            if (Keyboard.current != null) Keyboard.current.onTextInput -= OnTextInput;
+            keyboardBound = false;
+#endif
         }
 
-        private Button MakeKey(string label)
+#if ENABLE_INPUT_SYSTEM
+        /// <summary>키보드가 흘려주는 글자 — 영문·숫자 한 글자만 대문자로 받는다.</summary>
+        private void OnTextInput(char c)
         {
-            var go = new GameObject("Key_" + label, typeof(RectTransform), typeof(Image), typeof(Button));
-            go.transform.SetParent(keypadContainer, false);
+            if (!Ticking) return;
+            if (c > 127 || !char.IsLetterOrDigit(c)) return;   // 한글·기호·제어문자는 버린다
+            AppendTyped(char.ToUpperInvariant(c).ToString());
+        }
+#endif
 
-            var img = go.GetComponent<Image>();
-            img.color = new Color(0.16f, 0.11f, 0.06f, 0.95f);
+        /// <summary>글자가 아닌 키(지우기·확인)는 눌린 프레임에 읽는다.</summary>
+        private void ReadKeyboardKeys()
+        {
+#if ENABLE_INPUT_SYSTEM
+            var kb = Keyboard.current;
+            if (kb == null) return;
+            if (kb.backspaceKey.wasPressedThisFrame || kb.deleteKey.wasPressedThisFrame) Backspace();
+            if (kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame) SubmitTyped();
+#elif ENABLE_LEGACY_INPUT_MANAGER
+            foreach (char c in Input.inputString)
+            {
+                if (c == '\b') { Backspace(); continue; }
+                if (c == '\n' || c == '\r') { SubmitTyped(); continue; }
+                if (c > 127 || !char.IsLetterOrDigit(c)) continue;
+                AppendTyped(char.ToUpperInvariant(c).ToString());
+            }
+#endif
+        }
 
-            var textGO = new GameObject("Label", typeof(RectTransform));
-            textGO.transform.SetParent(go.transform, false);
-            var rt = textGO.GetComponent<RectTransform>();
-            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
-            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+        /// <summary>키보드로 한 글자 — 버튼의 UiClickSound 대신 여기서 소리를 낸다.</summary>
+        private void AppendTyped(string c)
+        {
+            int before = input.Length;
+            Append(c);
+            if (input.Length != before && SfxManager.Instance != null) SfxManager.Instance.PlayClick();
+        }
 
-            var tmp = textGO.AddComponent<TextMeshProUGUI>();
-            tmp.text = label;
-            if (font != null) tmp.font = font;
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.enableAutoSizing = true;
-            tmp.fontSizeMin = 10; tmp.fontSizeMax = 44;
-            tmp.fontStyle = FontStyles.Bold;
-            tmp.color = new Color(0.98f, 0.86f, 0.55f);
-
-            // 런타임 생성이라 씬에서 붙일 수 없다 (누르는 손맛 + 클릭음)
-            go.AddComponent<ButtonTween>();
-            go.AddComponent<UiClickSound>();
-
-            return go.GetComponent<Button>();
+        /// <summary>Enter — 세 자리를 다 채웠을 때만 확인한다 (빈칸이 오답으로 날아가면 억울하다).</summary>
+        private void SubmitTyped()
+        {
+            if (input.Length == RunState.TotalCodeDigits) Submit();
         }
 
         private void Append(string c)

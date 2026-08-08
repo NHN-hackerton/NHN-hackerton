@@ -37,6 +37,8 @@ namespace TopDogDetective.MainMenu
         [SerializeField] private Button chapter2Button;
         [Tooltip("챕터2 미리보기 이미지. 잠겨 있으면 어둡게, 해금되면 밝게 보여준다.")]
         [SerializeField] private Image chapter2Thumb;
+        [Tooltip("챕터3 미리보기 이미지. 해금 조건이 없는 챕터라 항상 어둡게 깔아둔다(챕터2 잠김과 같은 표현).")]
+        [SerializeField] private Image chapter3Thumb;
         [Tooltip("잠긴 미리보기의 밝기 (1 = 원래 색)")]
         [SerializeField, Range(0f, 1f)] private float lockedThumbBrightness = 0.42f;
 
@@ -45,8 +47,9 @@ namespace TopDogDetective.MainMenu
 
         const string Chapter2UnlockedKey = "TopDog.Chapter2Unlocked";
 
-        Color thumbBaseColor;   // 씬에 지정된 미리보기 원래 색 (밝기 배율의 기준)
-        bool thumbBaseCached;
+        // 씬에 지정된 미리보기 원래 색 (밝기 배율의 기준). 챕터마다 따로 기억한다.
+        Color thumb2Base, thumb3Base;
+        bool thumb2Cached, thumb3Cached;
 
         /// <summary>진엔딩을 본 적이 있는가 (플레이를 넘겨 유지된다).</summary>
         public static bool Chapter2Unlocked
@@ -118,23 +121,28 @@ namespace TopDogDetective.MainMenu
                 chapter2Sub.text = unlocked ? "해금됨 — 다음 사건 준비 중" : "잠김";
 
             // 미리보기: 잠겨 있으면 어둡게 깔아두고, 해금되면 원래 색으로 드러낸다.
-            // 흰색·알파1로 덮어쓰면 씬에 잡아둔 틴트와 투명도가 사라지므로,
-            // 처음 색을 한 번 기억해 두고 거기에 밝기 배율만 곱한다. (툴팁의 "1 = 원래 색"과 일치)
-            if (chapter2Thumb != null)
-            {
-                if (!thumbBaseCached) { thumbBaseColor = chapter2Thumb.color; thumbBaseCached = true; }
-                float k = unlocked ? 1f : lockedThumbBrightness;
-                chapter2Thumb.color = new Color(thumbBaseColor.r * k,
-                                                thumbBaseColor.g * k,
-                                                thumbBaseColor.b * k,
-                                                thumbBaseColor.a);
-            }
+            ApplyThumb(chapter2Thumb, ref thumb2Base, ref thumb2Cached, unlocked);
 
-            // 챕터3은 아직 해금 조건이 없다. 자물쇠를 항상 켜 둬서 챕터2와 같은 잠김 표현을 쓴다.
-            // (해금 조건이 생기면 위 챕터2처럼 조건에 따라 켜고 끄면 된다)
+            // 챕터3은 아직 해금 조건이 없다. 자물쇠를 항상 켜고 미리보기도 계속 어둡게 둬서
+            // 챕터2 잠김과 똑같이 보이게 한다. (해금 조건이 생기면 위 챕터2처럼 넘기면 된다)
             if (chapter3Lock != null) chapter3Lock.SetActive(true);
+            ApplyThumb(chapter3Thumb, ref thumb3Base, ref thumb3Cached, false);
 
             if (noticeText != null) noticeText.text = "";
+        }
+
+        /// <summary>
+        /// 미리보기 밝기를 맞춘다. 흰색·알파1로 덮어쓰면 씬에 잡아둔 틴트와 투명도가 사라지므로,
+        /// 처음 색을 한 번 기억해 두고 거기에 밝기 배율만 곱한다. (툴팁의 "1 = 원래 색"과 일치)
+        /// 씬 색을 기준으로 삼기 때문에, 씬에 이미 어둡게 칠해 두면 여기서 또 곱해져 두 배로 어두워진다.
+        /// 그래서 씬의 미리보기 색은 흰색으로 두고 어둡게 하는 일은 이 코드에만 맡긴다.
+        /// </summary>
+        private void ApplyThumb(Image thumb, ref Color baseColor, ref bool cached, bool unlocked)
+        {
+            if (thumb == null) return;
+            if (!cached) { baseColor = thumb.color; cached = true; }
+            float k = unlocked ? 1f : lockedThumbBrightness;
+            thumb.color = new Color(baseColor.r * k, baseColor.g * k, baseColor.b * k, baseColor.a);
         }
 
         public void Back()
