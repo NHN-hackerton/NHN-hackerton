@@ -17,7 +17,7 @@ namespace TopDogDetective.MainMenu
         // 공통 앞부분 — 폭탄은 막았지만 잡아둘 게 없었다
         const string Head =
             "폭탄은 멈췄다. 도시는 오늘도 아침을 맞았다.\n" +
-            "하지만 잡을 수 있는 건 없었다. 증거도, 증언도 남지 않았다.";
+            "하지만 조직을 뿌리 뽑을 증거는 남지 않았다.";
 
         /// <summary>마음을 얻은 인원 수에 따라 덧붙는 마지막 줄.</summary>
         static string TailFor(int maxed) => maxed switch
