@@ -3829,7 +3829,10 @@ MonoBehaviour:
   frames:
   - {fileID: 21300000, guid: 9a4bc47fb61bb3a439fb562e43c3a67f, type: 3}
   lines:
-  - "마지막 숫자를 입력하기 직전, 타이머가 0이 되었다.\n멈추지 않는 폭발음과 함께, 도시는 그날 밤 지도에서 사라졌다. — 작전 실패"
+  - "\uB9C8\uC9C0\uB9C9 \uC22B\uC790\uB97C \uC785\uB825\uD558\uAE30 \uC9C1\uC804,
+    \uD0C0\uC774\uBA38\uAC00 0\uC774 \uB418\uC5C8\uB2E4.\n\uBA48\uCD94\uC9C0 \uC54A\uB294
+    \uD3ED\uBC1C\uC74C\uACFC \uD568\uAED8, \uB3C4\uC2DC\uB294 \uADF8\uB0A0 \uBC24
+    \uC9C0\uB3C4\uC5D0\uC11C \uC0AC\uB77C\uC84C\uB2E4. \u2014 \uC791\uC804 \uC2E4\uD328"
   fadeGroup: {fileID: 490467029}
   fadeDuration: 0.35
   fadeInOnStart: 1
@@ -9332,7 +9335,10 @@ MonoBehaviour:
   frames:
   - {fileID: 21300000, guid: 7176c4f0d9e76584a8eb38cff2b0fdbb, type: 3}
   lines:
-  - "마지막 숫자까지 모두 알아냈다. 폭탄을 멈출 해제 코드도, 보스의 방을 여는 열쇠도 손에 넣었다.\n이제 모든 것을 끝낼 시간이다."
+  - "\uB9C8\uC9C0\uB9C9 \uC22B\uC790\uAE4C\uC9C0 \uBAA8\uB450 \uC54C\uC544\uB0C8\uB2E4.
+    \uD3ED\uD0C4\uC744 \uBA48\uCD9C \uD574\uC81C \uCF54\uB4DC\uB3C4, \uBCF4\uC2A4\uC758
+    \uBC29\uC744 \uC5EC\uB294 \uC5F4\uC1E0\uB3C4 \uC190\uC5D0 \uB123\uC5C8\uB2E4.\n\uC774\uC81C
+    \uBAA8\uB4E0 \uAC83\uC744 \uB05D\uB0BC \uC2DC\uAC04\uC774\uB2E4."
   fadeGroup: {fileID: 1498509678}
   fadeDuration: 0.35
   fadeInOnStart: 1
@@ -13483,7 +13489,10 @@ MonoBehaviour:
   frames:
   - {fileID: 21300000, guid: dc626c12f2beb71498d9a98dedaba529, type: 3}
   lines:
-  - "금고지기도 결국 두 번째 숫자를 내주었다. 이제 남은 건 단 하나.\n마지막 상대는 보스의 오른팔, 조직에서 가장 경계심이 강한 녀석이다."
+  - "\uAE08\uACE0\uC9C0\uAE30\uB3C4 \uACB0\uAD6D \uB450 \uBC88\uC9F8 \uC22B\uC790\uB97C
+    \uB0B4\uC8FC\uC5C8\uB2E4. \uC774\uC81C \uB0A8\uC740 \uAC74 \uB2E8 \uD558\uB098.\n\uB9C8\uC9C0\uB9C9
+    \uC0C1\uB300\uB294 \uBCF4\uC2A4\uC758 \uC624\uB978\uD314, \uC870\uC9C1\uC5D0\uC11C
+    \uAC00\uC7A5 \uACBD\uACC4\uC2EC\uC774 \uAC15\uD55C \uB140\uC11D\uC774\uB2E4."
   fadeGroup: {fileID: 1118943218}
   fadeDuration: 0.35
   fadeInOnStart: 1
@@ -17057,7 +17066,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.2053476, y: 0.42613637}
   m_AnchorMax: {x: 0.25454545, y: 0.51325756}
-  m_AnchoredPosition: {x: 10.243195, y: 47}
+  m_AnchoredPosition: {x: 10.243317, y: 47}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &770831881
@@ -17959,7 +17968,11 @@ MonoBehaviour:
   frames:
   - {fileID: 21300000, guid: 0c7072227cc317b4b8b45213a0df1e52, type: 3}
   lines:
-  - "복도 끝에서 발소리가 점점 가까워졌다. 도망칠 곳은 없었고, 사방은 적들의 눈으로 가득했다.\n바닥에 떨어진 모자가 보스의 발에 짓밟혔다. — 작전 실패"
+  - "\uBCF5\uB3C4 \uB05D\uC5D0\uC11C \uBC1C\uC18C\uB9AC\uAC00 \uC810\uC810 \uAC00\uAE4C\uC6CC\uC84C\uB2E4.
+    \uB3C4\uB9DD\uCE60 \uACF3\uC740 \uC5C6\uC5C8\uACE0, \uC0AC\uBC29\uC740 \uC801\uB4E4\uC758
+    \uB208\uC73C\uB85C \uAC00\uB4DD\uD588\uB2E4.\n\uBC14\uB2E5\uC5D0 \uB5A8\uC5B4\uC9C4
+    \uBAA8\uC790\uAC00 \uBCF4\uC2A4\uC758 \uBC1C\uC5D0 \uC9D3\uBC1F\uD614\uB2E4.
+    \u2014 \uC791\uC804 \uC2E4\uD328"
   fadeGroup: {fileID: 963979191}
   fadeDuration: 0.35
   fadeInOnStart: 1
@@ -20845,10 +20858,22 @@ MonoBehaviour:
   - {fileID: 21300000, guid: c03e48413bf18b24787e2b8cc16ddc5d, type: 3}
   - {fileID: 21300000, guid: 4373cfb2f334e5047a9efc23fdfae9e4, type: 3}
   lines:
-  - "멀게만 느껴지던 붉은 문이 열리고, 나는 도시를 향해 달렸다.\n도시는 아직 여기 있었다."
-  - "임무는 성공적이었다. 늦은 밤 울려 퍼진 사이렌 소리에 찾아온 다른 경찰들이 조직원들과 보스를 체포했다.\n오지 않을 것 같던 아침이 마침내 밝아왔다."
-  - "사라질 뻔했던 도시는 다시 평범한 아침을 맞았다.\n거리도, 사람도, 나무도 그대로였다. 이 평범함을 지켜냈다는 것, 그거면 충분했다."
-  - "\"견찰, 최고였어!\"\n동료들의 환호 속에서 모자가 하늘로 날아올랐다. 폐공장 잠입 작전, 성공적으로 임무 완수!"
+  - "\uBA40\uAC8C\uB9CC \uB290\uAEF4\uC9C0\uB358 \uBD89\uC740 \uBB38\uC774 \uC5F4\uB9AC\uACE0,
+    \uB098\uB294 \uB3C4\uC2DC\uB97C \uD5A5\uD574 \uB2EC\uB838\uB2E4.\n\uB3C4\uC2DC\uB294
+    \uC544\uC9C1 \uC5EC\uAE30 \uC788\uC5C8\uB2E4."
+  - "\uC784\uBB34\uB294 \uC131\uACF5\uC801\uC774\uC5C8\uB2E4. \uB2A6\uC740 \uBC24
+    \uC6B8\uB824 \uD37C\uC9C4 \uC0AC\uC774\uB80C \uC18C\uB9AC\uC5D0 \uCC3E\uC544\uC628
+    \uB2E4\uB978 \uACBD\uCC30\uB4E4\uC774 \uC870\uC9C1\uC6D0\uB4E4\uACFC \uBCF4\uC2A4\uB97C
+    \uCCB4\uD3EC\uD588\uB2E4.\n\uC624\uC9C0 \uC54A\uC744 \uAC83 \uAC19\uB358 \uC544\uCE68\uC774
+    \uB9C8\uCE68\uB0B4 \uBC1D\uC544\uC654\uB2E4."
+  - "\uC0AC\uB77C\uC9C8 \uBED4\uD588\uB358 \uB3C4\uC2DC\uB294 \uB2E4\uC2DC \uD3C9\uBC94\uD55C
+    \uC544\uCE68\uC744 \uB9DE\uC558\uB2E4.\n\uAC70\uB9AC\uB3C4, \uC0AC\uB78C\uB3C4,
+    \uB098\uBB34\uB3C4 \uADF8\uB300\uB85C\uC600\uB2E4. \uC774 \uD3C9\uBC94\uD568\uC744
+    \uC9C0\uCF1C\uB0C8\uB2E4\uB294 \uAC83, \uADF8\uAC70\uBA74 \uCDA9\uBD84\uD588\uB2E4."
+  - "\"\uACAC\uCC30, \uCD5C\uACE0\uC600\uC5B4!\"\n\uB3D9\uB8CC\uB4E4\uC758 \uD658\uD638
+    \uC18D\uC5D0\uC11C \uBAA8\uC790\uAC00 \uD558\uB298\uB85C \uB0A0\uC544\uC62C\uB790\uB2E4.
+    \uD3D0\uACF5\uC7A5 \uC7A0\uC785 \uC791\uC804, \uC131\uACF5\uC801\uC73C\uB85C
+    \uC784\uBB34 \uC644\uC218!"
   fadeGroup: {fileID: 2058906671}
   fadeDuration: 0.35
   fadeInOnStart: 1
@@ -22927,6 +22952,7 @@ GameObject:
   - component: {fileID: 974906917}
   - component: {fileID: 974906916}
   - component: {fileID: 974906915}
+  - component: {fileID: 974906918}
   m_Layer: 0
   m_Name: CaseFileScreen
   m_TagString: Untagged
@@ -23046,6 +23072,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 974906913}
   m_CullTransparentMesh: 1
+--- !u!114 &974906918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 974906913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87407b57c72273446b7e70248e0e6253, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.BringToFrontOnEnable
 --- !u!1 &976691132
 GameObject:
   m_ObjectHideFlags: 0
@@ -40525,7 +40563,10 @@ MonoBehaviour:
   frames:
   - {fileID: 21300000, guid: 9f0c16e22798f8b48a99c88d84b7452b, type: 3}
   lines:
-  - "신참은 끝내 자부심을 숨기지 못했다.\n첫 번째 숫자를 손에 넣었다. 이제 남은 건 두 자리. 다음은 금고를 끼고 사는 녀석이다."
+  - "\uC2E0\uCC38\uC740 \uB05D\uB0B4 \uC790\uBD80\uC2EC\uC744 \uC228\uAE30\uC9C0
+    \uBABB\uD588\uB2E4.\n\uCCAB \uBC88\uC9F8 \uC22B\uC790\uB97C \uC190\uC5D0 \uB123\uC5C8\uB2E4.
+    \uC774\uC81C \uB0A8\uC740 \uAC74 \uB450 \uC790\uB9AC. \uB2E4\uC74C\uC740 \uAE08\uACE0\uB97C
+    \uB07C\uACE0 \uC0AC\uB294 \uB140\uC11D\uC774\uB2E4."
   fadeGroup: {fileID: 1017299829}
   fadeDuration: 0.35
   fadeInOnStart: 1
@@ -41838,6 +41879,7 @@ GameObject:
   - component: {fileID: 1730201829}
   - component: {fileID: 1730201828}
   - component: {fileID: 1730201827}
+  - component: {fileID: 1730201830}
   m_Layer: 0
   m_Name: SettingsScreen
   m_TagString: Untagged
@@ -41931,6 +41973,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1730201825}
   m_CullTransparentMesh: 1
+--- !u!114 &1730201830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730201825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87407b57c72273446b7e70248e0e6253, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopDogDetective.MainMenu.BringToFrontOnEnable
 --- !u!1 &1735017472
 GameObject:
   m_ObjectHideFlags: 0
@@ -46936,10 +46990,23 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 16097cb3b5c31d5479b2fd4842ec1cd6, type: 3}
   - {fileID: 21300000, guid: e1cc2d6ac479ff742bb4609ef76406a6, type: 3}
   lines:
-  - "고양이 범죄조직이 도시를 손에 넣었다.\n도심 한복판에는 거대한 폭탄이 설치되었고, 폭발까지 남은 시간은 얼마 없다."
-  - "폭탄 해제 코드는 단 세 자리.\n조직원들은 각자 하나의 숫자만 알고 있으며, 함구령 때문에 누구도 쉽게 입을 열지 않는다."
-  - "오늘은 신입 견찰인 나의 첫 잠입 작전.\n정체가 드러나는 순간 임무는 실패다. 조직원의 마음을 열어 숨겨진 숫자를 하나씩 알아내야 한다."
-  - "은신처를 수색하며 단서를 모으고, 짧은 설득으로 숨겨진 숫자를 하나씩 알아낸다.\n하지만 진실에 가까워질수록, 임무는 점점 더 어려워진다…"
+  - "\uACE0\uC591\uC774 \uBC94\uC8C4\uC870\uC9C1\uC774 \uB3C4\uC2DC\uB97C \uC190\uC5D0
+    \uB123\uC5C8\uB2E4.\n\uB3C4\uC2EC \uD55C\uBCF5\uD310\uC5D0\uB294 \uAC70\uB300\uD55C
+    \uD3ED\uD0C4\uC774 \uC124\uCE58\uB418\uC5C8\uACE0, \uD3ED\uBC1C\uAE4C\uC9C0 \uB0A8\uC740
+    \uC2DC\uAC04\uC740 \uC5BC\uB9C8 \uC5C6\uB2E4."
+  - "\uD3ED\uD0C4 \uD574\uC81C \uCF54\uB4DC\uB294 \uB2E8 \uC138 \uC790\uB9AC.\n\uC870\uC9C1\uC6D0\uB4E4\uC740
+    \uAC01\uC790 \uD558\uB098\uC758 \uC22B\uC790\uB9CC \uC54C\uACE0 \uC788\uC73C\uBA70,
+    \uD568\uAD6C\uB839 \uB54C\uBB38\uC5D0 \uB204\uAD6C\uB3C4 \uC27D\uAC8C \uC785\uC744
+    \uC5F4\uC9C0 \uC54A\uB294\uB2E4."
+  - "\uC624\uB298\uC740 \uC2E0\uC785 \uACAC\uCC30\uC778 \uB098\uC758 \uCCAB \uC7A0\uC785
+    \uC791\uC804.\n\uC815\uCCB4\uAC00 \uB4DC\uB7EC\uB098\uB294 \uC21C\uAC04 \uC784\uBB34\uB294
+    \uC2E4\uD328\uB2E4. \uC870\uC9C1\uC6D0\uC758 \uB9C8\uC74C\uC744 \uC5F4\uC5B4
+    \uC228\uACA8\uC9C4 \uC22B\uC790\uB97C \uD558\uB098\uC529 \uC54C\uC544\uB0B4\uC57C
+    \uD55C\uB2E4."
+  - "\uC740\uC2E0\uCC98\uB97C \uC218\uC0C9\uD558\uBA70 \uB2E8\uC11C\uB97C \uBAA8\uC73C\uACE0,
+    \uC9E7\uC740 \uC124\uB4DD\uC73C\uB85C \uC228\uACA8\uC9C4 \uC22B\uC790\uB97C \uD558\uB098\uC529
+    \uC54C\uC544\uB0B8\uB2E4.\n\uD558\uC9C0\uB9CC \uC9C4\uC2E4\uC5D0 \uAC00\uAE4C\uC6CC\uC9C8\uC218\uB85D,
+    \uC784\uBB34\uB294 \uC810\uC810 \uB354 \uC5B4\uB824\uC6CC\uC9C4\uB2E4\u2026"
   fadeGroup: {fileID: 1932543870}
   fadeDuration: 0.35
   fadeInOnStart: 1
@@ -48452,7 +48519,11 @@ MonoBehaviour:
   frames:
   - {fileID: 21300000, guid: f7b81817ba6f9cd428a8385b1cd3b6e1, type: 3}
   lines:
-  - "폭탄 해제에 성공했다.\n하지만 안도의 순간도 잠시, 날카로운 사이렌이 공장을 뒤흔든다. 정체를 들킨 지금, 남은 길은 단 하나. 전력으로 탈출하라."
+  - "\uD3ED\uD0C4 \uD574\uC81C\uC5D0 \uC131\uACF5\uD588\uB2E4.\n\uD558\uC9C0\uB9CC
+    \uC548\uB3C4\uC758 \uC21C\uAC04\uB3C4 \uC7A0\uC2DC, \uB0A0\uCE74\uB85C\uC6B4
+    \uC0AC\uC774\uB80C\uC774 \uACF5\uC7A5\uC744 \uB4A4\uD754\uB4E0\uB2E4. \uC815\uCCB4\uB97C
+    \uB4E4\uD0A8 \uC9C0\uAE08, \uB0A8\uC740 \uAE38\uC740 \uB2E8 \uD558\uB098. \uC804\uB825\uC73C\uB85C
+    \uD0C8\uCD9C\uD558\uB77C."
   fadeGroup: {fileID: 38660916}
   fadeDuration: 0.35
   fadeInOnStart: 1
