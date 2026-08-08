@@ -110,6 +110,17 @@ namespace TopDogDetective.MainMenu
 
         public BattleSession Session => session;
         public bool IsBusy => busy;
+
+        /// <summary>3턴이 끝나 마지막 답변을 읽는 중. 제출 버튼이 '다음'으로 바뀐다.</summary>
+        public bool AwaitingNext { get; private set; }
+
+        /// <summary>'다음' 버튼 — 마지막 답변을 읽은 뒤 결과로 넘어간다.</summary>
+        public void ProceedAfterFinish()
+        {
+            if (!AwaitingNext || session == null) return;
+            AwaitingNext = false;
+            ShowOutcome(session.LastOutcome);
+        }
         public bool IsFinished => session == null || session.IsFinished;
 
         /// <summary>세션 시작·턴 판정 완료 시 발생. 카드 UI가 손패를 갱신하는 신호.</summary>
@@ -183,6 +194,7 @@ namespace TopDogDetective.MainMenu
             if (blurOverlay != null) blurOverlay.Hide();
             if (cardNoticeCo != null) { StopCoroutine(cardNoticeCo); cardNoticeCo = null; }
             SetCardNoticeAlpha(0f);
+            AwaitingNext = false;
             RefreshHud();
             OnStateChanged?.Invoke();
         }
@@ -287,8 +299,12 @@ namespace TopDogDetective.MainMenu
 
             // 코드를 얻어도 3턴까지 간다 (기획서 §4: 간보기 → 찌르기 → 무마·이탈).
             // 마지막 턴이 친밀도를 채우는 자리이므로, 여기서 끊으면 '속내 조각'을 얻을 수 없다.
+            //
+            // 3턴이 끝나도 결과를 바로 덮지 않는다. 마지막 답변을 읽을 시간을 줘야 하는데,
+            // 블러+결과창이 즉시 뜨면 3번째 대사를 못 읽고 넘어간다.
+            // 대신 제출 버튼이 '다음'으로 바뀌고, 그걸 누르면 결과로 넘어간다.
             if (session.IsFinished)
-                ShowOutcome(session.LastOutcome);
+                AwaitingNext = true;
 
             OnStateChanged?.Invoke();
         }
@@ -301,12 +317,10 @@ namespace TopDogDetective.MainMenu
             if (affinityText != null)  affinityText.text  = $"{session.Affinity}%";
             if (turnText != null)      turnText.text      = $"{session.CurrentTurn}/{BattleSession.MaxTurn}턴";
             if (focusText != null)     focusText.text     = $"집중 {session.FocusRemaining}/{BattleSession.FocusPerTurn}";
-            // 심문 중에는 코드를 보여주지 않는다.
-            // 상대가 말끝에 흘리는 건 대사로 읽히면 되고, HUD에 값이 박히면 스포일러다.
-            // 게다가 이 코드를 실제로 챘는지는 3턴을 다 돌고 의심도·친밀도를 보고 정해지므로,
-            // 중간에 띄우면 나중에 못 챈 경우와 어긋난다. 확정된 값은 결과창에서만 보여준다.
+            // 코드를 받아낸 순간 '?' 자리를 그 값으로 채운다 — 뭘 얻었는지 바로 보여주는 게
+            // 진행 상황을 읽기 쉽다. (아직 못 얻었으면 물음표로 남는다)
             if (codeText != null)
-                codeText.text = session.IsFinished && session.CodeAcquired
+                codeText.text = session.CodeAcquired
                     ? $"코드 [{session.SessionCodeValue}]"
                     : "코드 [ ? ]";
 

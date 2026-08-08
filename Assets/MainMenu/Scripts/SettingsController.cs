@@ -16,6 +16,24 @@ namespace TopDogDetective.MainMenu
         [Header("화면")]
         [SerializeField] private GameObject settingsScreen;   // 열고 닫을 설정 화면 루트
 
+        // 설정창은 두 모습으로 쓴다.
+        //   메인 메뉴에서 열면  : 나가기가 필요 없으므로 액자 2개짜리 배경 (setting1_bk)
+        //   게임 도중에 열면    : 나가기까지 들어간 액자 3개짜리 배경 (setting_bk)
+        // 액자가 배경 그림에 그려져 있어서, 배경을 바꿀 때 버튼 위치도 같이 옮겨야 한다.
+        [Header("배경 변형")]
+        [SerializeField] private UnityEngine.UI.Image panelBackground;
+        [SerializeField] private Sprite menuBackground;   // setting1_bk (액자 2개)
+        [SerializeField] private Sprite gameBackground;   // setting_bk  (액자 3개)
+        // 위치는 코드가 건드리지 않는다 — 씬에서 액자에 맞춰 놓은 그대로 쓴다.
+        // 배경마다 액자 수·자리가 달라서, 변형별 버튼을 따로 두고 켜고 끄기만 한다.
+        [Tooltip("메인 메뉴 변형에서 켤 버튼들 (액자 2개용)")]
+        [SerializeField] private GameObject[] menuRowButtons;
+        [Tooltip("게임 중 변형에서 켤 버튼들 (액자 3개용)")]
+        [SerializeField] private GameObject[] gameRowButtons;
+        [Tooltip("메뉴 변형의 적용 / 뒤로가기 — 게임 변형 것과 같은 동작을 붙인다")]
+        [SerializeField] private Button menuApplyButton;
+        [SerializeField] private Button menuBackButton;
+
         [Header("사운드 슬라이더 (0~1)")]
         [SerializeField] private Slider masterSlider;
         [SerializeField] private Slider bgmSlider;
@@ -98,6 +116,9 @@ namespace TopDogDetective.MainMenu
 
             if (applyButton != null) applyButton.onClick.AddListener(Apply);
             if (backButton != null)  backButton.onClick.AddListener(Back);
+            // 메뉴 변형 버튼은 게임 변형과 같은 동작 (복제본이라 리스너가 따로 필요하다)
+            if (menuApplyButton != null) menuApplyButton.onClick.AddListener(Apply);
+            if (menuBackButton != null)  menuBackButton.onClick.AddListener(Back);
             if (quitButton != null)
             {
                 var lbl = quitButton.GetComponentInChildren<TMPro.TMP_Text>();
@@ -118,6 +139,7 @@ namespace TopDogDetective.MainMenu
             // (설정 화면은 불투명 풀스크린 + 맨 위 렌더라 아래 화면을 덮는다)
             LoadIntoPending();
             SyncUIFromPending();
+            ApplyPanelVariant();
             if (settingsScreen != null) settingsScreen.SetActive(true);
         }
 
@@ -136,6 +158,30 @@ namespace TopDogDetective.MainMenu
         }
 
         /// <summary>뒤로가기: 저장 안 한 변경은 되돌리고 설정창만 닫는다(아래 화면 복귀).</summary>
+        /// <summary>
+        /// 어디서 열었는지에 따라 배경과 하단 버튼 배치를 맞춘다.
+        /// 메인 메뉴에서는 나가기 버튼을 감춘다 — 이미 메뉴에 있으니 누를 이유가 없다.
+        /// </summary>
+        private void ApplyPanelVariant()
+        {
+            bool inMenu = menuScreen != null && menuScreen.activeInHierarchy;
+
+            if (panelBackground != null)
+            {
+                var spr = inMenu ? menuBackground : gameBackground;
+                if (spr != null) panelBackground.sprite = spr;
+            }
+
+            SetRow(menuRowButtons, inMenu);
+            SetRow(gameRowButtons, !inMenu);
+        }
+
+        static void SetRow(GameObject[] row, bool on)
+        {
+            if (row == null) return;
+            foreach (var g in row) if (g != null) g.SetActive(on);
+        }
+
         /// <summary>나가기 1번째 클릭은 확인 요청, 2번째가 실행. (실수로 런을 날리지 않게)</summary>
         private void OnQuitClicked()
         {

@@ -75,7 +75,7 @@ namespace TopDogDetective.MainMenu
                 submitButton.onClick.RemoveListener(OnSubmit);
                 submitButton.onClick.AddListener(OnSubmit);
                 var lbl = submitButton.GetComponentInChildren<TMP_Text>();
-                if (lbl != null) lbl.text = "제출";
+                if (lbl != null) lbl.text = submitLabelDefault;
             }
             if (battle != null) battle.OnStateChanged += Rebuild;
             Rebuild();
@@ -196,8 +196,13 @@ namespace TopDogDetective.MainMenu
 
             if (submitButton != null)
             {
+                // 3턴이 끝나면 같은 버튼이 '다음'이 된다 — 마지막 답변을 읽고 누르면 결과로 넘어간다
+                bool awaiting = battle.AwaitingNext;
+                var lbl = submitButton.GetComponentInChildren<TMP_Text>();
+                if (lbl != null) lbl.text = awaiting ? "다음" : submitLabelDefault;
+
                 var u = BuildUtterance();
-                submitButton.interactable = !finished && battle.CanSubmit(u, out _);
+                submitButton.interactable = awaiting || (!finished && battle.CanSubmit(u, out _));
             }
         }
 
@@ -225,9 +230,15 @@ namespace TopDogDetective.MainMenu
             };
         }
 
+        const string submitLabelDefault = "제출";
+
         private void OnSubmit()
         {
             if (battle == null) return;
+
+            // 3턴을 다 쓴 뒤에는 같은 버튼이 '다음' 역할이다 (마지막 답변을 읽고 결과로)
+            if (battle.AwaitingNext) { battle.ProceedAfterFinish(); return; }
+
             battle.Submit(BuildUtterance());
             // 결과는 비동기 — 판정 끝나면 OnStateChanged로 Rebuild됨
         }
